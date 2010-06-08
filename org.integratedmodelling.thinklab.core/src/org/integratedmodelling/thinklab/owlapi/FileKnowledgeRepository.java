@@ -39,11 +39,11 @@ import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabInternalErrorException;
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
 import org.integratedmodelling.thinklab.interfaces.IKnowledgeRepository;
+import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IKnowledge;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IOntology;
 import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
-import org.integratedmodelling.thinklab.plugin.ThinklabPlugin;
 import org.integratedmodelling.utils.FileTypeFilter;
 import org.semanticweb.owl.apibinding.OWLManager;
 import org.semanticweb.owl.inference.OWLClassReasoner;
@@ -90,28 +90,27 @@ public class FileKnowledgeRepository implements IKnowledgeRepository {
 	private IConcept noConcept;
 	
 	protected static OWLDataFactory df;
-	protected static FileKnowledgeRepository KR =null;
+	protected static FileKnowledgeRepository KR = null;
 
 	class UriPublisher implements IPluginLifecycleListener {
 
 		@Override
-		public void onPluginLoaded(ThinklabPlugin plugin) {
+		public void onPluginLoaded(IThinklabPlugin plugin) {
 		}
 
 		@Override
-		public void onPluginUnloaded(ThinklabPlugin plugin) {
+		public void onPluginUnloaded(IThinklabPlugin plugin) {
 		}
 
 		@Override
-		public void prePluginLoaded(ThinklabPlugin thinklabPlugin) {
+		public void prePluginLoaded(IThinklabPlugin thinklabPlugin) {
 
 			/* add an autourimapper for the ontologies directory if any exists */
-			File ontologiesFolder = 
-				new File(Thinklab.get().getLoadDirectory() +  "/ontologies");
+			File ontologiesFolder = thinklabPlugin.getOntologiesLocation();
 				
-			if (ontologiesFolder.exists()) {
+			if (ontologiesFolder != null && ontologiesFolder.exists()) {
 				
-				Thinklab.get().logger().info(
+				Thinklab.get().info(
 						"publishing " + ontologiesFolder + 
 						" location into ontology manager");
 				AutoURIMapper mapper = new AutoURIMapper(ontologiesFolder, true);
@@ -120,7 +119,7 @@ public class FileKnowledgeRepository implements IKnowledgeRepository {
 		}
 
 		@Override
-		public void prePluginUnloaded(ThinklabPlugin thinklabPlugin) {
+		public void prePluginUnloaded(IThinklabPlugin thinklabPlugin) {
 		}
 		
 	}
@@ -442,10 +441,10 @@ public class FileKnowledgeRepository implements IKnowledgeRepository {
 					Constructor<OWLReasoner> con = (Constructor<OWLReasoner>) rClass.getConstructor(OWLOntologyManager.class);
 					reasoner = con.newInstance(manager);
 				} catch (Exception e) {
-					Thinklab.get().logger().error(
+					Thinklab.get().error(
 							"cannot instantiate reasoner from class " + reasonerClass + 
-							"; defaulting to no reasoner",
-							e);
+							"; defaulting to no reasoner" +
+							e.getMessage());
 				}
 				
 			}
@@ -470,7 +469,7 @@ public class FileKnowledgeRepository implements IKnowledgeRepository {
 					capabilities += "consistency ";
 				}
 				
-				Thinklab.get().logger().info(
+				Thinklab.get().info(
 						"created reasoner: " + 
 						(reasonerURL == null ? "default" : "DIG@"+reasonerURL) + 
 						": capabilities = {" + capabilities + "}");
@@ -483,10 +482,10 @@ public class FileKnowledgeRepository implements IKnowledgeRepository {
 				Set<OWLOntology> importsClosure = manager.getOntologies();
 				classReasoner.loadOntologies(importsClosure);
 				DLExpressivityChecker checker = new DLExpressivityChecker(importsClosure);
-				Thinklab.get().logger().info("Expressivity: " + checker.getDescriptionLogicName());
+				Thinklab.get().info("Expressivity: " + checker.getDescriptionLogicName());
 
 			} else {
-				Thinklab.get().logger().info("not using a reasoner");
+				Thinklab.get().info("not using a reasoner");
 			}
 
 		} catch (OWLException e) {

@@ -196,7 +196,7 @@ public class Property extends Knowledge implements IProperty {
 					entity.asOWLObjectProperty().getInverses(getOWLOntology());
 			
 				if (dio.size() > 1) 
-					Thinklab.get().logger().error(
+					Thinklab.get().error(
 							"taking the inverse of property " + 
 							this	 + 
 							", which has multiple inverses");
@@ -218,7 +218,7 @@ public class Property extends Knowledge implements IProperty {
 		Collection<IProperty> pars = getParents();
 	
 		if (pars.size() > 1)
-			Thinklab.get().logger().error("asking for single parent of multiple-inherited property " + this);
+			Thinklab.get().error("asking for single parent of multiple-inherited property " + this);
 
 		return pars.size() == 0 ? null : pars.iterator().next();
 	}

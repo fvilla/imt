@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
 import org.integratedmodelling.thinklab.configuration.LocalConfiguration;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
@@ -19,12 +18,15 @@ import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.annotations.InstanceImplementation;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IInstanceImplementation;
-import org.integratedmodelling.thinklab.plugin.ThinklabPlugin;
+import org.integratedmodelling.thinklab.kbox.KBoxManager;
+import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
 import org.integratedmodelling.utils.CopyURL;
 import org.integratedmodelling.utils.MiscUtilities;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogService;
+import org.osgi.util.tracker.ServiceTracker;
 
 public abstract class ThinklabActivator implements BundleActivator, IThinklabPlugin {
 
@@ -34,12 +36,16 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	private File plugFolder = null;
 	private File confFolder = null;
 	private File dataFolder = null;
+	private File ontoFolder = null;
 	
 	private Properties properties = new Properties();
 	
 	private String id = null;
-	private Bundle bundle = null; 
-
+	private Bundle bundle = null;
+	private BundleContext context = null;
+	private LogService logservice; 
+	protected static KnowledgeManager _km;
+	
 	public static ThinklabActivator getSelf() {
 		return _this;
 	}
@@ -51,6 +57,12 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	@Override
 	public void start(BundleContext context) throws Exception {
 
+        ServiceTracker logServiceTracker = 
+        	new ServiceTracker(context, org.osgi.service.log.LogService.class.getName(), null);
+        logServiceTracker.open();
+        this.logservice = (LogService) logServiceTracker.getService();
+       
+		this.context  = context;
 		this.bundle = context.getBundle();
 		this.id = context.getBundle().getSymbolicName();
 		
@@ -59,19 +71,69 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		_this = this;
 		_classloader = this.getClass().getClassLoader();		
 		
+		if (_km == null)
+			_km = new KnowledgeManager();
+		
+		for (IPluginLifecycleListener lis : KnowledgeManager.getPluginListeners()) {
+			lis.prePluginLoaded(this);
+		}
+		
+//		preStart();
+//		
+		loadOntologies();
+//		loadLiteralValidators();
+//		loadKBoxHandlers();
+//		loadKnowledgeImporters();
+//		loadKnowledgeLoaders();
+//		loadLanguageInterpreters();
+//		loadCommandHandlers();
+//		loadListingProviders();
+//		loadTransformations();
+//		loadCommands();
+		loadInstanceImplementationConstructors();
+//		loadPersistentClasses();
+//		loadSessionListeners();
+		loadKboxes();
+//		loadApplications();
+		loadLanguageBindings();
 		
 		doStart();
+
+//		loadExtensions();
 		
+		for (IPluginLifecycleListener lis : KnowledgeManager.getPluginListeners()) {
+			lis.onPluginLoaded(this);
+		}
+
 	}
 
 	
+	private void loadOntologies() throws ThinklabException {
+		
+		// cache in local dir; set ontoFolder to null if no ontologies in plugin.
+		boolean found = false;
+		for (URL f : getResources("ontologies", "*.owl", true)) {
+			if (!found) {
+				if (!ontoFolder.isDirectory() && !ontoFolder.mkdirs()) {
+					throw new ThinklabIOException("problem writing to ontology directory: " + 
+								plugFolder);
+				}
+				found = true;
+			}
+		}
+		
+		if (!found)
+			ontoFolder = null;
+	}
+
 	protected void loadConfiguration() throws ThinklabIOException {
 		
 //		loadFolder = getLoadDirectory();
-
+		
         plugFolder = LocalConfiguration.getDataDirectory(id);
         confFolder = new File(plugFolder + File.separator + "config");
         dataFolder = new File(plugFolder + File.separator + "data");
+        ontoFolder = new File(plugFolder + File.separator + "ontologies");
 	
        /*
         * make sure we have all paths
@@ -82,9 +144,9 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
     		   (!dataFolder.isDirectory() && !dataFolder.mkdirs()))
     	   throw new ThinklabIOException("problem writing to plugin directory: " + plugFolder);
        
-		/*
-		 * check if plugin contains a plugin.properties file
-		 */
+       /*
+        * check if plugin contains a plugin.properties file
+        */
        File pfile = new File(confFolder + File.separator + "plugin.properties");
        
        if (!pfile.exists()) {
@@ -104,7 +166,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 			if (f.toString().endsWith(".properties") &&
 			    !(f.toString().endsWith("plugin.properties"))) {
 				try {
-					logger().info("reading additional properties from " + f);
+					info("reading additional properties from " + f);
 					InputStream inp = f.openStream();
 					properties.load(inp);
 					inp.close();
@@ -120,18 +182,37 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
     		FileInputStream inp = new FileInputStream(pfile);
 			properties.load(inp);
 			inp.close();
-			logger().info("plugin customized properties loaded from " + pfile);
+			info("plugin customized properties loaded from " + pfile);
 		} catch (Exception e) {
 			throw new ThinklabIOException(e);
 		}
        }
 	}
 
-	
+	private void loadKboxes() throws ThinklabException {
+
+		/*
+		 * load .kbox files from data dir
+		 */
+		for (String s : this.getScratchPath().list()) {
+			
+			if (s.endsWith(".kbox")) {
+				// load from kbox properties 
+				File pfile = new File(this.getScratchPath() + File.separator + s);
+				try {
+					KBoxManager.get().requireGlobalKBox(pfile.toURI().toURL().toString());
+				} catch (Exception e) {
+					throw new ThinklabIOException(e);
+				}
+			}
+		}
+	}
 	
 	@Override
 	public void stop(BundleContext arg0) throws Exception {
 		doStop();
+		this.bundle = null;
+		this.context = null;
 	}
 
 	@Override
@@ -164,8 +245,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 
 	@Override
 	public URL getResourceURL(String resource) throws ThinklabIOException {
-		// TODO Auto-generated method stub
-		return null;
+		return bundle.getResource(resource);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -204,9 +284,27 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	}
 
 	@Override
-	public Log logger() {
-		// TODO Auto-generated method stub
-		return null;
+	public void info(String message) {
+        if (logservice != null)
+            logservice.log(LogService.LOG_INFO, message);
+	}
+	
+	@Override
+	public void warn(String message) {
+        if (logservice != null)
+            logservice.log(LogService.LOG_WARNING, message);
+	}
+	
+	@Override
+	public void error(String message) {
+        if (logservice != null)
+            logservice.log(LogService.LOG_ERROR, message);
+	}
+
+	@Override
+	public void debug(String message) {
+        if (logservice != null)
+            logservice.log(LogService.LOG_DEBUG, message);
 	}
 
 	@Override
@@ -255,13 +353,17 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 				String[] cc = concept.split(",");
 				
 				for (String ccc : cc) {
-					logger().info("registering class " + cls + " as implementation for instances of type " + ccc);				
+					info("registering class " + cls + " as implementation for instances of type " + ccc);				
 					KnowledgeManager.get().registerInstanceImplementationClass(ccc, cls);
 				}
 			}
 		}
 	}
 	
+	@Override
+	public File getOntologiesLocation() {
+		return ontoFolder;
+	}
 
 	
 }

@@ -600,7 +600,7 @@ public class KnowledgeManager implements IKnowledgeProvider {
 
         commandManager = new CommandManager();
         				
-		Thinklab.get().logger().info("knowledge manager initialized successfully");
+		Thinklab.get().info("knowledge manager initialized successfully");
 		
 	}
 

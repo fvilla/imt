@@ -873,7 +873,7 @@ public class Ontology implements IOntology {
 		}
 		
     	if (persist && changed && !this.write(null)) {
-    		Thinklab.get().logger().warn(
+    		Thinklab.get().warn(
     				"attempt to persist ontology " + 
     				getConceptSpace() +
     				" failed: ontology does not come from a filesystem resource");

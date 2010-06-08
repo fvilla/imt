@@ -91,7 +91,6 @@ import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
-import org.integratedmodelling.thinklab.plugin.ThinklabPlugin;
 
 /**
  * Path name manipulation, string manipulation, and more.<p>
@@ -165,7 +164,7 @@ public class MiscUtilities{
 							ret.add(clls);
 						}
 					} catch (ClassNotFoundException e) {
-						Thinklab.get().logger().warn("task class " + pckgname + "." + classname + " could not be created: " + e.getMessage());
+						Thinklab.get().warn("task class " + pckgname + "." + classname + " could not be created: " + e.getMessage());
 					}
 				} else {
 					

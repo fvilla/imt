@@ -402,7 +402,7 @@ public class KBoxManager implements IKBox {
 		String ontologies = properties.getProperty(IKBox.KBOX_ONTOLOGIES_PROPERTY);
 		String wrapperCls = properties.getProperty(IKBox.KBOX_WRAPPER_PROPERTY);
 		
-		Thinklab.get().logger().info("opening kbox " + kboxURI + " with data uri " + dataUri);
+		Thinklab.get().info("opening kbox " + kboxURI + " with data uri " + dataUri);
 		
 		if (protocol == null || protocol.equals(""))
 			throw new ThinklabUndefinedKBoxException("kbox metadata for " + kboxURI + " don't specify a protocol");

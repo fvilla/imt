@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
@@ -14,8 +13,6 @@ public interface IThinklabPlugin {
 	
 
 	public abstract ClassLoader getClassLoader();
-
-	public abstract Log logger();
 
 	/**
 	 * Load bindings for all languages. Because this must be called by hand (see reason in
@@ -69,5 +66,21 @@ public interface IThinklabPlugin {
 	public abstract File getLoadPath() throws ThinklabException;
 
 	public abstract File getConfigPath();
+
+	/**
+	 * All registered ontologies are cached in this local directory, where they can be read from
+	 * and modified. This should return null if there are no ontologies in the plugin.
+	 * 
+	 * @return
+	 */
+	public abstract File getOntologiesLocation();
+
+	void info(String message);
+
+	void warn(String message);
+
+	void error(String message);
+
+	void debug(String message);
 
 }
