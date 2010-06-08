@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/protege-owl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/protege.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rdf-api-2001-01-19.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/relaxngDatatype.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/resolver.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/serializer.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wstx-asl-2.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wstx-asl-3.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jopt-simple-2.4-beta2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-attrs.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/bsh_custom.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/common-2.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.7.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-testframework-3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-dbcp-1.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-jxpath-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-math-2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/concurrent-1.3.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/http.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/icu4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/iri.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jgrapht.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvel2-2.0.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/owlapi-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/owlsyntax.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/pellet.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis-1.0.b2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis-xerces-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xsd-2.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xsdlib-20050614.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
