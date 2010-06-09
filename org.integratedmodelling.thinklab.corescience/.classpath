@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/Blas.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/colt.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ext-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flanagan.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javolution.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jep-2.4.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jscience.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jung-1.7.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/optimization.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ostermillerutils_1_06_00.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ssj.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
