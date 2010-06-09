@@ -53,7 +53,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinklab.exception.ThinklabStorageException;
 import org.integratedmodelling.thinklab.exception.ThinklabUndefinedKBoxException;
 import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
-import org.integratedmodelling.thinklab.extensions.KBoxHandler;
+import org.integratedmodelling.thinklab.extensions.IKBoxHandler;
 import org.integratedmodelling.thinklab.interfaces.applications.ISession;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IInstance;
@@ -101,7 +101,7 @@ public class KBoxManager implements IKBox {
     /*
      * a registry of plugins that handle KBox creation.
      */
-    HashMap<String, KBoxHandler> kboxPlugins = new HashMap<String, KBoxHandler>();
+    HashMap<String, IKBoxHandler> kboxPlugins = new HashMap<String, IKBoxHandler>();
     
     /*
      * A registry of installed KBoxes, indexed by their URL.
@@ -244,7 +244,7 @@ public class KBoxManager implements IKBox {
 	 * @param protocol
 	 * @param plugin
 	 */
-	public void registerKBoxProtocol(String protocol, KBoxHandler plugin) {
+	public void registerKBoxProtocol(String protocol, IKBoxHandler plugin) {
 		kboxPlugins.put(protocol, plugin);
 	}
 	
@@ -298,7 +298,7 @@ public class KBoxManager implements IKBox {
 
 				} else {
 
-					KBoxHandler plu = kboxPlugins.get(protocol);
+					IKBoxHandler plu = kboxPlugins.get(protocol);
 					if (plu == null)
 						return null;
 					ret = plu.createKBoxFromURL(new URI(kboxURI));					
@@ -413,7 +413,7 @@ public class KBoxManager implements IKBox {
 		}
 		
 		/* load plugin for protocol; create kbox */
-		KBoxHandler plu = kboxPlugins.get(protocol);
+		IKBoxHandler plu = kboxPlugins.get(protocol);
 		if (plu == null)
 			throw new ThinklabUndefinedKBoxException("kbox protocol " 
 					+ protocol + " referenced in " +

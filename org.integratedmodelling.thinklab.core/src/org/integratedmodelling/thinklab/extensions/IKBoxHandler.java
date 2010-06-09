@@ -7,7 +7,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabStorageException;
 import org.integratedmodelling.thinklab.interfaces.storage.IKBox;
 
-public interface KBoxHandler {
+public interface IKBoxHandler {
 
 	/**
 	 * Create the kbox with the passed URI, which should be enough to define it entirely. The

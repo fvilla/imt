@@ -134,6 +134,7 @@ public class CopyURL {
 	}
 
     public static File getFileForURL(URL url) throws ThinklabIOException {
+
     	if (url.toString().startsWith("file:")) {
     		return new File(UrlEscape.unescapeurl(url.getFile()));
     	} else {
@@ -169,5 +170,17 @@ public class CopyURL {
 		} catch (IOException e) {
 			throw new ThinklabIOException(e.getMessage());
 		}
+	}
+
+	public static File cache(URL url, File ontoFolder, long lastModified) throws ThinklabIOException {
+
+		File fname = 
+			new File(ontoFolder + File.separator + MiscUtilities.getFileName(url.toString()));
+	
+		if (!fname.exists() || fname.lastModified() <= lastModified) {
+			copy(url, fname);
+		}
+		
+		return fname;
 	}
 }

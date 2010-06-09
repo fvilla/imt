@@ -5,26 +5,43 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.integratedmodelling.thinklab.command.CommandDeclaration;
+import org.integratedmodelling.thinklab.command.CommandManager;
 import org.integratedmodelling.thinklab.configuration.LocalConfiguration;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
+import org.integratedmodelling.thinklab.exception.ThinklabInternalErrorException;
 import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
+import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
+import org.integratedmodelling.thinklab.extensions.IKBoxHandler;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
+import org.integratedmodelling.thinklab.interfaces.annotations.DataTransformation;
 import org.integratedmodelling.thinklab.interfaces.annotations.InstanceImplementation;
+import org.integratedmodelling.thinklab.interfaces.annotations.KBoxHandler;
+import org.integratedmodelling.thinklab.interfaces.annotations.ListingProvider;
+import org.integratedmodelling.thinklab.interfaces.annotations.LiteralImplementation;
+import org.integratedmodelling.thinklab.interfaces.annotations.ThinklabCommand;
+import org.integratedmodelling.thinklab.interfaces.commands.ICommandHandler;
+import org.integratedmodelling.thinklab.interfaces.commands.IListingProvider;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IInstanceImplementation;
 import org.integratedmodelling.thinklab.kbox.KBoxManager;
+import org.integratedmodelling.thinklab.literals.ParsedLiteralValue;
 import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
+import org.integratedmodelling.thinklab.transformations.ITransformation;
+import org.integratedmodelling.thinklab.transformations.TransformationFactory;
 import org.integratedmodelling.utils.CopyURL;
 import org.integratedmodelling.utils.MiscUtilities;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -54,6 +71,69 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	
 	protected abstract void doStop() throws Exception;
 	
+	/*
+	 * intercepts the beginning of doStart()
+	 */
+	protected void preStart() throws Exception {	
+	}
+	
+	public static String resolvePluginName(String name, boolean complain) throws ThinklabException {
+		
+		String ret = null;
+		
+		// look for exact match first
+		for (Bundle b : _this.context.getBundles() ) {
+			if (b.getSymbolicName().equals(name)) {
+				ret = b.getSymbolicName();
+			}
+		}
+		
+		if (ret == null) {
+			
+			/*
+			 * automatically disambiguate partial word matches, which should not be found
+			 */
+			if (!name.startsWith("."))
+				name = "." + name;
+			
+			for (Bundle b : _this.context.getBundles() ) {
+				if (b.getSymbolicName().startsWith("org.integratedmodelling") &&
+						b.getSymbolicName().endsWith(name)) {
+					if (ret != null) {
+						ret = null;
+						break;
+					}
+					ret = b.getSymbolicName();
+				}
+			}
+		}
+		
+		if (ret == null && complain)
+			throw new ThinklabPluginException("plugin name " + name + " unresolved or ambiguous");
+		
+		return ret;
+	}
+	
+	public static IThinklabPlugin resolvePlugin(String name, boolean complain) throws ThinklabException {
+	
+		IThinklabPlugin ret = null;
+		
+		String pid = resolvePluginName(name, complain);
+
+		if (pid != null) {
+			try {
+				Bundle bb = _this.context.installBundle(pid);
+				bb.start();
+			} catch (BundleException e) {
+				throw new ThinklabPluginException(e);
+			}
+			
+		}
+			
+		return ret;
+	}
+
+	
 	@Override
 	public void start(BundleContext context) throws Exception {
 
@@ -78,18 +158,17 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 			lis.prePluginLoaded(this);
 		}
 		
-//		preStart();
-//		
+		preStart();
+		
 		loadOntologies();
-//		loadLiteralValidators();
-//		loadKBoxHandlers();
+		loadLiteralValidators();
+		loadKboxHandlers();
 //		loadKnowledgeImporters();
 //		loadKnowledgeLoaders();
 //		loadLanguageInterpreters();
-//		loadCommandHandlers();
-//		loadListingProviders();
-//		loadTransformations();
-//		loadCommands();
+		loadCommandHandlers();
+		loadListingProviders();
+		loadTransformations();
 		loadInstanceImplementationConstructors();
 //		loadPersistentClasses();
 //		loadSessionListeners();
@@ -116,9 +195,19 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 			if (!found) {
 				if (!ontoFolder.isDirectory() && !ontoFolder.mkdirs()) {
 					throw new ThinklabIOException("problem writing to ontology directory: " + 
-								plugFolder);
+								ontoFolder);
 				}
 				found = true;
+
+				File of = CopyURL.cache(f, ontoFolder, bundle.getLastModified());
+				try {
+					_km.getKnowledgeRepository().refreshOntology(
+							of.toURI().toURL(), 
+							MiscUtilities.getFileBaseName(of.toString()), 
+							false);
+				} catch (MalformedURLException e) {
+					throw new ThinklabInternalErrorException(e);
+				}
 			}
 		}
 		
@@ -217,13 +306,31 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 
 	@Override
 	public Object createInstance(String clazz) throws ThinklabPluginException {
-		// TODO Auto-generated method stub
-		return null;
+		Object ret = null;
+		
+		Class<?> cls = null;
+		try {
+			cls = _classloader.loadClass(clazz);
+			ret = cls.newInstance();
+			
+		} catch (Exception e) {
+			throw new ThinklabPluginException(e);
+		}
+		return ret;
+	}
+
+	public Object createInstance(Class<?> clazz) throws ThinklabPluginException {
+		Object ret = null;
+		try {
+			ret = clazz.newInstance();
+		} catch (Exception e) {
+			throw new ThinklabPluginException(e);
+		}
+		return ret;
 	}
 
 	@Override
 	public ClassLoader getClassLoader() {
-		// TODO Auto-generated method stub
 		return _classloader;
 	}
 
@@ -234,8 +341,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 
 	@Override
 	public File getLoadPath() throws ThinklabException {
-		// TODO Auto-generated method stub
-		return null;
+		return plugFolder;
 	}
 
 	@Override
@@ -263,7 +369,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	@Override
 	public File getScratchPath() throws ThinklabException {
 		// TODO Auto-generated method stub
-		return null;
+		return dataFolder;
 	}
 
 	@Override
@@ -365,5 +471,208 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		return ontoFolder;
 	}
 
-	
+	protected void loadLiteralValidators() throws ThinklabException {
+		
+		String ipack = this.getClass().getPackage().getName() + ".literals";
+		
+		for (Class<?> cls : MiscUtilities.findSubclasses(ParsedLiteralValue.class, ipack, getClassLoader())) {	
+			
+			String concept = null;
+			String xsd = null;
+
+			/*
+			 * lookup annotation, ensure we can use the class
+			 */
+			if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+				continue;
+			
+			/*
+			 * lookup implemented concept
+			 */
+			for (Annotation annotation : cls.getAnnotations()) {
+				if (annotation instanceof LiteralImplementation) {
+					concept = ((LiteralImplementation)annotation).concept();
+					xsd = ((LiteralImplementation)annotation).xsd();
+				}
+			}
+			
+			if (concept != null) {
+				
+				info("registering class " + cls + " as implementation for literals of type " + concept);
+				
+				KnowledgeManager.get().registerLiteralImplementationClass(concept, cls);
+				if (!xsd.equals(""))
+					
+					info("registering XSD type mapping: " + xsd + " -> " + concept);
+					KnowledgeManager.get().registerXSDTypeMapping(xsd, concept);
+			}
+			
+		}
+
+	}
+
+	protected void loadCommandHandlers() throws ThinklabException {
+		
+		String ipack = this.getClass().getPackage().getName() + ".commands";
+		
+		for (Class<?> cls : MiscUtilities.findSubclasses(ICommandHandler.class, ipack, getClassLoader())) {	
+			
+			/*
+			 * lookup annotation, ensure we can use the class
+			 */
+			if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+				continue;
+			
+			/*
+			 * lookup implemented concept
+			 */
+			for (Annotation annotation : cls.getAnnotations()) {
+				if (annotation instanceof ThinklabCommand) {
+					
+					String name = ((ThinklabCommand)annotation).name();
+					String description = ((ThinklabCommand)annotation).description();
+					
+					CommandDeclaration declaration = new CommandDeclaration(name, description);
+					
+					String retType = ((ThinklabCommand)annotation).returnType();
+					
+					if (!retType.equals(""))
+						declaration.setReturnType(KnowledgeManager.get().requireConcept(retType));
+					
+					String[] aNames = ((ThinklabCommand)annotation).argumentNames().split(",");
+					String[] aTypes = ((ThinklabCommand)annotation).argumentTypes().split(",");
+					String[] aDesc =  ((ThinklabCommand)annotation).argumentDescriptions().split(",");
+
+					for (int i = 0; i < aNames.length; i++) {
+						if (!aNames[i].isEmpty())
+							declaration.addMandatoryArgument(aNames[i], aDesc[i], aTypes[i]);
+					}
+					
+					String[] oaNames = ((ThinklabCommand)annotation).optionalArgumentNames().split(",");
+					String[] oaTypes = ((ThinklabCommand)annotation).optionalArgumentTypes().split(",");
+					String[] oaDesc =  ((ThinklabCommand)annotation).optionalArgumentDescriptions().split(",");
+					String[] oaDefs =  ((ThinklabCommand)annotation).optionalArgumentDefaultValues().split(",");
+
+					for (int i = 0; i < oaNames.length; i++) {
+						if (!oaNames[i].isEmpty())
+							declaration.addOptionalArgument(oaNames[i], oaDesc[i], oaTypes[i], oaDefs[i]);				
+					}
+
+					String[] oNames = ((ThinklabCommand)annotation).optionNames().split(",");
+					String[] olNames = ((ThinklabCommand)annotation).optionLongNames().split(",");
+					String[] oaLabel = ((ThinklabCommand)annotation).optionArgumentLabels().split(",");
+					String[] oTypes = ((ThinklabCommand)annotation).optionTypes().split(",");
+					String[] oDesc = ((ThinklabCommand)annotation).optionDescriptions().split(",");
+
+					for (int i = 0; i < oNames.length; i++) {
+						if (!oNames[i].isEmpty())
+								declaration.addOption(
+										oNames[i],
+										olNames[i], 
+										(oaLabel[i].equals("") ? null : oaLabel[i]), 
+										oDesc[i], 
+										oTypes[i]);
+					}
+					
+					try {
+						CommandManager.get().registerCommand(declaration, (ICommandHandler) cls.newInstance());
+					} catch (Exception e) {
+						throw new ThinklabValidationException(e);
+					}
+					
+					break;
+				}
+			}
+		}
+
+	}
+
+
+	protected void loadListingProviders() throws ThinklabException {
+		
+		String ipack = this.getClass().getPackage().getName() + ".commands";
+		
+		for (Class<?> cls : MiscUtilities.findSubclasses(IListingProvider.class, ipack, getClassLoader())) {	
+			
+			/*
+			 * lookup annotation, ensure we can use the class
+			 */
+			if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+				continue;
+			
+			for (Annotation annotation : cls.getAnnotations()) {
+				if (annotation instanceof ListingProvider) {
+					
+					String name = ((ListingProvider)annotation).label();
+					String sname = ((ListingProvider)annotation).itemlabel();
+					try {
+						CommandManager.get().registerListingProvider(name, sname, (IListingProvider) cls.newInstance());
+					} catch (Exception e) {
+						throw new ThinklabValidationException(e);
+					}
+					
+					break;
+				}
+			}
+		}
+
+	}
+
+	protected void loadTransformations() throws ThinklabException {
+		
+		String ipack = this.getClass().getPackage().getName() + ".transformations";
+		
+		for (Class<?> cls : MiscUtilities.findSubclasses(ITransformation.class, ipack, getClassLoader())) {	
+			
+			/*
+			 * lookup annotation, ensure we can use the class
+			 */
+			if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+				continue;
+			
+			for (Annotation annotation : cls.getAnnotations()) {
+				if (annotation instanceof DataTransformation) {
+					
+					String name = ((DataTransformation)annotation).id();
+					try {
+						TransformationFactory.get().registerTransformation(name, (ITransformation)cls.newInstance());
+					} catch (Exception e) {
+						throw new ThinklabValidationException(e);
+					}
+					
+					break;
+				}
+			}
+		}
+
+	}
+
+	protected void loadKboxHandlers() throws ThinklabException {
+		
+		String ipack = this.getClass().getPackage().getName() + ".kbox";
+		
+		for (Class<?> cls : MiscUtilities.findSubclasses(IKBoxHandler.class, ipack, getClassLoader())) {	
+			
+			/*
+			 * lookup annotation, ensure we can use the class
+			 */
+			if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+				continue;
+			
+			for (Annotation annotation : cls.getAnnotations()) {
+				if (annotation instanceof KBoxHandler) {
+					
+					String[] format = ((KBoxHandler)annotation).protocol().split(",");
+					for (String f : format) {
+						KBoxManager.get().registerKBoxProtocol(
+							f, 
+							(IKBoxHandler)createInstance(cls));
+					}
+					
+					break;
+				}
+			}
+		}
+
+	}
 }
