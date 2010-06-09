@@ -29,6 +29,7 @@ import org.integratedmodelling.thinklab.kbox.KBoxManager;
 import org.integratedmodelling.thinklab.literals.Value;
 import org.integratedmodelling.utils.MiscUtilities;
 import org.integratedmodelling.utils.Pair;
+import org.osgi.framework.Bundle;
 
 /**
  * Interacts with a kbox on behalf of a with-kbox form.
@@ -106,7 +107,10 @@ public class KBoxHandler {
 			}  else if (kv.getFirst().equals("persist")) {
 
 				try {
-					IThinklabPlugin persistTo = Thinklab.resolvePlugin(kv.getSecond().toString(), true);
+					
+					Bundle bb = Thinklab.resolvePlugin(kv.getSecond().toString(), true);
+					IThinklabPlugin persistTo = Activator.getPlugin(bb.getSymbolicName());
+					
 					File dest = 
 						new File(persistTo.getScratchPath() + File.separator + MiscUtilities.getNameFromURL(this.kbox.getUri()) + ".kbox");
 					this.kbox.getProperties().store(new FileOutputStream(dest), null);

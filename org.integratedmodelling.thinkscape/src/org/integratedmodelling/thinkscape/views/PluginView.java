@@ -1,6 +1,7 @@
 package org.integratedmodelling.thinkscape.views;
 
-import java.util.ArrayList;
+
+import java.util.Collection;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
@@ -11,15 +12,12 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
-import org.eclipse.core.runtime.IAdaptable;
-import org.integratedmodelling.thinklab.KnowledgeManager;
+import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
-import org.integratedmodelling.thinklab.graph.ConceptMap;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
-import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
-import org.integratedmodelling.thinklab.interfaces.knowledge.IKnowledgeSubject;
-import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 
 
 /**
@@ -40,20 +38,17 @@ import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
  * <p>
  */
 
-public class KnowledgeView extends ViewPart {
+public class PluginView extends ViewPart {
 
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
-	public static final String ID = "org.integratedmodelling.thinkscape.views.Knowledge";
+	public static final String ID = "org.integratedmodelling.thinkscape.views.PluginView";
 
-	private TreeViewer viewer;
-	private DrillDownAdapter drillDownAdapter;
+	private TableViewer viewer;
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
-
-	private ConceptMap conceptmap;
 
 	/*
 	 * The content provider class is responsible for
@@ -65,119 +60,37 @@ public class KnowledgeView extends ViewPart {
 	 * (like Task List, for example).
 	 */
 	 
-	class TreeObject implements IAdaptable {
-		
-		private IKnowledgeSubject concept;
-		private TreeParent parent;
-		
-		public TreeObject(IKnowledgeSubject name) {
-			this.concept = name;
-		}
-		public String getName() {
-			return concept.getLocalName();
-		}
-		public void setParent(TreeParent parent) {
-			this.parent = parent;
-		}
-		public TreeParent getParent() {
-			return parent;
-		}
-		public String toString() {
-			return getName();
-		}
-		public Object getAdapter(Class key) {
-			return null;
-		}
-	}
-	
-	class TreeParent extends TreeObject {
-		private ArrayList children;
-		public TreeParent(IConcept concept) {
-			super(concept);
-			children = new ArrayList();
-		}
-		public void addChild(TreeObject child) {
-			children.add(child);
-			child.setParent(this);
-		}
-		public void removeChild(TreeObject child) {
-			children.remove(child);
-			child.setParent(null);
-		}
-		public TreeObject [] getChildren() {
-			return (TreeObject [])children.toArray(new TreeObject[children.size()]);
-		}
-		public boolean hasChildren() {
-			return children.size()>0;
-		}
-	}
-
-	class ViewContentProvider implements IStructuredContentProvider, 
-										   ITreeContentProvider {
-		private TreeParent invisibleRoot;
-
+	class ViewContentProvider implements IStructuredContentProvider {
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 		public void dispose() {
 		}
 		public Object[] getElements(Object parent) {
-			if (parent.equals(getViewSite())) {
-				if (invisibleRoot==null) initialize();
-				return getChildren(invisibleRoot);
+			Collection<Bundle> plugins;
+			try {
+				plugins = Thinklab.getThinklabPlugins();
+			} catch (ThinklabException e) {
+				throw new ThinklabRuntimeException(e);
 			}
-			return getChildren(parent);
-		}
-		public Object getParent(Object child) {
-			if (child instanceof TreeObject) {
-				return ((TreeObject)child).getParent();
-			}
-			return null;
-		}
-		public Object [] getChildren(Object parent) {
-			if (parent instanceof TreeParent) {
-				return ((TreeParent)parent).getChildren();
-			}
-			return new Object[0];
-		}
-		public boolean hasChildren(Object parent) {
-			if (parent instanceof TreeParent)
-				return ((TreeParent)parent).hasChildren();
-			return false;
-		}
-/*
- * We will set up a dummy model to initialize tree heararchy.
- * In a real code, you will connect to a real model and
- * expose its hierarchy.
- */
-		private void initialize() {
-			invisibleRoot = (TreeParent) populate(KnowledgeManager.Thing());
-		}
-		
-		private TreeObject populate(IConcept root) {
-
-			TreeObject ret = 
-				conceptmap.incomingEdgesOf(root).size() > 0 ?
-					new TreeParent(root) :
-					new TreeObject(root);
+			Bundle[] ret = new Bundle[plugins.size()];
 			
-			if (ret instanceof TreeParent)
-				for (Object s : conceptmap.incomingEdgesOf(root)) {
-					((TreeParent)ret).addChild(populate((IConcept) conceptmap.getEdgeSource(s)));
-				}
+			int i = 0;
+			for (Bundle p : plugins)
+				ret[i++] = p;
 			
-			return ret;	
+			return ret;
 		}
 	}
-	class ViewLabelProvider extends LabelProvider {
-
-		public String getText(Object obj) {
-			return obj.toString();
+	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+		public String getColumnText(Object obj, int index) {
+			return ((Bundle)obj).getSymbolicName();
+		}
+		public Image getColumnImage(Object obj, int index) {
+			return getImage(obj);
 		}
 		public Image getImage(Object obj) {
-			String imageKey = ISharedImages.IMG_OBJ_ELEMENT;
-			if (obj instanceof TreeParent)
-			   imageKey = ISharedImages.IMG_OBJ_FOLDER;
-			return PlatformUI.getWorkbench().getSharedImages().getImage(imageKey);
+			return PlatformUI.getWorkbench().
+					getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
 		}
 	}
 	class NameSorter extends ViewerSorter {
@@ -186,46 +99,7 @@ public class KnowledgeView extends ViewPart {
 	/**
 	 * The constructor.
 	 */
-	public KnowledgeView() {
-		
-		class PluginListener implements IPluginLifecycleListener {
-
-			@Override
-			public void onPluginLoaded(IThinklabPlugin plugin) {
-				/*
-				 * recompute the hierarchy
-				 */
-				try {
-					conceptmap = new ConceptMap(KnowledgeManager.Thing());
-				} catch (ThinklabException e) {
-					throw new ThinklabRuntimeException(e);
-				}
-				System.out.println("HYYYAHHHH");
-				viewer.setContentProvider(new ViewContentProvider());
-				viewer.refresh();
-			}
-
-			@Override
-			public void onPluginUnloaded(IThinklabPlugin plugin) {
-			}
-
-			@Override
-			public void prePluginLoaded(IThinklabPlugin thinklabPlugin) {
-			}
-
-			@Override
-			public void prePluginUnloaded(IThinklabPlugin thinklabPlugin) {
-			}
-			
-		}
-		
-		KnowledgeManager.registerPluginListener(new PluginListener());
-		
-		try {
-			this.conceptmap = new ConceptMap(KnowledgeManager.Thing());
-		} catch (ThinklabException e) {
-			throw new ThinklabRuntimeException(e);
-		}
+	public PluginView() {
 	}
 
 	/**
@@ -233,8 +107,7 @@ public class KnowledgeView extends ViewPart {
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		drillDownAdapter = new DrillDownAdapter(viewer);
+		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
@@ -253,7 +126,7 @@ public class KnowledgeView extends ViewPart {
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
-				KnowledgeView.this.fillContextMenu(manager);
+				PluginView.this.fillContextMenu(manager);
 			}
 		});
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());
@@ -276,8 +149,6 @@ public class KnowledgeView extends ViewPart {
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(action1);
 		manager.add(action2);
-		manager.add(new Separator());
-		drillDownAdapter.addNavigationActions(manager);
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
@@ -285,8 +156,6 @@ public class KnowledgeView extends ViewPart {
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(action1);
 		manager.add(action2);
-		manager.add(new Separator());
-		drillDownAdapter.addNavigationActions(manager);
 	}
 
 	private void makeActions() {
@@ -313,7 +182,11 @@ public class KnowledgeView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				showMessage("Double-click detected on "+obj.toString());
+				try {
+					((Bundle)obj).start();
+				} catch (BundleException e) {
+					throw new ThinklabRuntimeException(e);
+				}
 			}
 		};
 	}
@@ -328,7 +201,7 @@ public class KnowledgeView extends ViewPart {
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
 			viewer.getControl().getShell(),
-			"Knowledge",
+			"Thinklab Plugins",
 			message);
 	}
 

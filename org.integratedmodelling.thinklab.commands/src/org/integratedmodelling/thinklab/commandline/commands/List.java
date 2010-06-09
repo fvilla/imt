@@ -56,6 +56,7 @@ import org.integratedmodelling.thinklab.interfaces.storage.IKBox;
 import org.integratedmodelling.thinklab.kbox.KBoxManager;
 import org.integratedmodelling.utils.MiscUtilities;
 import org.integratedmodelling.utils.Polylist;
+import org.osgi.framework.Bundle;
 
 @ThinklabCommand(
 		name="list",
@@ -261,14 +262,14 @@ public class List implements ICommandHandler {
 
 		} else if ("plugins".equals(subject)) {
 
-			for (IThinklabPlugin p : Thinklab.getThinklabPlugins()) {
+			for (Bundle p : Thinklab.getThinklabPlugins()) {
 
 				session.getOutputStream().println(
-						p.getId() + 
+						p.getSymbolicName() + 
 						" (" +
 						p.getVersion() + 
 						")\t" +
-						p.getStatus());
+						p.getState());
 			}
 
 		} else if ("kboxes".equals(subject)) {

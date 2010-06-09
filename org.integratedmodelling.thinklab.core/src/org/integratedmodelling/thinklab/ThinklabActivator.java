@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
@@ -55,7 +56,7 @@ import org.osgi.framework.Version;
 public abstract class ThinklabActivator implements BundleActivator, IThinklabPlugin {
 
 	protected ClassLoader _classloader;
-	static ThinklabActivator _this;
+	static HashMap<String,ThinklabActivator> _activators = new HashMap<String, ThinklabActivator>();
 	
 	private File plugFolder = null;
 	private File confFolder = null;
@@ -65,20 +66,20 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	private Properties properties = new Properties();
 	
 	private String id = null;
-	private Bundle bundle = null;
-	private BundleContext context = null;
-	private Logger logger;
+	protected Bundle bundle = null;
+	protected BundleContext context = null;
+	protected Logger logger;
 	private LogForwarder logForwarder; 
 	protected static KnowledgeManager _km;
 	private HashSet<String> _bindingsLoaded = new HashSet<String>();
 	
-	public static ThinklabActivator get() {
-		return _this;
-	}
-
 	protected abstract void doStart() throws Exception;
 	
 	protected abstract void doStop() throws Exception;
+
+	public static IThinklabPlugin getPlugin(String id) {
+		return _activators.get(id);
+	}
 	
 	/*
 	 * intercepts the beginning of doStart()
@@ -102,75 +103,6 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		return "" + bundle.getState();
 	}
 	
-	public static String resolvePluginName(String name, boolean complain) throws ThinklabException {
-		
-		String ret = null;
-		
-		// look for exact match first
-		for (Bundle b : _this.context.getBundles() ) {
-			if (b.getSymbolicName().equals(name)) {
-				ret = b.getSymbolicName();
-			}
-		}
-		
-		if (ret == null) {
-			
-			/*
-			 * automatically disambiguate partial word matches, which should not be found
-			 */
-			if (!name.startsWith("."))
-				name = "." + name;
-			
-			for (Bundle b : _this.context.getBundles() ) {
-				if (b.getSymbolicName().startsWith("org.integratedmodelling") &&
-						b.getSymbolicName().endsWith(name)) {
-					if (ret != null) {
-						ret = null;
-						break;
-					}
-					ret = b.getSymbolicName();
-				}
-			}
-		}
-		
-		if (ret == null && complain)
-			throw new ThinklabPluginException("plugin name " + name + " unresolved or ambiguous");
-		
-		return ret;
-	}
-
-	public static Collection<IThinklabPlugin> getThinklabPlugins() throws ThinklabException {
-		
-		ArrayList<IThinklabPlugin> ret = new ArrayList<IThinklabPlugin>();
-		
-			for (Bundle b : _this.context.getBundles() ) {
-				if (b instanceof IThinklabPlugin) {
-					ret.add((IThinklabPlugin) b);
-				}
-			}
-		
-		return ret;
-	}
-
-	
-	public static IThinklabPlugin resolvePlugin(String name, boolean complain) throws ThinklabException {
-	
-		IThinklabPlugin ret = null;
-		
-		String pid = resolvePluginName(name, complain);
-
-		if (pid != null) {
-			try {
-				ret = (IThinklabPlugin)_this.context.installBundle(pid);
-			} catch (BundleException e) {
-				throw new ThinklabPluginException(e);
-			}
-			
-		}
-			
-		return ret;
-	}
-	
 	@Override
 	public final void start(BundleContext context) throws Exception {
 
@@ -190,9 +122,10 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		this.bundle = context.getBundle();
 		this.id = context.getBundle().getSymbolicName();
 		
+		_activators.put(this.id, this);
+		
 		loadConfiguration();
 
-		_this = this;
 		_classloader = this.getClass().getClassLoader();		
 		
 		if (_km == null)
@@ -350,7 +283,10 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		this.context = null;
 		this._classloader = null;
 		
-		logForwarder.stop();  
+		logForwarder.stop();
+		
+		_activators.remove(this.id);
+
 	}
 
 	@Override

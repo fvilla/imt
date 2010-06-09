@@ -1,10 +1,13 @@
 package org.integratedmodelling.corescience;
 
+import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 
 public class CoreScience extends ThinklabActivator {
 
+	public static final String PLUGIN_ID = "org.integratedmodelling.thinklab.corescience";
+	
 	private IConcept NumericRankingSpace;
 	private IConcept DiscreteNumericRankingSpace;
 	private IConcept MeasurementSpace;
@@ -84,23 +87,24 @@ public class CoreScience extends ThinklabActivator {
 	public static final String CONTINGENT_TO = "observation:isContingentTo";
 
 	public static CoreScience get() {
-		return (CoreScience)(ThinklabActivator.get());
+		return (CoreScience)getPlugin(PLUGIN_ID);
 	}
 	
 	@Override
 	protected void doStart() throws Exception {
 
-		NumericRankingSpace = _km.requireConcept(RANKING_MODEL);
-		DiscreteNumericRankingSpace = _km.requireConcept(DISCRETE_RANKING_MODEL);
-		MeasurementSpace = _km.requireConcept(UNIT);
-		RandomValueType = _km.requireConcept(RANDOM_VALUE);
-		ContinuousDistributionType = _km.requireConcept(CONTINUOUS_DISTRIBUTION);
-		DiscreteDistributionType = _km.requireConcept(DISCRETE_DISTRIBUTION);
-		ObservationType = _km.requireConcept(OBSERVATION);
-		MeasurementType = _km.requireConcept(MEASUREMENT);
-		RankingType = _km.requireConcept(RANKING);
-		CategorizationType = _km.requireConcept(CATEGORIZATION);
+		KnowledgeManager km = KnowledgeManager.get();
 		
+		NumericRankingSpace = km.requireConcept(RANKING_MODEL);
+		DiscreteNumericRankingSpace = km.requireConcept(DISCRETE_RANKING_MODEL);
+		MeasurementSpace = km.requireConcept(UNIT);
+		RandomValueType = km.requireConcept(RANDOM_VALUE);
+		ContinuousDistributionType = km.requireConcept(CONTINUOUS_DISTRIBUTION);
+		DiscreteDistributionType = km.requireConcept(DISCRETE_DISTRIBUTION);
+		ObservationType = km.requireConcept(OBSERVATION);
+		MeasurementType = km.requireConcept(MEASUREMENT);
+		RankingType = km.requireConcept(RANKING);
+		CategorizationType = km.requireConcept(CATEGORIZATION);
 	}
 
 	@Override

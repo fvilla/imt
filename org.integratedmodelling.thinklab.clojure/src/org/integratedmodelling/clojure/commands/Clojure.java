@@ -46,6 +46,7 @@ import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.applications.ISession;
 import org.integratedmodelling.thinklab.interfaces.commands.ICommandHandler;
 import org.integratedmodelling.thinklab.interfaces.literals.IValue;
+import org.osgi.framework.Bundle;
 
 /**
  * Run an application configured in plugin.xml, or even pass a list to run inline
@@ -65,7 +66,8 @@ public class Clojure implements ICommandHandler {
 		if (command.hasOption("context")) {
 
 			String contextplugin = command.getOptionAsString("context");
-			plugin = Thinklab.resolvePlugin(contextplugin, true);
+			Bundle plug = Thinklab.resolvePlugin(contextplugin, true);
+			plugin = Activator.getPlugin(plug.getSymbolicName());
 			cloader = plugin.getClassLoader();
 		}
 

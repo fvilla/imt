@@ -29,13 +29,13 @@ public class PLoad implements ICommandHandler {
 	public IValue execute(Command command, ISession session) throws ThinklabException {
 
 		String plugin = command.getArgumentAsString("plugin");
-		IThinklabPlugin pl = null;
+		Bundle pl = null;
 		
 		plugin = Thinklab.resolvePluginName(plugin, true);
 		pl = Thinklab.resolvePlugin(plugin, true);
 		
 		try {
-			((Bundle)pl).start();
+			pl.start();
 		} catch (BundleException e) {
 			throw new ThinklabPluginException(e);
 		}
