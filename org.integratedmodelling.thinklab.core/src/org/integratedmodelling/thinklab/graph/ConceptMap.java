@@ -11,6 +11,7 @@ public class ConceptMap extends KnowledgeGraph {
 	private static final long serialVersionUID = -5150733549820114934L;
 
 	public ConceptMap(IConcept root) throws ThinklabException {
+		this.forceTreeGeometry = true;
 		buildGraph(root);
 	}
 

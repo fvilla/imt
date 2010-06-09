@@ -10,7 +10,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import org.integratedmodelling.thinklab.command.CommandDeclaration;
 import org.integratedmodelling.thinklab.command.CommandManager;
@@ -21,6 +26,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabInternalErrorException
 import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
 import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.thinklab.extensions.IKBoxHandler;
+import org.integratedmodelling.thinklab.extensions.Interpreter;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.annotations.DataTransformation;
 import org.integratedmodelling.thinklab.interfaces.annotations.InstanceImplementation;
@@ -31,6 +37,7 @@ import org.integratedmodelling.thinklab.interfaces.annotations.ThinklabCommand;
 import org.integratedmodelling.thinklab.interfaces.commands.ICommandHandler;
 import org.integratedmodelling.thinklab.interfaces.commands.IListingProvider;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IInstanceImplementation;
+import org.integratedmodelling.thinklab.interpreter.InterpreterManager;
 import org.integratedmodelling.thinklab.kbox.KBoxManager;
 import org.integratedmodelling.thinklab.literals.ParsedLiteralValue;
 import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
@@ -38,12 +45,12 @@ import org.integratedmodelling.thinklab.transformations.ITransformation;
 import org.integratedmodelling.thinklab.transformations.TransformationFactory;
 import org.integratedmodelling.utils.CopyURL;
 import org.integratedmodelling.utils.MiscUtilities;
+import org.integratedmodelling.utils.log.LogForwarder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.service.log.LogService;
-import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.framework.Version;
 
 public abstract class ThinklabActivator implements BundleActivator, IThinklabPlugin {
 
@@ -60,10 +67,12 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	private String id = null;
 	private Bundle bundle = null;
 	private BundleContext context = null;
-	private LogService logservice; 
+	private Logger logger;
+	private LogForwarder logForwarder; 
 	protected static KnowledgeManager _km;
+	private HashSet<String> _bindingsLoaded = new HashSet<String>();
 	
-	public static ThinklabActivator getSelf() {
+	public static ThinklabActivator get() {
 		return _this;
 	}
 
@@ -75,6 +84,22 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	 * intercepts the beginning of doStart()
 	 */
 	protected void preStart() throws Exception {	
+	}
+
+	@Override
+	public Version getVersion() {
+		return bundle.getVersion();
+	}
+	
+	@Override
+	public String getId() {
+		return bundle.getSymbolicName();
+	}
+	
+	@Override
+	public String getStatus() {
+		// TODO turn into descriptive strings 
+		return "" + bundle.getState();
 	}
 	
 	public static String resolvePluginName(String name, boolean complain) throws ThinklabException {
@@ -113,6 +138,20 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		return ret;
 	}
+
+	public static Collection<IThinklabPlugin> getThinklabPlugins() throws ThinklabException {
+		
+		ArrayList<IThinklabPlugin> ret = new ArrayList<IThinklabPlugin>();
+		
+			for (Bundle b : _this.context.getBundles() ) {
+				if (b instanceof IThinklabPlugin) {
+					ret.add((IThinklabPlugin) b);
+				}
+			}
+		
+		return ret;
+	}
+
 	
 	public static IThinklabPlugin resolvePlugin(String name, boolean complain) throws ThinklabException {
 	
@@ -122,8 +161,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 
 		if (pid != null) {
 			try {
-				Bundle bb = _this.context.installBundle(pid);
-				bb.start();
+				ret = (IThinklabPlugin)_this.context.installBundle(pid);
 			} catch (BundleException e) {
 				throw new ThinklabPluginException(e);
 			}
@@ -132,16 +170,22 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 			
 		return ret;
 	}
-
 	
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public final void start(BundleContext context) throws Exception {
 
-        ServiceTracker logServiceTracker = 
-        	new ServiceTracker(context, org.osgi.service.log.LogService.class.getName(), null);
-        logServiceTracker.open();
-        this.logservice = (LogService) logServiceTracker.getService();
-       
+		ConsoleHandler defaultHandler = new ConsoleHandler();  
+        defaultHandler.setFormatter(new SimpleFormatter());  
+          
+        /// Other than the default handler we should pass the package name of the  
+        /// classes whose JDK loggers must forward logs to the OSGi Service.  
+         this.logForwarder = new LogForwarder(context,  
+                new String[] { },  
+                defaultHandler);  
+          
+        this.logForwarder.start();  
+        this.logger = Logger.getLogger(getClass().getName());  
+		
 		this.context  = context;
 		this.bundle = context.getBundle();
 		this.id = context.getBundle().getSymbolicName();
@@ -298,10 +342,15 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	}
 	
 	@Override
-	public void stop(BundleContext arg0) throws Exception {
+	public final void stop(BundleContext arg0) throws Exception {
+		
 		doStop();
+		
 		this.bundle = null;
 		this.context = null;
+		this._classloader = null;
+		
+		logForwarder.stop();  
 	}
 
 	@Override
@@ -380,8 +429,33 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 
 	@Override
 	public void loadLanguageBindings() throws ThinklabException {
-		// TODO Auto-generated method stub
 
+		
+		
+//		// may happen more than once if bound to external language, so synchronize
+//		if (this._bindingsLoaded.contains(language) ) {
+//			return;
+//		}
+//
+//		_bindingsLoaded.add(language);
+//		
+//		for (Extension ext : getOwnThinklabExtensions("language-binding")) {
+//
+//			String lang = getParameter(ext, "language");
+//			String[] resource = getParameters(ext, "resource");
+//			
+//			if (!language.equals(lang))
+//				continue;
+//			
+//			Interpreter intp = InterpreterManager.get().newInterpreter(language);
+//			
+//			
+//			for (String r : resource) {
+//				
+//				logger().info("loading " + language + " binding file: " + r);
+//				intp.loadBindings(getResourceURL(r), getClassLoader());
+//			}
+//		}
 	}
 
 	@Override
@@ -391,26 +465,22 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 
 	@Override
 	public void info(String message) {
-        if (logservice != null)
-            logservice.log(LogService.LOG_INFO, message);
+		logger.info(message);
 	}
 	
 	@Override
 	public void warn(String message) {
-        if (logservice != null)
-            logservice.log(LogService.LOG_WARNING, message);
+		logger.warning(message);
 	}
 	
 	@Override
 	public void error(String message) {
-        if (logservice != null)
-            logservice.log(LogService.LOG_ERROR, message);
+		logger.log(Level.SEVERE, message);
 	}
 
 	@Override
 	public void debug(String message) {
-        if (logservice != null)
-            logservice.log(LogService.LOG_DEBUG, message);
+		logger.log(Level.FINE, message);
 	}
 
 	@Override

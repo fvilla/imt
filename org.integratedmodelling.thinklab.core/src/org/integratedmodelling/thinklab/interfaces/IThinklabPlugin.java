@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
+import org.osgi.framework.Version;
 
 
 public interface IThinklabPlugin {
@@ -82,5 +83,11 @@ public interface IThinklabPlugin {
 	void error(String message);
 
 	void debug(String message);
+
+	public String getId();
+	
+	public Version getVersion();
+
+	public abstract String getStatus();
 
 }

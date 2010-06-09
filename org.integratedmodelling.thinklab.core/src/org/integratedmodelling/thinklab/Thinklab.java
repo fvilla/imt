@@ -2,10 +2,8 @@ package org.integratedmodelling.thinklab;
 
 public class Thinklab extends ThinklabActivator {
 
-	static Thinklab _this;
-	
 	public static Thinklab get() {
-		return (Thinklab)getSelf();
+		return (Thinklab)(ThinklabActivator.get());
 	}
 	
 	@Override
@@ -15,5 +13,4 @@ public class Thinklab extends ThinklabActivator {
 	@Override
 	protected void doStop() throws Exception {
 	}
-
 }
