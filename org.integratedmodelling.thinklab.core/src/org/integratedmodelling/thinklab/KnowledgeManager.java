@@ -279,6 +279,7 @@ public class KnowledgeManager implements IKnowledgeProvider {
 		
 		knowledgeRepository = kr;
 		sessionManager = sm;
+        commandManager = new CommandManager();
 	}
 
 	
