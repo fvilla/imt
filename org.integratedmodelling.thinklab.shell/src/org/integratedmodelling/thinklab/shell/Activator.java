@@ -1,6 +1,7 @@
 package org.integratedmodelling.thinklab.shell;
 
 import org.integratedmodelling.thinklab.ThinklabActivator;
+import org.integratedmodelling.thinklab.commandline.CommandActivator;
 import org.integratedmodelling.thinklab.literals.BooleanValue;
 
 
@@ -15,6 +16,9 @@ public class Activator extends ThinklabActivator {
 	
 	@Override
 	protected void doStart() throws Exception {
+		
+		// how are you
+		CommandActivator.get();
 		
 		boolean isGraphical = BooleanValue.parseBoolean(
 				getProperties().getProperty(GRAPHICAL_SHELL_PROPERTY, "true"));

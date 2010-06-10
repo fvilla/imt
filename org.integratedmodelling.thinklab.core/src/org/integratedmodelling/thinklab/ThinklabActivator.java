@@ -441,7 +441,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		String ipack = this.getClass().getPackage().getName() + ".implementations";
 		
-		for (Class<?> cls : MiscUtilities.findSubclasses(IInstanceImplementation.class, ipack, getClassLoader())) {	
+		for (Class<?> cls : MiscUtilities.findSubclasses(IInstanceImplementation.class, ipack, bundle)) {	
 			
 			String concept = null;
 
@@ -481,7 +481,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		String ipack = this.getClass().getPackage().getName() + ".literals";
 		
-		for (Class<?> cls : MiscUtilities.findSubclasses(ParsedLiteralValue.class, ipack, getClassLoader())) {	
+		for (Class<?> cls : MiscUtilities.findSubclasses(ParsedLiteralValue.class, ipack, bundle)) {	
 			
 			String concept = null;
 			String xsd = null;
@@ -521,7 +521,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		String ipack = this.getClass().getPackage().getName() + ".commands";
 		
-		for (Class<?> cls : MiscUtilities.findSubclasses(ICommandHandler.class, ipack, getClassLoader())) {	
+		for (Class<?> cls : MiscUtilities.findSubclasses(ICommandHandler.class, ipack, bundle)) {	
 			
 			/*
 			 * lookup annotation, ensure we can use the class
@@ -598,7 +598,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		String ipack = this.getClass().getPackage().getName() + ".commands";
 		
-		for (Class<?> cls : MiscUtilities.findSubclasses(IListingProvider.class, ipack, getClassLoader())) {	
+		for (Class<?> cls : MiscUtilities.findSubclasses(IListingProvider.class, ipack, bundle)) {	
 			
 			/*
 			 * lookup annotation, ensure we can use the class
@@ -628,7 +628,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		String ipack = this.getClass().getPackage().getName() + ".transformations";
 		
-		for (Class<?> cls : MiscUtilities.findSubclasses(ITransformation.class, ipack, getClassLoader())) {	
+		for (Class<?> cls : MiscUtilities.findSubclasses(ITransformation.class, ipack, bundle)) {	
 			
 			/*
 			 * lookup annotation, ensure we can use the class
@@ -657,7 +657,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		String ipack = this.getClass().getPackage().getName() + ".kbox";
 		
-		for (Class<?> cls : MiscUtilities.findSubclasses(IKBoxHandler.class, ipack, getClassLoader())) {	
+		for (Class<?> cls : MiscUtilities.findSubclasses(IKBoxHandler.class, ipack, bundle)) {	
 			
 			/*
 			 * lookup annotation, ensure we can use the class

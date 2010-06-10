@@ -79,6 +79,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.osgi.framework.Bundle;
 
 /**
  * Path name manipulation, string manipulation, and more.<p>
@@ -137,7 +139,7 @@ public class MiscUtilities{
 
 		// Translate the package name into an absolute path
 		String name = new String(pckgname).replace('.', '/');
-
+		
 		// Get a File object for the package
 		URL url = cloader.getResource(name);
 		
@@ -179,6 +181,42 @@ public class MiscUtilities{
 		}
 
 		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Collection<Class<?>> findSubclasses(ArrayList<Class<?>> ret, Class<?> mainClass, String pckgname, Bundle bundle) {
+
+		if (ret == null)
+			ret = new ArrayList<Class<?>>();
+
+		// Translate the package name into an absolute path
+		String name = "bin/" + new String(pckgname).replace('.', '/');
+		
+		Enumeration<URL> clf = bundle.findEntries(name, "*.class", true);
+		
+		String cls = null;
+		if (clf != null) {
+			while (clf.hasMoreElements()) {
+				cls = clf.nextElement().toString();
+				int xf = cls.indexOf("bin/");
+				cls = cls.substring(xf+4).replace('/', '.');
+				cls = Path.getLeading(cls, '.');
+				Class<?> clz = null;
+				try {
+					clz = bundle.loadClass(cls);
+				} catch (ClassNotFoundException e) {
+				}
+				if (clz != null && mainClass.isAssignableFrom(clz)) {
+					ret.add(clz);
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	public static Collection<Class<?>> findSubclasses(Class<?> mainClass, String pckgname, Bundle bundle) {
+		return findSubclasses(null, mainClass, pckgname, bundle);
 	}
 
 	

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Opal
+Bundle-SymbolicName: org.integratedmodelling.thinklab.opal;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.integratedmodelling.opal.OPALPlugin
+Bundle-Vendor: integratedmodelling.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.osgi.framework;version="1.3.0"
+Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0"
