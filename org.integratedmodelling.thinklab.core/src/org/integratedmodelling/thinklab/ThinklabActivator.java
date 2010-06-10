@@ -70,7 +70,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	protected BundleContext context = null;
 	protected Logger logger;
 	private LogForwarder logForwarder; 
-	protected static KnowledgeManager _km;
+
 	private HashSet<String> _bindingsLoaded = new HashSet<String>();
 	
 	protected abstract void doStart() throws Exception;
@@ -128,9 +128,11 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 
 		_classloader = this.getClass().getClassLoader();		
 		
-		if (_km == null)
-			_km = new KnowledgeManager();
-		
+		KnowledgeManager km = null;		
+		if (!KnowledgeManager.exists()) {
+			km = new KnowledgeManager();
+		}
+			
 		for (IPluginLifecycleListener lis : KnowledgeManager.getPluginListeners()) {
 			lis.prePluginLoaded(this);
 		}
@@ -152,6 +154,10 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		loadKboxes();
 //		loadApplications();
 		loadLanguageBindings();
+
+		if (km != null) {
+			km.initialize();
+		}
 		
 		doStart();
 
@@ -169,22 +175,24 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		// cache in local dir; set ontoFolder to null if no ontologies in plugin.
 		boolean found = false;
 		for (URL f : getResources("ontologies", "*.owl", true)) {
+	
 			if (!found) {
+				
 				if (!ontoFolder.isDirectory() && !ontoFolder.mkdirs()) {
 					throw new ThinklabIOException("problem writing to ontology directory: " + 
 								ontoFolder);
 				}
 				found = true;
-
-				File of = CopyURL.cache(f, ontoFolder, bundle.getLastModified());
-				try {
-					_km.getKnowledgeRepository().refreshOntology(
-							of.toURI().toURL(), 
-							MiscUtilities.getFileBaseName(of.toString()), 
-							false);
-				} catch (MalformedURLException e) {
-					throw new ThinklabInternalErrorException(e);
-				}
+			}
+			
+			File of = CopyURL.cache(f, ontoFolder, bundle.getLastModified());
+			try {
+				KnowledgeManager.get().getKnowledgeRepository().refreshOntology(
+						of.toURI().toURL(), 
+						MiscUtilities.getFileBaseName(of.toString()), 
+						false);
+			} catch (MalformedURLException e) {
+				throw new ThinklabInternalErrorException(e);
 			}
 		}
 		
@@ -406,7 +414,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	
 	@Override
 	public void warn(String message) {
-		logger.warning(message);
+		logger.log(Level.WARNING, message);
 	}
 	
 	@Override

@@ -64,6 +64,7 @@ import org.integratedmodelling.thinklab.command.CommandParser;
 import org.integratedmodelling.thinklab.configuration.LocalConfiguration;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinklab.interfaces.applications.ISession;
 import org.integratedmodelling.thinklab.interfaces.applications.IUserModel;
 import org.integratedmodelling.thinklab.interfaces.literals.IValue;
@@ -78,42 +79,204 @@ import bsh.util.JConsole;
  */
 public class GraphicalShell {
 	
-	JConsole console = null;
 	
 	File historyFile = null;
 	
 	Font inputFont = new Font("Courier", Font.BOLD, 12);
 	Font outputFont = new Font("Courier", Font.PLAIN, 12);
 
-	public class ConsoleUserModel implements IUserModel {
-
-		@Override
-		public InputStream getInputStream() {
-			return console.getInputStream();
+	public static String readLine(InputStream stream) throws ThinklabIOException {
+		String ret = null;
+		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+		try {
+			ret = reader.readLine();
+		} catch (IOException e) {
+			throw new ThinklabIOException(e);
 		}
-
-		@Override
-		public PrintStream getOutputStream() {
-			return console.getOut();
-		}
-
-		@Override
-		public void initialize(ISession session) {
-			// TODO Auto-generated method stub
-		}
+		return ret;
 	}
 	
-	public class ConsoleSession extends Session {
+	class REPLThread extends Thread {
 
-		public ConsoleSession() throws ThinklabException {
-			super();
-		}
+		JConsole console = null;
+		boolean error = false;
+		ISession session;
+		
+		public class ConsoleUserModel implements IUserModel {
 
-		@Override
-		protected IUserModel createUserModel() {
-			return new ConsoleUserModel();
+			@Override
+			public InputStream getInputStream() {
+				return console.getInputStream();
+			}
+
+			@Override
+			public PrintStream getOutputStream() {
+				return console.getOut();
+			}
+
+			@Override
+			public void initialize(ISession session) {
+				// TODO Auto-generated method stub
+			}
 		}
 		
+		public class ConsoleSession extends Session {
+
+			public ConsoleSession() throws ThinklabException {
+				super();
+			}
+
+			@Override
+			protected IUserModel createUserModel() {
+				return new ConsoleUserModel();
+			}
+			
+		}
+		
+
+		public  void printStatusMessage() {
+
+			console.println("ThinkLab shell v" + Thinklab.get().getVersion());
+			console.println("System path: " + LocalConfiguration.getSystemPath());
+			console.println("Data path: " + LocalConfiguration.getDataPath());					
+			console.println();
+			
+			console.println("Enter \'help\' for a list of commands; \'exit\' quits");
+			console.println();
+		}
+		
+		public void run() {
+					
+			ConsolePanel jpanels = new ConsolePanel();
+			this.console = jpanels.getConsole();
+			try {
+				this.session = new ConsoleSession();
+			} catch (ThinklabException e1) {
+				throw new ThinklabRuntimeException(e1);
+			}
+
+			/*
+			 * read history if any
+			 */
+			List<?> lines = null;
+			synchronized (historyFile) {
+				try {
+					lines = FileUtils.readLines(historyFile, null);
+				} catch (IOException e) {
+					// no problem
+				}
+			}
+			
+			if (lines != null) {
+				for (Object line : lines) {
+					console.addToHistory(line.toString());
+				}
+			}
+			
+			/*
+			 * TODO
+			 * privileged shell by default. We may want to condition this
+			 * to authentication. For now all a privileged shell can do
+			 * is to auto-annotate concepts. 
+			 */
+			KnowledgeManager.get().setAdminPrivileges(true);
+			
+			/* greet user */
+			printStatusMessage();
+
+			String input = "";
+			boolean finished = false;
+			
+			/* define commands from user input */
+			while(!finished) {
+				
+				console.print("> ");
+				console.setStyle(inputFont);
+				
+				// TODO change to console input stream
+				try {
+					input = readLine(session.getInputStream()).trim();
+				} catch (ThinklabIOException e) {
+					throw new ThinklabRuntimeException(e);
+				}
+				
+				console.setStyle(outputFont);
+				
+				if ("exit".equals(input)) {
+					console.println("shell terminated");
+					finished = true;
+					
+				} else if (input.startsWith("!")) {
+					
+					String ss = input.substring(1);
+					for (int i = console.getHistory().size(); i > 0; i--) {
+						String s = console.getHistory().get(i-1);
+						if (s.startsWith(ss)) {
+							console.println(s);
+							execute(s);
+							break;
+						}
+					}
+					
+				} else if (!("".equals(input)) && /* WTF? */!input.equals(";")) {
+					
+					execute(input);
+					
+					// TODO see if we want to exclude commands that created errors.
+					if (/*!error*/true) {
+				          BufferedWriter bw = null;
+					      try {
+					        	 bw = new BufferedWriter(
+					        			  new FileWriter(historyFile, true));
+					          bw.write(input.trim());
+					          bw.newLine();
+					          bw.flush();
+					       } catch (IOException ioe) {
+					       } finally {
+					 	 if (bw != null) 
+					 		 try {
+					 			 bw.close();
+					 			 break;
+					 	 	} catch (IOException ioe2) {
+					 	 		break;
+					 	 	}
+					    }
+					}
+				}
+			}
+			
+			this.session = null;
+			this.console.setVisible(false);
+			this.console = null;
+			
+		}
+
+		private void execute(String input) {
+
+			try {
+				this.error = false;
+				
+				Command cmd = CommandParser.parse(input);
+				
+				if (cmd == null)
+					return;
+				
+				IValue result = CommandManager.get().submitCommand(cmd, session);
+	            if (result != null)
+	                console.println(result.toString());
+	            
+	            console.getOut().flush();
+	            
+	            SwingUtilities.invokeAndWait(this);
+	            
+			} catch (Exception e) {
+				e.printStackTrace();
+				this.error = true;
+				console.println(">>> error: " + e.getMessage() + " <<<");
+			}
+
+		}
+
 	}
 	
 	public class ConsolePanel extends JFrame {
@@ -144,13 +307,9 @@ public class GraphicalShell {
 		}
 	}
 	
-	public ISession session;
-
-	private boolean error;
 	
 	public GraphicalShell() throws ThinklabException {
 		
-		this.session = new ConsoleSession();
 		
 		historyFile = 
 			new File(
@@ -159,140 +318,7 @@ public class GraphicalShell {
 				".history");
 	}
 	
-	public  void printStatusMessage() {
-
-		console.println("ThinkLab shell v" + Thinklab.get().getVersion());
-		console.println("System path: " + LocalConfiguration.getSystemPath());
-		console.println("Data path: " + LocalConfiguration.getDataPath());					
-		console.println();
-		
-		console.println("Enter \'help\' for a list of commands; \'exit\' quits");
-		console.println();
-	}
-
-	
-	public static String readLine(InputStream stream) throws ThinklabIOException {
-		String ret = null;
-		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-		try {
-			ret = reader.readLine();
-		} catch (IOException e) {
-			throw new ThinklabIOException(e);
-		}
-		return ret;
-	}
-	
-	public void startConsole() throws Exception {
-				
-		ConsolePanel jpanels = new ConsolePanel();
-		this.console = jpanels.getConsole();
-		
-		
-		/*
-		 * read history if any
-		 */
-		List<?> lines = null;
-		try {
-			lines = FileUtils.readLines(historyFile, null);
-		} catch (IOException e) {
-			// no problem
-		}
-		
-		if (lines != null) {
-			for (Object line : lines) {
-				console.addToHistory(line.toString());
-			}
-		}
-		
-		/*
-		 * TODO
-		 * privileged shell by default. We may want to condition this
-		 * to authentication. For now all a privileged shell can do
-		 * is to auto-annotate concepts. 
-		 */
-		KnowledgeManager.get().setAdminPrivileges(true);
-		
-		/* greet user */
-		printStatusMessage();
-
-		String input = "";
-		
-		/* define commands from user input */
-		while(true) {
-			
-			console.print("> ");
-			console.setStyle(inputFont);
-			
-			input = readLine(session.getInputStream()).trim();
-			
-			console.setStyle(outputFont);
-			
-			if ("exit".equals(input)) {
-				
-				console.println("shell terminated");
-				System.exit(0);
-				break;
-				
-			} else if (input.startsWith("!")) {
-				
-				String ss = input.substring(1);
-				for (int i = console.getHistory().size(); i > 0; i--) {
-					String s = console.getHistory().get(i-1);
-					if (s.startsWith(ss)) {
-						console.println(s);
-						execute(s);
-						break;
-					}
-				}
-				
-			} else if (!("".equals(input)) && /* WTF? */!input.equals(";")) {
-				
-				execute(input);
-				
-				// TODO see if we want to exclude commands that created errors.
-				if (/*!error*/true) {
-			          BufferedWriter bw = null;
-				      try {
-				        	 bw = new BufferedWriter(
-				        			  new FileWriter(historyFile, true));
-				          bw.write(input.trim());
-				          bw.newLine();
-				          bw.flush();
-				       } catch (IOException ioe) {
-				       } finally {
-				 	 if (bw != null) 
-				 		 try {
-				 			 bw.close();
-				 	 	} catch (IOException ioe2) {
-				 	 	}
-				    }
-				}
-			}
-		}
-		
-	}
-
-	private void execute(String input) {
-
-		try {
-			this.error = false;
-			
-			Command cmd = CommandParser.parse(input);
-			
-			if (cmd == null)
-				return;
-			
-			IValue result = CommandManager.get().submitCommand(cmd, session);
-            if (result != null)
-                console.println(result.toString());
-            
-            console.getOut().flush();
-            
-		} catch (Exception e) {
-			e.printStackTrace();
-			this.error = true;
-			console.println(">>> error: " + e.getMessage() + " <<<");
-		}
-
+	public void startConsole() {
+		new REPLThread().run();
 	}
 }

@@ -20,7 +20,19 @@
             class="org.integratedmodelling.thinkscape.views.PluginView"
             icon="icons/sample.gif"
             id="org.integratedmodelling.thinkscape.views.PluginView"
-            name="Thinklab Plugins">
+            name="Thinklab Projects">
+      </view>
+      <view
+            category="org.integratedmodelling.thinkscape.thinkscape"
+            class="org.integratedmodelling.thinkscape.views.ThinklabConsole"
+            id="org.integratedmodelling.thinkscape.views.ThinklabConsole"
+            name="Thinklab Console">
+      </view>
+      <view
+            category="org.integratedmodelling.thinkscape.thinkscape"
+            class="org.integratedmodelling.thinkscape.views.Sources"
+            id="org.integratedmodelling.thinkscape.views.Sources"
+            name="Sources">
       </view>
    </extension>
    <extension
@@ -108,6 +120,32 @@
             </command>
          </toolbar>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.integratedmodelling.thinkscape.perspectives.ThinklabPerspective"
+            id="org.integratedmodelling.thinkscape.perspectives.ThinklabPerspective"
+            name="Thinklab Modeling">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
+            id="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
+            name="New Annotation">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            describer="org.integratedmodelling.thinkscape.describers.AnnotationDescriber"
+            file-extensions="annotation"
+            id="org.integratedmodelling.thinkscape.semantic-annotation"
+            name="Semantic annotation"
+            priority="normal">
+      </content-type>
    </extension>
 
 </plugin>

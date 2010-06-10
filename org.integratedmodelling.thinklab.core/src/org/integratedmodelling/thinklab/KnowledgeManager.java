@@ -280,6 +280,10 @@ public class KnowledgeManager implements IKnowledgeProvider {
 		knowledgeRepository = kr;
 		sessionManager = sm;
         commandManager = new CommandManager();
+        
+		/* link and initialize knowledge repository */
+	    knowledgeRepository.initialize();
+
 	}
 
 	
@@ -564,43 +568,8 @@ public class KnowledgeManager implements IKnowledgeProvider {
 	
 	public void initialize() throws ThinklabException {
 	
-
-		/* link and initialize knowledge repository */
-	    knowledgeRepository.initialize();
-        
-        /* see if the preferences override the thinklab core ontology URL */
-        String cont = 
-        	LocalConfiguration.getProperties().getProperty(
-        			"thinklab.ontology.core", 
-        			DEFAULT_CORE_ONTOLOGY);
-
-        	URL tco = Thinklab.get().getResourceURL(cont);  	
-            knowledgeRepository.refreshOntology(tco, MiscUtilities.getNameFromURL(cont), true);
-        
         /* initialize types before we register plugins */
         initializeThinklabTypes();
-                
-        /* initialize default blacklists */
-		String blk = LocalConfiguration.getProperties().getProperty(IGNORE_PROPERTY_PROPERTY);
-
-		if (blk != null) {
-			String[] bk = blk.trim().split(",");
-			for (String s : bk) {
-				KnowledgeManager.get().blacklistProperty(s);
-			}
-		}
-
-		blk = LocalConfiguration.getProperties().getProperty(IGNORE_CONCEPT_PROPERTY);
-
-		if (blk != null) {
-			String[] bk = blk.trim().split(",");
-			for (String s : bk) {
-				KnowledgeManager.get().blacklistConcept(s);
-			}
-		}
-
-        commandManager = new CommandManager();
-        				
 		Thinklab.get().info("knowledge manager initialized successfully");
 		
 	}
@@ -608,8 +577,6 @@ public class KnowledgeManager implements IKnowledgeProvider {
 	
 	public void shutdown() {
 	
-		/* finalize all plug-ins */
-		
 		/* flush knowledge repository */
         
 	}
@@ -953,7 +920,7 @@ public class KnowledgeManager implements IKnowledgeProvider {
 	}
 
 	public IConcept retrieveConcept(SemanticType t) {
-
+		
 		IConcept ret = null;
 		IOntology o = knowledgeRepository.retrieveOntology(t.getConceptSpace());
 	    if (o != null)

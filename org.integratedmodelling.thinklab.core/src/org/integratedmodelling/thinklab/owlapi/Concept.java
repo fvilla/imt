@@ -497,7 +497,6 @@ public class Concept extends Knowledge implements IConcept {
 		return ret;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Collection<IRelationship> getRelationships() throws ThinklabException {
 		ArrayList<IRelationship> ret = new ArrayList<IRelationship>();
 //		Collection<RDFProperty> props = entity.getRDFProperties();
@@ -507,20 +506,20 @@ public class Concept extends Knowledge implements IConcept {
 //				ret.add(new Relationship(new Property(p),v));
 //			}
 //		}
-		Thinklab.get().warn("deprecated getRelationships() called on Concept; returning empty result");
+		//Thinklab.get().warn("deprecated getRelationships() called on Concept; returning empty result");
 
 		return ret;		
 	}
 
 	public Collection<IRelationship> getRelationships(String property) throws ThinklabException {
 		ArrayList<IRelationship> ret = new ArrayList<IRelationship>();
-		IProperty p = KnowledgeManager.get().requireProperty(property);
+		//IProperty p = KnowledgeManager.get().requireProperty(property);
 //		Collection<IValue> rrel = 
 //			ThinklabOWLManager.get().translateRelationship(concept, ((Property)p).property);
 //		for (IValue v : rrel) {
 //			ret.add(new Relationship(p,v));
 //		}
-		Thinklab.get().warn("deprecated getRelationships() called on Concept; returning empty result");
+		//Thinklab.get().warn("deprecated getRelationships() called on Concept; returning empty result");
 
 		return ret;
 	}
@@ -531,7 +530,7 @@ public class Concept extends Knowledge implements IConcept {
 
 	public IValue get(String property) throws ThinklabException {
 		
-		Thinklab.get().warn("deprecated get() called on Concept; returning empty result");
+		//Thinklab.get().warn("deprecated get() called on Concept; returning empty result");
 
 		Collection<IRelationship> cr = getRelationshipsTransitive(property);
 		if (cr.size() == 1)
@@ -544,7 +543,7 @@ public class Concept extends Knowledge implements IConcept {
 
 		ArrayList<IRelationship> ret = new ArrayList<IRelationship>();
 		
-		Thinklab.get().warn("deprecated getRelationshipsTransitive called on Concept; returning empty result");
+		//Thinklab.get().warn("deprecated getRelationshipsTransitive called on Concept; returning empty result");
 //		IProperty p = KnowledgeManager.get().requireProperty(property);
 //
 //		

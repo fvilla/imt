@@ -20,6 +20,17 @@ import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IKnowledgeSubject;
 import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.custom.TableTree;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Text;
 
 
 /**
@@ -41,6 +52,24 @@ import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
  */
 
 public class KnowledgeView extends ViewPart {
+	private static class TreeContentProvider implements ITreeContentProvider {
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		}
+		public void dispose() {
+		}
+		public Object[] getElements(Object inputElement) {
+			return getChildren(inputElement);
+		}
+		public Object[] getChildren(Object parentElement) {
+			return new Object[] { "item_0", "item_1", "item_2" };
+		}
+		public Object getParent(Object element) {
+			return null;
+		}
+		public boolean hasChildren(Object element) {
+			return getChildren(element).length > 0;
+		}
+	}
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -49,11 +78,10 @@ public class KnowledgeView extends ViewPart {
 
 	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
-	private Action action1;
-	private Action action2;
 	private Action doubleClickAction;
 
-	private ConceptMap conceptmap;
+	private Table table;
+	private Text text;
 
 	/*
 	 * The content provider class is responsible for
@@ -156,13 +184,13 @@ public class KnowledgeView extends ViewPart {
 		private TreeObject populate(IConcept root) {
 
 			TreeObject ret = 
-				conceptmap.incomingEdgesOf(root).size() > 0 ?
+				root.getChildren().size() > 0 ?
 					new TreeParent(root) :
 					new TreeObject(root);
 			
 			if (ret instanceof TreeParent)
-				for (Object s : conceptmap.incomingEdgesOf(root)) {
-					((TreeParent)ret).addChild(populate((IConcept) conceptmap.getEdgeSource(s)));
+				for (IConcept c : root.getChildren()) {
+					((TreeParent)ret).addChild(populate(c));
 				}
 			
 			return ret;	
@@ -192,15 +220,7 @@ public class KnowledgeView extends ViewPart {
 
 			@Override
 			public void onPluginLoaded(IThinklabPlugin plugin) {
-				/*
-				 * recompute the hierarchy
-				 */
-				try {
-					conceptmap = new ConceptMap(KnowledgeManager.Thing());
-				} catch (ThinklabException e) {
-					throw new ThinklabRuntimeException(e);
-				}
-				System.out.println("HYYYAHHHH");
+
 				viewer.setContentProvider(new ViewContentProvider());
 				viewer.refresh();
 			}
@@ -221,11 +241,6 @@ public class KnowledgeView extends ViewPart {
 		
 		KnowledgeManager.registerPluginListener(new PluginListener());
 		
-		try {
-			this.conceptmap = new ConceptMap(KnowledgeManager.Thing());
-		} catch (ThinklabException e) {
-			throw new ThinklabRuntimeException(e);
-		}
 	}
 
 	/**
@@ -233,8 +248,40 @@ public class KnowledgeView extends ViewPart {
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		parent.setLayout(new GridLayout(1, false));
+		
+		TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
+		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		TabItem tbtmConceptTree = new TabItem(tabFolder, SWT.NONE);
+		tbtmConceptTree.setText("Concept Tree");
+		viewer = new TreeViewer(tabFolder, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		Tree tree = viewer.getTree();
+		tbtmConceptTree.setControl(tree);
 		drillDownAdapter = new DrillDownAdapter(viewer);
+		
+		TabItem tbtmKboxes = new TabItem(tabFolder, SWT.NONE);
+		tbtmKboxes.setText("KBoxes");
+		
+		TableTreeViewer tableTreeViewer = new TableTreeViewer(tabFolder, SWT.BORDER | SWT.FULL_SELECTION);
+		TableTree tableTree = tableTreeViewer.getTableTree();
+		tbtmKboxes.setControl(tableTree);
+		tableTreeViewer.setContentProvider(new TreeContentProvider());
+		
+		TabItem tbtmSearchResults = new TabItem(tabFolder, SWT.NONE);
+		tbtmSearchResults.setText("Search Results");
+		
+		Composite composite = new Composite(tabFolder, SWT.NONE);
+		tbtmSearchResults.setControl(composite);
+		composite.setLayout(new TableColumnLayout());
+		
+		TableViewer tableViewer = new TableViewer(composite, SWT.BORDER | SWT.FULL_SELECTION);
+		table = tableViewer.getTable();
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		
+		text = new Text(parent, SWT.BORDER);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
@@ -268,14 +315,10 @@ public class KnowledgeView extends ViewPart {
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(action1);
 		manager.add(new Separator());
-		manager.add(action2);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(action1);
-		manager.add(action2);
 		manager.add(new Separator());
 		drillDownAdapter.addNavigationActions(manager);
 		// Other plug-ins can contribute there actions here
@@ -283,32 +326,11 @@ public class KnowledgeView extends ViewPart {
 	}
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(action1);
-		manager.add(action2);
 		manager.add(new Separator());
 		drillDownAdapter.addNavigationActions(manager);
 	}
 
 	private void makeActions() {
-		action1 = new Action() {
-			public void run() {
-				showMessage("Action 1 executed");
-			}
-		};
-		action1.setText("Action 1");
-		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
-		action2 = new Action() {
-			public void run() {
-				showMessage("Action 2 executed");
-			}
-		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		doubleClickAction = new Action() {
 			public void run() {
 				ISelection selection = viewer.getSelection();
