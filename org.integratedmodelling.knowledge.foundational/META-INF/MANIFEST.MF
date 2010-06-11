@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Foundational Knowledge
+Bundle-SymbolicName: org.integratedmodelling.knowledge.foundational
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.integratedmodelling.knowledge.foundational.Activator
+Bundle-Vendor: integratedmodelling.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.osgi.framework;version="1.3.0"
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0"

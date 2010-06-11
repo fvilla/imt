@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:habitat="http://www.integratedmodelling.org/ks/ecology/eco/habitat.owl#"
+    xmlns:assert="http://www.owl-ontologies.com/assert.owl#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:lulc="http://www.integratedmodelling.org/ks/ecology/lulc/lulc.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xml:base="http://www.integratedmodelling.org/ks/ecology/lulc/lulc.owl">
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="http://www.integratedmodelling.org/ks/ecology/eco/habitat.owl"/>
+  </owl:Ontology>
+  <owl:Class rdf:ID="LandUseTypology">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="LandTypology"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LandClassificationSystem"/>
+  <owl:Class rdf:ID="LandClassificationTextCategorization">
+    <rdfs:subClassOf rdf:resource="#LandClassificationSystem"/>
+  </owl:Class>
+  <owl:Class rdf:ID="LandClassificationNumericMapping">
+    <rdfs:subClassOf rdf:resource="#LandClassificationSystem"/>
+  </owl:Class>
+  <owl:Class rdf:ID="PubliclyOwnedLand">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="LandOwnershipTypology"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LandCoverTypology">
+    <rdfs:subClassOf rdf:resource="#LandTypology"/>
+  </owl:Class>
+  <owl:Class rdf:ID="PrivatelyOwnedLand">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#LandOwnershipTypology"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="http://www.integratedmodelling.org/ks/ecology/eco/habitat.owl#Habitat">
+    <owl:equivalentClass rdf:resource="#LandTypology"/>
+  </owl:Class>
+  <owl:Class rdf:about="#LandOwnershipTypology">
+    <rdfs:subClassOf rdf:resource="#LandTypology"/>
+  </owl:Class>
+  <owl:ObjectProperty rdf:ID="containsTypology">
+    <rdfs:range rdf:resource="#LandTypology"/>
+    <rdfs:domain rdf:resource="#LandClassificationSystem"/>
+  </owl:ObjectProperty>
+</rdf:RDF>
+
+<!-- Created with TopBraid -->
