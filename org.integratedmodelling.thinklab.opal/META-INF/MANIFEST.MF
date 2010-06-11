@@ -8,3 +8,6 @@ Bundle-Vendor: integratedmodelling.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.3.0"
 Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0"
+Export-Package: org.integratedmodelling.opal,
+ org.integratedmodelling.opal.profile,
+ org.integratedmodelling.opal.utils

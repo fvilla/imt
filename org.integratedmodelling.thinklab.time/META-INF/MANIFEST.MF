@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Time
 Bundle-SymbolicName: org.integratedmodelling.thinklab.time;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.integratedmodelling.thinklab.time.Activator
+Bundle-Activator: org.integratedmodelling.time.TimePlugin
 Bundle-Vendor: integratedmodelling.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.3.0"
@@ -12,3 +12,32 @@ Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.corescience;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.geospace;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/joda-time-1.4.jar,
+ .
+Export-Package: org.integratedmodelling.time,
+ org.integratedmodelling.time.constructors,
+ org.integratedmodelling.time.extents,
+ org.integratedmodelling.time.implementations.observations,
+ org.integratedmodelling.time.literals,
+ org.joda.time,
+ org.joda.time.base,
+ org.joda.time.chrono,
+ org.joda.time.convert,
+ org.joda.time.field,
+ org.joda.time.format,
+ org.joda.time.tz,
+ org.joda.time.tz.data,
+ org.joda.time.tz.data.Africa,
+ org.joda.time.tz.data.America,
+ org.joda.time.tz.data.America.Argentina,
+ org.joda.time.tz.data.America.Indiana,
+ org.joda.time.tz.data.America.Kentucky,
+ org.joda.time.tz.data.America.North_Dakota,
+ org.joda.time.tz.data.Antarctica,
+ org.joda.time.tz.data.Asia,
+ org.joda.time.tz.data.Atlantic,
+ org.joda.time.tz.data.Australia,
+ org.joda.time.tz.data.Etc,
+ org.joda.time.tz.data.Europe,
+ org.joda.time.tz.data.Indian,
+ org.joda.time.tz.data.Pacific

@@ -10,5 +10,6 @@ Import-Package: org.osgi.framework;version="1.3.0"
 Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0"
 Bundle-ClassPath: lib/clojure.jar,
  .
-Export-Package: clojure.lang
+Export-Package: clojure.lang,
+ org.integratedmodelling.clojure
 Bundle-ActivationPolicy: lazy

@@ -24,8 +24,10 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Set;
 
@@ -126,6 +128,38 @@ public class FileKnowledgeRepository implements IKnowledgeRepository {
 	
 	public static FileKnowledgeRepository get() {
 		return KR;
+	}
+	
+	/**
+	 * Return all the children of owl:Thing, which often (for some reason) are
+	 * not children of owl:Thing. Sort by local name, to boot.
+	 * 
+	 * @return
+	 */
+	public Collection<IConcept> getAllRootConcepts() {
+		
+		ArrayList<IConcept> ret = new ArrayList<IConcept>();
+		
+		for (IOntology o : ontologies.values()) {
+			
+			for (IConcept c : o.getConcepts()) {
+				Collection<IConcept> parents = c.getParents();
+				if (parents.size() == 0 || 
+					parents.size() == 1 && parents.iterator().next().toString().equals("owl:Thing")) {
+					ret.add(c);
+				}
+			}
+			
+		}
+		
+		Collections.sort(ret, new Comparator<IConcept>() {
+			@Override
+			public int compare(IConcept o1, IConcept o2) {
+				return o1.getLocalName().compareTo(o2.getLocalName());
+			}
+		});
+		
+		return ret;
 	}
 	
 	/**

@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.integratedmodelling.thinklab.KnowledgeManager;
-import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.constraint.Constraint;
 import org.integratedmodelling.thinklab.constraint.Restriction;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
@@ -226,18 +225,17 @@ public class Concept extends Knowledge implements IConcept {
 	public Collection<IConcept> getChildren() {
 		Set<IConcept> concepts = new HashSet<IConcept>();
 		synchronized (this.entity) {
+
+			if (this.toString().equals("owl:Thing")) {
+				return FileKnowledgeRepository.KR.getAllRootConcepts();
+			}
+			
 			Set<OWLDescription> set = ((OWLClass) this.entity)
 				.getSubClasses(FileKnowledgeRepository.KR.manager
 						.getOntologies());
 			for (OWLDescription s : set) {
 				if (!(s.isAnonymous() || s.isOWLNothing() || s.isOWLThing()))
 					concepts.add(new Concept(s.asOWLClass()));
-			}
-			if (set.isEmpty() && ((OWLClass) entity).isOWLThing()) {
-				for (IOntology onto : FileKnowledgeRepository.KR.ontologies
-					.values()) {
-					concepts.addAll(onto.getConcepts());
-				}
 			}
 		}
 		return concepts;
