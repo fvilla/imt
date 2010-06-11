@@ -36,7 +36,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Properties;
 
-import org.integratedmodelling.sql.Activator;
+import org.integratedmodelling.sql.SQLPlugin;
 import org.integratedmodelling.sql.SQLServer;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
@@ -70,8 +70,8 @@ public class HSQLFileServer extends SQLServer {
 				KnowledgeManager.KM != null) {
 			
 			String path = 
-				Activator.get().getProperties().
-					getProperty("hsql.datadir", Activator.get().getScratchPath().toString());
+				SQLPlugin.get().getProperties().
+					getProperty("hsql.datadir", SQLPlugin.get().getScratchPath().toString());
 			
 			databaseName = path + "/" + databaseName;
 		}

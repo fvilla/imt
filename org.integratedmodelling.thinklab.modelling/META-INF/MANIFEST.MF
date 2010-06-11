@@ -15,7 +15,10 @@ Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.sql;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.corescience;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.geospace;bundle-version="1.0.0",
- org.integratedmodelling.thinklab.time;bundle-version="1.0.0"
+ org.integratedmodelling.thinklab.time;bundle-version="1.0.0",
+ org.integratedmodelling.thinklab.idv;bundle-version="1.0.0",
+ org.integratedmodelling.thinklab.currency;bundle-version="1.0.0",
+ org.integratedmodelling.thinklab.riskwiz;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/Ascape_5.5.0.jar,
  lib/bufrTables-1.5.jar,

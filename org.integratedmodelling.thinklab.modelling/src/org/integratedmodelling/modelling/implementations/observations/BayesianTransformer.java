@@ -179,7 +179,7 @@ public class BayesianTransformer
 		 * specification has been made, log a warning.
 		 */
 		if (outputStates.size() == 0) {
-			ModellingPlugin.get().logger().warn(
+			ModellingPlugin.get().warn(
 					"bayesian transformer: " + 
 					getObservableClass() + 
 					": no states are being retained, bayesian network will be " +
@@ -309,7 +309,7 @@ public class BayesianTransformer
 						}	
 					} catch (Exception ex) {
 					
-						ModellingPlugin.get().logger().error("exception " + ex + " while setting " + evidence[e].nodename + " to " + ev);
+						ModellingPlugin.get().error("exception " + ex + " while setting " + evidence[e].nodename + " to " + ev);
 						// throw new ThinklabValidationException(ex);
 					}
 			}

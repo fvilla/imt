@@ -112,7 +112,7 @@ public abstract class SQLServer {
 	private boolean usePooling = true;
 	
 	public static SQLServer newInstance(String uri, Properties properties) throws ThinklabException {
-		return Activator.get().createSQLServer(uri, properties);
+		return SQLPlugin.get().createSQLServer(uri, properties);
 	}
 	
 	public void setDatabase(String db) {
@@ -160,7 +160,7 @@ public abstract class SQLServer {
     	ClassLoader clsl = null;
     	
     	try {
-    		clsl = Activator.get().swapClassloader();
+    		clsl = SQLPlugin.get().swapClassloader();
     	
     		ObjectPool connectionPool = new GenericObjectPool(null);
     		ConnectionFactory connectionFactory = 
@@ -171,7 +171,7 @@ public abstract class SQLServer {
     					null,null,readOnly,autoCommit);
     		dataSource = new PoolingDataSource(connectionPool);
     	} finally {
-    		Activator.get().resetClassLoader(clsl);
+    		SQLPlugin.get().resetClassLoader(clsl);
     	}
     	
     	return dataSource;
@@ -226,7 +226,7 @@ public abstract class SQLServer {
     public void initialize() throws ThinklabStorageException {
 
     	try {
-            Class.forName(getDriverClass(), true, Activator.get().getClassLoader());
+            Class.forName(getDriverClass(), true, SQLPlugin.get().getClassLoader());
         } catch (ClassNotFoundException e) {
         	throw new ThinklabStorageException(e);
         }
@@ -247,7 +247,7 @@ public abstract class SQLServer {
     public void initialize(URI uri) throws ThinklabStorageException {
 
     	try {
-            Class.forName(getDriverClass(), true, Activator.get().getClassLoader());
+            Class.forName(getDriverClass(), true, SQLPlugin.get().getClassLoader());
         } catch (ClassNotFoundException e) {
         	throw new ThinklabStorageException(e);
         }
@@ -269,7 +269,7 @@ public abstract class SQLServer {
 	public void initialize(URI uri, Properties properties) throws ThinklabStorageException {
 		
         try {
-            Class.forName(getDriverClass(), true, Activator.get().getClassLoader());
+            Class.forName(getDriverClass(), true, SQLPlugin.get().getClassLoader());
         } catch (ClassNotFoundException e) {
         	throw new ThinklabStorageException(e);
         }
@@ -279,11 +279,11 @@ public abstract class SQLServer {
     	/* set generic properties from passed properties, defaulting to the overall properties 
     	 * set for the SQL plugin, and to sensible defaults if even those are not there. */
     	usePooling = Boolean.parseBoolean(properties.getProperty("sql.use.pooling", 
-    			Activator.get().getProperties().getProperty("sql.use.pooling", "false")));
+    			SQLPlugin.get().getProperties().getProperty("sql.use.pooling", "false")));
     	
     	
     	if (Boolean.parseBoolean(properties.getProperty("sql.log.queries", 
-    			Activator.get().getProperties().getProperty("sql.log.queries", "false")))) {
+    			SQLPlugin.get().getProperties().getProperty("sql.log.queries", "false")))) {
  
     		setLogger();
     		logger.info("sql: initializing database " + uri);

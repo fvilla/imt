@@ -1898,7 +1898,7 @@ public abstract class SQLThinklabServer {
     	
 		/* read core schema */
 		try {
-			readSchema(Activator.get().getSchema(protocol));
+			readSchema(SQLPlugin.get().getSchema(protocol));
 		} catch (ThinklabException e) {
 			throw new ThinklabStorageException(e);
 		}
@@ -2018,9 +2018,9 @@ public abstract class SQLThinklabServer {
 
 	private void loadSchema(String schemaID) throws ThinklabException {
 		
-		URL schema = Activator.get().getSchema(schemaID);
+		URL schema = SQLPlugin.get().getSchema(schemaID);
 		this.readSchema(schema);
-		Activator.get().info("sql: reading schema " + schema);
+		SQLPlugin.get().info("sql: reading schema " + schema);
 	}
 	
 	protected void readSchema(URL f) throws ThinklabStorageException {
@@ -2249,7 +2249,7 @@ public abstract class SQLThinklabServer {
 		 * initialize the language for calculating scripted fields
 		 */
 		scriptLanguage = properties.getProperty("sql.script.language",
-				Activator.get().getProperties().getProperty(
+				SQLPlugin.get().getProperties().getProperty(
 						"sql.script.language", "MVEL"));
 		
 		/*
@@ -2257,7 +2257,7 @@ public abstract class SQLThinklabServer {
 		 */
 		String ur =  
 					properties.getProperty("sql.use.restrictions",
-							Activator.get().getProperties().getProperty(
+							SQLPlugin.get().getProperties().getProperty(
 									"sql.use.restrictions", "partial"));
 		
 		if (ur.toLowerCase().equals("true"))

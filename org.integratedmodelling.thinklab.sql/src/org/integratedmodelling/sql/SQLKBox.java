@@ -71,7 +71,7 @@ public class SQLKBox extends SQLThinklabServer implements IKBox {
 	
 	public SQLKBox(String uri, String protocol, String serverURL, Properties properties)
 			throws ThinklabException {
-		super(protocol, Activator.get().createSQLServer(serverURL, properties),
+		super(protocol, SQLPlugin.get().createSQLServer(serverURL, properties),
 				properties);
 		this.uri = uri;
 	}
