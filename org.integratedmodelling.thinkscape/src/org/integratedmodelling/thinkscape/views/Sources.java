@@ -24,6 +24,7 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.integratedmodelling.thinkscape.wizards.NewSourceWizard;
+import com.swtdesigner.ResourceManager;
 
 public class Sources extends ViewPart {
 
@@ -44,6 +45,7 @@ public class Sources extends ViewPart {
 			ToolBar toolBar = new ToolBar(parent, SWT.FLAT | SWT.RIGHT);
 			{
 				ToolItem tltmNewSource = new ToolItem(toolBar, SWT.NONE);
+				tltmNewSource.setToolTipText("Add a new source of observations");
 				tltmNewSource.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
@@ -57,8 +59,7 @@ public class Sources extends ViewPart {
 				          System.out.println("Cancelled");
 					}
 				});
-				tltmNewSource.setImage(SWTResourceManager.getImage(Sources.class, "/icons/full/obj16/add_obj.gif"));
-				tltmNewSource.setText("New Source");
+				tltmNewSource.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/folder_add.png"));
 			}
 		}
 		{

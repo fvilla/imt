@@ -174,6 +174,8 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		// cache in local dir; set ontoFolder to null if no ontologies in plugin.
 		boolean found = false;
+		ArrayList<File> ofiles = new ArrayList<File>();
+		
 		for (URL f : getResources("ontologies", "*.owl", true)) {
 	
 			if (!found) {
@@ -185,7 +187,10 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 				found = true;
 			}
 			
-			File of = CopyURL.cache(f, ontoFolder, bundle.getLastModified());
+			ofiles.add(CopyURL.cache(f, ontoFolder, bundle.getLastModified()));
+		}
+
+		for (File of : ofiles) {
 			try {
 				KnowledgeManager.get().getKnowledgeRepository().refreshOntology(
 						of.toURI().toURL(), 
@@ -194,6 +199,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 			} catch (MalformedURLException e) {
 				throw new ThinklabInternalErrorException(e);
 			}
+
 		}
 		
 		if (!found)

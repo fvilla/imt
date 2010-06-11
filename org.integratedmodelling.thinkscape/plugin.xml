@@ -34,6 +34,12 @@
             id="org.integratedmodelling.thinkscape.views.Sources"
             name="Sources">
       </view>
+      <view
+            category="org.integratedmodelling.thinkscape.thinkscape"
+            class="org.integratedmodelling.thinkscape.views.ThinklabModels"
+            id="org.integratedmodelling.thinkscape.views.ThinklabModels"
+            name="Models">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -134,7 +140,7 @@
       <editor
             class="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
             id="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
-            name="New Annotation">
+            name="Annotation Editor">
       </editor>
    </extension>
    <extension

@@ -5,8 +5,10 @@ Bundle-SymbolicName: org.integratedmodelling.thinkscape; singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.integratedmodelling.thinkscape.Activator
 Bundle-Vendor: integratedmodelling.org
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources;bundle-version="3.5.1",
+ org.eclipse.ui,
+ org.eclipse.ui.ide;bundle-version="3.5.1",
  org.integratedmodelling.thinklab.core;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.commands;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.clojure;bundle-version="1.0.0",

@@ -1,6 +1,8 @@
 package org.integratedmodelling.thinkscape.views;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 import javax.swing.SwingUtilities;
@@ -46,13 +48,28 @@ public class ThinklabConsole extends ViewPart {
 	
 	private ConsoleSession session;
 
+	public class CaptureOutputStream extends OutputStream {
+
+		public StringBuffer text = new StringBuffer(512);
+		
+		@Override
+		public void write(int b) throws IOException {
+			text.append((char)b);
+		}
+		
+		public void reset() {
+			text = new StringBuffer(512);
+		}
+		
+	}
+	
 	public class ConsoleUserModel implements IUserModel {
 
 		PrintStream out = null;
-		public ByteArrayOutputStream bytestream; 
+		public CaptureOutputStream bytestream; 
 
 		public ConsoleUserModel() {
-			bytestream = new ByteArrayOutputStream();
+			bytestream = new CaptureOutputStream();
 			out = new PrintStream(bytestream);
 		}
 		
@@ -120,7 +137,8 @@ public class ThinklabConsole extends ViewPart {
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		text.addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(KeyEvent e) 
+			{
 				// boh
 				if (e.keyCode == java.awt.event.KeyEvent.VK_ENTER || 
 					e.keyCode == 13) {
@@ -130,19 +148,21 @@ public class ThinklabConsole extends ViewPart {
 				} else if (e.keyCode == java.awt.event.KeyEvent.VK_DOWN) {
 					historyDown();
 				}
-
 				
 			}
 		});
 		text.setBackground(SWTResourceManager.getColor(SWT.COLOR_INFO_BACKGROUND));
-		
+		text.setText("> ");
+		this.text.setSelection(2);
+
 		styledText = new StyledText(parent, SWT.BORDER);
 		styledText.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.NORMAL));
 		styledText.setLeftMargin(2);
 		styledText.setDoubleClickEnabled(false);
 		styledText.setEditable(true);
 		styledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-
+		styledText.setTextLimit(10240);
+		
 		createActions();
 		initializeToolBar();
 		initializeMenu();
@@ -158,37 +178,52 @@ public class ThinklabConsole extends ViewPart {
 		Thinklab.get().info("UP!");
 	}	
 
-	protected void execute(String text) {
+	protected void execute(String cmds) {
+		
+		cmds = cmds.trim();
+		if (cmds.startsWith(">")) 
+			cmds = cmds.substring(1).trim();
 
 		try {			
-			Command cmd = CommandParser.parse(text);
 			
-			if (cmd == null)
-				return;
+			Command cmd = null;
 			
-			IValue result = CommandManager.get().submitCommand(cmd, session);
+			if (!cmds.equals(""))
+				cmd = CommandParser.parse(cmds);
 			
-			/*
-			 * TODO write command in bold
-			 */
-			String output = ((ConsoleUserModel)(session.getUserModel())).bytestream.toString();
+			if (cmd != null) {
 			
-			appendText(text + "\n", java.awt.Color.GREEN, SWT.BOLD);
-			appendText(output+"\n", java.awt.Color.BLACK, SWT.NORMAL);
+				IValue result = CommandManager.get().submitCommand(cmd, session);			
+
+				/* capture text */
+				session.getUserModel().getOutputStream().flush();			
+				String output = 
+					((ConsoleUserModel)(session.getUserModel())).bytestream.text.toString();
+				((ConsoleUserModel)(session.getUserModel())).bytestream.reset();
+			
+				appendText(cmds + "\n", java.awt.Color.GREEN, SWT.BOLD);
+				appendText(output+"\n", java.awt.Color.BLACK, SWT.NORMAL);
+			}
 			
 		} catch (Exception e) {			
-			appendText(text, java.awt.Color.RED, SWT.BOLD);
+			appendText(cmds + "\n", java.awt.Color.RED, SWT.BOLD);
 			appendText(e+"\n", java.awt.Color.GRAY, SWT.ITALIC);
+		} finally {
+			this.text.setText("> ");
+			this.text.setSelection(2);
 		}
 	}
 
 	private void appendText(String text, java.awt.Color c, int bold) {
 		
+		Thinklab.get().info("setting: " + text);
+		
 		Color col = new Color(styledText.getDisplay(), c.getRed(), c.getGreen(), c.getBlue());
 		int start = styledText.getText().length();
 		styledText.append(text);
-		styledText.setStyleRange(new StyleRange(start, start+text.length(), col, null, bold));
-		styledText.setTopIndex(start + text.length());
+		styledText.setStyleRange(new StyleRange(start, text.length(), col, null, bold));
+		styledText.setSelection(start+text.length());
+		styledText.showSelection();
 	}
 
 	/**

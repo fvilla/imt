@@ -18,6 +18,7 @@ public class ThinklabPerspective implements IPerspectiveFactory {
 		layout.addView("org.integratedmodelling.thinkscape.views.Knowledge", IPageLayout.RIGHT, 0.71f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView("org.integratedmodelling.thinkscape.views.Sources", IPageLayout.LEFT, 0.4f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView("org.integratedmodelling.thinkscape.views.PluginView", IPageLayout.TOP, 0.18f, "org.integratedmodelling.thinkscape.views.Sources");
+		layout.addView("org.integratedmodelling.thinkscape.views.ThinklabModels", IPageLayout.TOP, 0.5f, "org.integratedmodelling.thinkscape.views.Sources");
 	}
 
 	/**

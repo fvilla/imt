@@ -28,17 +28,19 @@ public class PLoad implements ICommandHandler {
 	@Override
 	public IValue execute(Command command, ISession session) throws ThinklabException {
 
-		String plugin = command.getArgumentAsString("plugin");
-		Bundle pl = null;
-		
+		String plugin = command.getArgumentAsString("plugin");		
 		plugin = Thinklab.resolvePluginName(plugin, true);
-		pl = Thinklab.resolvePlugin(plugin, true);
-		
-		try {
-			pl.start();
-		} catch (BundleException e) {
-			throw new ThinklabPluginException(e);
-		}
+
+		for (Bundle b : Thinklab.getThinklabPlugins()) {
+			if (b.getSymbolicName().equals(plugin)) {
+				try {
+					b.start();
+				} catch (BundleException e) {
+					throw new ThinklabPluginException(e);
+				}
+				break;
+			}
+		}		
 		
 		return null;
 	}

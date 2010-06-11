@@ -2,35 +2,48 @@ package org.integratedmodelling.thinkscape.views;
 
 import java.util.ArrayList;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.*;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.jface.action.*;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
-import org.eclipse.core.runtime.IAdaptable;
-import org.integratedmodelling.thinklab.KnowledgeManager;
-import org.integratedmodelling.thinklab.exception.ThinklabException;
-import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
-import org.integratedmodelling.thinklab.graph.ConceptMap;
-import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
-import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
-import org.integratedmodelling.thinklab.interfaces.knowledge.IKnowledgeSubject;
-import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.custom.TableTree;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.DrillDownAdapter;
+import org.eclipse.ui.part.ViewPart;
+import org.integratedmodelling.thinklab.KnowledgeManager;
+import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
+import org.integratedmodelling.thinkscape.TreeHelper;
+import org.eclipse.swt.widgets.ToolItem;
+import com.swtdesigner.ResourceManager;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 
 /**
@@ -52,248 +65,108 @@ import org.eclipse.swt.widgets.Text;
  */
 
 public class KnowledgeView extends ViewPart {
-	private static class TreeContentProvider implements ITreeContentProvider {
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-		public void dispose() {
-		}
-		public Object[] getElements(Object inputElement) {
-			return getChildren(inputElement);
-		}
-		public Object[] getChildren(Object parentElement) {
-			return new Object[] { "item_0", "item_1", "item_2" };
-		}
-		public Object getParent(Object element) {
-			return null;
-		}
-		public boolean hasChildren(Object element) {
-			return getChildren(element).length > 0;
-		}
+	public KnowledgeView() {
 	}
+	
 
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "org.integratedmodelling.thinkscape.views.Knowledge";
-
-	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
 	private Action doubleClickAction;
-
-	private Table table;
 	private Text text;
+	private TabFolder tabFolder;
 
-	/*
-	 * The content provider class is responsible for
-	 * providing objects to the view. It can wrap
-	 * existing objects in adapters or simply return
-	 * objects as-is. These objects may be sensitive
-	 * to the current input of the view, or ignore
-	 * it and always show the same content 
-	 * (like Task List, for example).
-	 */
-	 
-	class TreeObject implements IAdaptable {
-		
-		private IKnowledgeSubject concept;
-		private TreeParent parent;
-		
-		public TreeObject(IKnowledgeSubject name) {
-			this.concept = name;
-		}
-		public String getName() {
-			return concept.getLocalName();
-		}
-		public void setParent(TreeParent parent) {
-			this.parent = parent;
-		}
-		public TreeParent getParent() {
-			return parent;
-		}
-		public String toString() {
-			return getName();
-		}
-		public Object getAdapter(Class key) {
-			return null;
-		}
-	}
-	
-	class TreeParent extends TreeObject {
-		private ArrayList children;
-		public TreeParent(IConcept concept) {
-			super(concept);
-			children = new ArrayList();
-		}
-		public void addChild(TreeObject child) {
-			children.add(child);
-			child.setParent(this);
-		}
-		public void removeChild(TreeObject child) {
-			children.remove(child);
-			child.setParent(null);
-		}
-		public TreeObject [] getChildren() {
-			return (TreeObject [])children.toArray(new TreeObject[children.size()]);
-		}
-		public boolean hasChildren() {
-			return children.size()>0;
-		}
-	}
-
-	class ViewContentProvider implements IStructuredContentProvider, 
-										   ITreeContentProvider {
-		private TreeParent invisibleRoot;
-
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		}
-		public void dispose() {
-		}
-		public Object[] getElements(Object parent) {
-			if (parent.equals(getViewSite())) {
-				if (invisibleRoot==null) initialize();
-				return getChildren(invisibleRoot);
-			}
-			return getChildren(parent);
-		}
-		public Object getParent(Object child) {
-			if (child instanceof TreeObject) {
-				return ((TreeObject)child).getParent();
-			}
-			return null;
-		}
-		public Object [] getChildren(Object parent) {
-			if (parent instanceof TreeParent) {
-				return ((TreeParent)parent).getChildren();
-			}
-			return new Object[0];
-		}
-		public boolean hasChildren(Object parent) {
-			if (parent instanceof TreeParent)
-				return ((TreeParent)parent).hasChildren();
-			return false;
-		}
-/*
- * We will set up a dummy model to initialize tree heararchy.
- * In a real code, you will connect to a real model and
- * expose its hierarchy.
- */
-		private void initialize() {
-			invisibleRoot = (TreeParent) populate(KnowledgeManager.Thing());
-		}
-		
-		private TreeObject populate(IConcept root) {
-
-			TreeObject ret = 
-				root.getChildren().size() > 0 ?
-					new TreeParent(root) :
-					new TreeObject(root);
-			
-			if (ret instanceof TreeParent)
-				for (IConcept c : root.getChildren()) {
-					((TreeParent)ret).addChild(populate(c));
-				}
-			
-			return ret;	
-		}
-	}
-	class ViewLabelProvider extends LabelProvider {
-
-		public String getText(Object obj) {
-			return obj.toString();
-		}
-		public Image getImage(Object obj) {
-			String imageKey = ISharedImages.IMG_OBJ_ELEMENT;
-			if (obj instanceof TreeParent)
-			   imageKey = ISharedImages.IMG_OBJ_FOLDER;
-			return PlatformUI.getWorkbench().getSharedImages().getImage(imageKey);
-		}
-	}
-	class NameSorter extends ViewerSorter {
-	}
-
-	/**
-	 * The constructor.
-	 */
-	public KnowledgeView() {
-		
-		class PluginListener implements IPluginLifecycleListener {
-
-			@Override
-			public void onPluginLoaded(IThinklabPlugin plugin) {
-
-				viewer.setContentProvider(new ViewContentProvider());
-				viewer.refresh();
-			}
-
-			@Override
-			public void onPluginUnloaded(IThinklabPlugin plugin) {
-			}
-
-			@Override
-			public void prePluginLoaded(IThinklabPlugin thinklabPlugin) {
-			}
-
-			@Override
-			public void prePluginUnloaded(IThinklabPlugin thinklabPlugin) {
-			}
-			
-		}
-		
-		KnowledgeManager.registerPluginListener(new PluginListener());
-		
-	}
+	private TreeHelper treeHelper;
+	private TreeViewer conceptTree;
 
 	/**
 	 * This is a callback that will allow us
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
+		
 		parent.setLayout(new GridLayout(1, false));
 		
-		TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
+		this.tabFolder = new TabFolder(parent, SWT.NONE);
 		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
+
 		TabItem tbtmConceptTree = new TabItem(tabFolder, SWT.NONE);
-		tbtmConceptTree.setText("Concept Tree");
-		viewer = new TreeViewer(tabFolder, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		Tree tree = viewer.getTree();
-		tbtmConceptTree.setControl(tree);
-		drillDownAdapter = new DrillDownAdapter(viewer);
-		
-		TabItem tbtmKboxes = new TabItem(tabFolder, SWT.NONE);
-		tbtmKboxes.setText("KBoxes");
-		
-		TableTreeViewer tableTreeViewer = new TableTreeViewer(tabFolder, SWT.BORDER | SWT.FULL_SELECTION);
-		TableTree tableTree = tableTreeViewer.getTableTree();
-		tbtmKboxes.setControl(tableTree);
-		tableTreeViewer.setContentProvider(new TreeContentProvider());
-		
-		TabItem tbtmSearchResults = new TabItem(tabFolder, SWT.NONE);
-		tbtmSearchResults.setText("Search Results");
+		tbtmConceptTree.setText("Concept Space");
 		
 		Composite composite = new Composite(tabFolder, SWT.NONE);
-		tbtmSearchResults.setControl(composite);
-		composite.setLayout(new TableColumnLayout());
+		tbtmConceptTree.setControl(composite);
+		composite.setLayout(new GridLayout(1, false));
 		
-		TableViewer tableViewer = new TableViewer(composite, SWT.BORDER | SWT.FULL_SELECTION);
-		table = tableViewer.getTable();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
+		ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
+		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+		toolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				treeHelper.instrumentOntologyTree(null);
+			}
+		});
+		toolItem.setToolTipText("Group by concept space");
+		toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/lightbulb.png"));
+		
+		this.conceptTree = new TreeViewer(composite, SWT.BORDER);
+		Tree ctree = conceptTree.getTree();
+		ctree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		ctree.setLinesVisible(true);
+		ctree.setHeaderVisible(true);
+		
+		TreeViewerColumn treeViewerColumn = new TreeViewerColumn(conceptTree, SWT.NONE);
+		TreeColumn trclmnName = treeViewerColumn.getColumn();
+		trclmnName.setWidth(260);
+		trclmnName.setText("Name");
+		
+		TreeViewerColumn treeViewerColumn_1 = new TreeViewerColumn(conceptTree, SWT.NONE);
+		TreeColumn trclmnDescription = treeViewerColumn_1.getColumn();
+		trclmnDescription.setWidth(400);
+		trclmnDescription.setText("Description");
+		
+		TabItem tbtmKboxes = new TabItem(tabFolder, SWT.NONE);
+		tbtmKboxes.setText("Data Space");
+		
+		Composite composite_1 = new Composite(tabFolder, SWT.NONE);
+		tbtmKboxes.setControl(composite_1);
+		composite_1.setLayout(new GridLayout(1, false));
+		
+		ToolBar toolBar_1 = new ToolBar(composite_1, SWT.FLAT | SWT.RIGHT);
+		toolBar_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		TreeViewer treeViewer = new TreeViewer(composite_1, SWT.BORDER);
+		Tree kboxTree = treeViewer.getTree();
+		kboxTree.setHeaderVisible(true);
+		kboxTree.setLinesVisible(true);
+		kboxTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		/*
+		 * instrument the concept tree for initial hierarchical view
+		 */
+		this.treeHelper = new TreeHelper(conceptTree, this);
+		treeHelper.instrumentConceptTree(KnowledgeManager.Thing());
 		
 		text = new Text(parent, SWT.BORDER);
+		text.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				ArrayList<IConcept> cc = treeHelper.filter(text.getText() + (char)e.keyCode);
+				treeHelper.instrumentOntologyTree(cc);
+				conceptTree.expandAll();
+			}
+		});
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider());
-		viewer.setSorter(new NameSorter());
-		viewer.setInput(getViewSite());
-
-		// Create the help context id for the viewer's control
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.integratedmodelling.thinkscape.viewer");
+		treeHelper.instrumentConceptTree(KnowledgeManager.Thing());
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
 	}
+
 
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -303,9 +176,6 @@ public class KnowledgeView extends ViewPart {
 				KnowledgeView.this.fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(viewer.getControl());
-		viewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, viewer);
 	}
 
 	private void contributeToActionBars() {
@@ -333,23 +203,18 @@ public class KnowledgeView extends ViewPart {
 	private void makeActions() {
 		doubleClickAction = new Action() {
 			public void run() {
-				ISelection selection = viewer.getSelection();
+				ISelection selection = conceptTree.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				showMessage("Double-click detected on "+obj.toString());
+				showMessage("Double-click detected on "+obj.toString() + " (" + obj.getClass() + ")");
 			}
 		};
 	}
 
 	private void hookDoubleClickAction() {
-		viewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-				doubleClickAction.run();
-			}
-		});
 	}
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
-			viewer.getControl().getShell(),
+			conceptTree.getControl().getShell(),
 			"Knowledge",
 			message);
 	}
@@ -358,6 +223,6 @@ public class KnowledgeView extends ViewPart {
 	 * Passing the focus request to the viewer's control.
 	 */
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		conceptTree.getControl().setFocus();
 	}
 }
