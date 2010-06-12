@@ -8,6 +8,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.layout.TreeColumnLayout;
@@ -49,7 +50,10 @@ public class Sources extends ViewPart {
 				tltmNewSource.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
+
 				        NewSourceWizard wizard = new NewSourceWizard();
+						wizard.init(getSite().getWorkbenchWindow().getWorkbench(),
+						            (IStructuredSelection)null);
 				        WizardDialog dialog = new WizardDialog(ps.getShell(), wizard);
 				        dialog.setBlockOnOpen(true);
 				        int returnCode = dialog.open();

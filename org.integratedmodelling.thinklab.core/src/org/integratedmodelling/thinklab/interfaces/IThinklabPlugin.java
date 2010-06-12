@@ -24,23 +24,9 @@ public interface IThinklabPlugin {
 	 */
 	public abstract void loadLanguageBindings() throws ThinklabException;
 
-	/**
-	 * Load declared bindings for given language. Must be called by hand and must make sure
-	 * that if the bindings refer to plugin classes, the plugin that calls the interpreter has 
-	 * declared its dependencies with reverse-lookup=true, otherwise the bindings won't see the 
-	 * Java classes in their own plugin. 
-	 * 
-	 * @param language
-	 * @throws ThinklabException
-	 */
-	public abstract void loadLanguageBindings(String language)
-			throws ThinklabException;
-
 	public abstract ClassLoader swapClassloader();
 
 	public abstract void resetClassLoader(ClassLoader clsl);
-
-//	public abstract File getLoadDirectory();
 
 	public abstract void writeConfiguration() throws ThinklabIOException;
 	

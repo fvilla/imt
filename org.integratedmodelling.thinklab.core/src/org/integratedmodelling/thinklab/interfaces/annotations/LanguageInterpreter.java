@@ -7,9 +7,11 @@ import java.lang.annotation.*;
  * if any is found, the annotated class becomes the Java implementation for instances of the given concept.
  * 
  * @author Ferdinando Villa
+ *
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-public @interface KnowledgeLoader {
-	public String format();
+public @interface LanguageInterpreter {
+	public String language();
+	public String fileExtension();
 }

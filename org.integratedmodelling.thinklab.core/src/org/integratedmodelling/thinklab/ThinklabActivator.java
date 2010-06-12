@@ -32,6 +32,7 @@ import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.annotations.DataTransformation;
 import org.integratedmodelling.thinklab.interfaces.annotations.InstanceImplementation;
 import org.integratedmodelling.thinklab.interfaces.annotations.KBoxHandler;
+import org.integratedmodelling.thinklab.interfaces.annotations.LanguageInterpreter;
 import org.integratedmodelling.thinklab.interfaces.annotations.ListingProvider;
 import org.integratedmodelling.thinklab.interfaces.annotations.LiteralImplementation;
 import org.integratedmodelling.thinklab.interfaces.annotations.ThinklabCommand;
@@ -46,6 +47,7 @@ import org.integratedmodelling.thinklab.transformations.ITransformation;
 import org.integratedmodelling.thinklab.transformations.TransformationFactory;
 import org.integratedmodelling.utils.CopyURL;
 import org.integratedmodelling.utils.MiscUtilities;
+import org.integratedmodelling.utils.Path;
 import org.integratedmodelling.utils.log.LogForwarder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
@@ -55,6 +57,8 @@ import org.osgi.framework.Version;
 
 public abstract class ThinklabActivator implements BundleActivator, IThinklabPlugin {
 
+	final static public String BINDING_PROPERTY_PREFIX = "thinklab.bindings.";
+	
 	protected ClassLoader _classloader;
 	static HashMap<String,ThinklabActivator> _activators = new HashMap<String, ThinklabActivator>();
 	
@@ -144,7 +148,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		loadKboxHandlers();
 //		loadKnowledgeImporters();
 //		loadKnowledgeLoaders();
-//		loadLanguageInterpreters();
+		loadLanguageInterpreters();
 		loadCommandHandlers();
 		loadListingProviders();
 		loadTransformations();
@@ -380,37 +384,18 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	@Override
 	public void loadLanguageBindings() throws ThinklabException {
 
-		
-		
-//		// may happen more than once if bound to external language, so synchronize
-//		if (this._bindingsLoaded.contains(language) ) {
-//			return;
-//		}
-//
-//		_bindingsLoaded.add(language);
-//		
-//		for (Extension ext : getOwnThinklabExtensions("language-binding")) {
-//
-//			String lang = getParameter(ext, "language");
-//			String[] resource = getParameters(ext, "resource");
-//			
-//			if (!language.equals(lang))
-//				continue;
-//			
-//			Interpreter intp = InterpreterManager.get().newInterpreter(language);
-//			
-//			
-//			for (String r : resource) {
-//				
-//				logger().info("loading " + language + " binding file: " + r);
-//				intp.loadBindings(getResourceURL(r), getClassLoader());
-//			}
-//		}
-	}
-
-	@Override
-	public void loadLanguageBindings(String language) throws ThinklabException {
-		// TODO Auto-generated method stub
+		for (Object p : getProperties().keySet()) {
+			if (p.toString().startsWith(BINDING_PROPERTY_PREFIX)) {
+				String language = Path.getLast(p.toString(), '.');
+				String[] resour = getProperties().getProperty(p.toString()).split(",");
+				
+				Interpreter intp = InterpreterManager.get().newInterpreter(language);
+				for (String r : resour) {
+					info("loading " + language + " binding file: " + r);
+					intp.loadBindings(getResourceURL(r.trim()), getClassLoader());
+				}
+			}
+		}
 	}
 
 	@Override
@@ -630,6 +615,33 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 					} catch (Exception e) {
 						throw new ThinklabValidationException(e);
 					}
+					
+					break;
+				}
+			}
+		}
+
+	}
+	
+
+	protected void loadLanguageInterpreters() throws ThinklabException {
+		
+		String ipack = this.getClass().getPackage().getName() + ".interpreters";
+		
+		for (Class<?> cls : MiscUtilities.findSubclasses(Interpreter.class, ipack, bundle)) {	
+			
+			/*
+			 * lookup annotation, ensure we can use the class
+			 */
+			if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+				continue;
+			
+			for (Annotation annotation : cls.getAnnotations()) {
+				if (annotation instanceof LanguageInterpreter) {
+					
+					String lng = ((LanguageInterpreter)annotation).language();
+					String ext = ((LanguageInterpreter)annotation).fileExtension();
+					InterpreterManager.get().registerInterpreter(lng, cls);
 					
 					break;
 				}

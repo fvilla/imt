@@ -9,13 +9,6 @@
             id="org.integratedmodelling.thinkscape.thinkscape">
       </category>
       <view
-            name="Knowledge"
-            icon="icons/sample.gif"
-            category="org.integratedmodelling.thinkscape.thinkscape"
-            class="org.integratedmodelling.thinkscape.views.KnowledgeView"
-            id="org.integratedmodelling.thinkscape.views.Knowledge">
-      </view>
-      <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.PluginView"
             icon="icons/sample.gif"
@@ -39,6 +32,12 @@
             class="org.integratedmodelling.thinkscape.views.ThinklabModels"
             id="org.integratedmodelling.thinkscape.views.ThinklabModels"
             name="Models">
+      </view>
+      <view
+            category="org.integratedmodelling.thinkscape.thinkscape"
+            class="org.integratedmodelling.thinkscape.views.KnowledgeView"
+            id="org.integratedmodelling.thinkscape.views.KnowledgeView"
+            name="Knowledge">
       </view>
    </extension>
    <extension

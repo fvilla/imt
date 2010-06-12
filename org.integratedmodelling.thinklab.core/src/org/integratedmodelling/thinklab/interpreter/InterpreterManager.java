@@ -33,95 +33,32 @@
  **/
 package org.integratedmodelling.thinklab.interpreter;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 
-import org.integratedmodelling.thinklab.ConceptVisitor;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
-import org.integratedmodelling.thinklab.exception.ThinklabUnknownLanguageException;
 import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.thinklab.extensions.Interpreter;
-import org.integratedmodelling.thinklab.extensions.LanguageInterpreter;
-import org.integratedmodelling.thinklab.extensions.LanguageInterpreter.IContext;
-import org.integratedmodelling.thinklab.interfaces.applications.ISession;
-import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
-import org.integratedmodelling.thinklab.interfaces.literals.IValue;
-import org.integratedmodelling.thinklab.literals.AlgorithmValue;
 
 public class InterpreterManager {
 
 	private static InterpreterManager AIF = null;
 
-	// binds a language type to an interpreter
-	Hashtable<String, LanguageInterpreter> interpreterFactory = new Hashtable<String, LanguageInterpreter>();
+	Hashtable<String, Class<?>> interpreterClass = new Hashtable<String, Class<?>>();
 
-	Hashtable<String, String> interpreterClass = new Hashtable<String, String>();
-	
-	// binds a session ID to an interpreter
-	Hashtable<String, LanguageInterpreter> interpreters = new Hashtable<String, LanguageInterpreter>();
-	
-	// contexts can be cached, too
-	HashMap<String, LanguageInterpreter.IContext> contexts = 
-		new HashMap<String, LanguageInterpreter.IContext>();
-	
-	private LanguageInterpreter getInterpreter(IValue algorithm) throws ThinklabUnknownLanguageException {
-		
-		class AlgMatcher implements ConceptVisitor.ConceptMatcher {
 
-			Hashtable<String, LanguageInterpreter> hash;
-
-			public LanguageInterpreter plugin = null;
-
-			public boolean match(IConcept c) {
-				plugin = hash.get(c.getSemanticType().toString());
-				return plugin != null;
-			}
-
-			public AlgMatcher(Hashtable<String, LanguageInterpreter> h) {
-				hash = h;
-			}
-		}
-		
-		IConcept c = algorithm.getConcept();
-
-		AlgMatcher matcher = new AlgMatcher(interpreterFactory);
-		IConcept cc = ConceptVisitor.findMatchUpwards(matcher, c);
-
-		if (cc == null) {
-			throw new ThinklabUnknownLanguageException(
-					"no language interpreter can be identified for " + c);
-		}
-
-		LanguageInterpreter plu = matcher.plugin;
-		
-		if (plu == null) {
-			throw new ThinklabUnknownLanguageException(
-					"no language interpreter plugin installed for " + c);
-		}
-		
-		return plu;
-	}
-	
 	public Interpreter newInterpreter(String language) throws ThinklabException {
 		
-		String iclass = interpreterClass.get(language);
+		Class<?> iclass = interpreterClass.get(language);
 		
 		if (iclass == null)
 			throw new ThinklabValidationException(
 					"no interpreter registered for language " + language);
 		
-		Class<?> clazz = null;
-		
-		try {
-			clazz = Class.forName(iclass);
-		} catch (ClassNotFoundException e) {
-			throw new ThinklabValidationException(e);
-		}
 		
 		Interpreter ret = null;
 		
 		try {
-			ret = (Interpreter) clazz.newInstance();
+			ret = (Interpreter) iclass.newInstance();
 		} catch (Exception e) {
 			throw new ThinklabValidationException(e);
 		}
@@ -129,63 +66,10 @@ public class InterpreterManager {
 		return ret;
 	}
 	
-	public void registerInterpreter(String language, String interpreterClass) {
+	public void registerInterpreter(String language, Class<?> interpreterClass) {
 		this.interpreterClass.put(language, interpreterClass);			
 	}
 	
-	/**
-	 * Bind an algorithm concept to a plugin ID. The plugin must be an InterpreterPlugin and
-	 * is used to generate the interpreter for an algorithm of this class.
-	 * @param semanticType The class of the algorithm (language interpreted).
-	 * @param pluginID the name of the InterpreterPlugin that handles it.
-	 */
-	public void registerInterpreter(String semanticType, LanguageInterpreter interpreter) {
-		interpreters.put(semanticType, interpreter);			
-	}
-	
-	/**
-	 * Retrieve interpreter for given algorithm, using interpreter registry and class
-	 * of algorithm. The same interpreter may be returned for the same session, as it is
-	 * a Thinklab requirement that operations in the same session are synchronized.
-	 * The IValue containing the algorithm as a string. May have been
-	 * validated or not. The specific IConcept linked to the string will be used to
-	 * select the interpreter.
-	 * @param algorithm 
-	 * @param session
-	 * @return
-	 */
-	public LanguageInterpreter getInterpreter(IValue algorithm,
-			ISession session) throws ThinklabUnknownLanguageException {
-
-		LanguageInterpreter ret = interpreters.get(session.getSessionID());
-		
-		if (ret != null)
-			return ret;
-		
-		ret = getInterpreter(algorithm);
-
-		if (ret == null)  {
-			throw new ThinklabUnknownLanguageException(
-					"interpreter creation for " + algorithm.getConcept() + " failed");
-		}
-
-		interpreters.put(session.getSessionID(), ret);
-		
-		return ret;
-	}
-	
-	/**
-	 * Call this if you want the interpreter to be renewed within the same
-	 * session.
-	 * 
-	 * @param session
-	 */
-	public void deleteInterpreter(ISession session) {
-		
-		if (interpreters.containsKey(session.getSessionID())) {
-			interpreters.remove(session.getSessionID());
-		}
-	}
 
 	public static InterpreterManager get() {
 
@@ -196,40 +80,5 @@ public class InterpreterManager {
 		
 	}
 
-	public LanguageInterpreter.IContext getNewContext(AlgorithmValue algorithm, ISession session) throws ThinklabUnknownLanguageException {
 
-		LanguageInterpreter plu = getInterpreter(algorithm);
-
-		LanguageInterpreter.IContext ret = plu.getNewContext(session);
-		
-		if (ret == null)  {
-			throw new ThinklabUnknownLanguageException(
-					"interpreter context creation for " + algorithm.getConcept() + " failed");
-		}
-		return ret;
-	}
-
-
-	public IContext getContext(AlgorithmValue algorithm, ISession session) throws ThinklabUnknownLanguageException {
-
-		IContext ret = null;
-
-		LanguageInterpreter plu = getInterpreter(algorithm);
-
-		if (contexts.containsKey(session.getSessionID())) {
-			ret = contexts.get(session.getSessionID());
-		} else {
-
-			ret = plu.getNewContext(session);
-
-			if (ret == null)  {
-				throw new ThinklabUnknownLanguageException(
-						"interpreter context creation for " + algorithm.getConcept() + " failed");
-			}
-
-			contexts.put(session.getSessionID(), ret);
-		}
-			
-		return ret;
-	}
 }

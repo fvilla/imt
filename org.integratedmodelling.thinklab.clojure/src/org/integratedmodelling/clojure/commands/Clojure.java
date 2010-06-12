@@ -36,8 +36,8 @@ package org.integratedmodelling.clojure.commands;
 import java.net.URL;
 
 import org.integratedmodelling.clojure.Activator;
-import org.integratedmodelling.clojure.ClojureInterpreter;
 import org.integratedmodelling.clojure.REPL;
+import org.integratedmodelling.clojure.interpreters.ClojureInterpreter;
 import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.command.Command;
 import org.integratedmodelling.thinklab.exception.ThinklabException;

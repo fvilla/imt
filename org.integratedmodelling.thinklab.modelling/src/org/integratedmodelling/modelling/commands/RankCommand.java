@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.integratedmodelling.clojure.ClojureInterpreter;
+import org.integratedmodelling.clojure.interpreters.ClojureInterpreter;
 import org.integratedmodelling.corescience.context.ObservationContext;
 import org.integratedmodelling.corescience.interfaces.IObservation;
 import org.integratedmodelling.corescience.interfaces.IObservationContext;

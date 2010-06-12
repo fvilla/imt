@@ -52,11 +52,11 @@ public class NewSourcePage extends WizardPage {
 	}
 
 	public String getType() {
-		return text.getText();
+		return combo.getText();
 	}
 
 	public String getSrc() {
-		return combo.getText();
+		return text.getText();
 	}
 
 }

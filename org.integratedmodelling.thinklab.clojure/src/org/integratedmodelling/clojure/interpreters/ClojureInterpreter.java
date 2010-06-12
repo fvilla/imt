@@ -1,6 +1,7 @@
-package org.integratedmodelling.clojure;
+package org.integratedmodelling.clojure.interpreters;
 
 import java.io.ByteArrayInputStream;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -19,6 +20,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabInternalErrorException
 import org.integratedmodelling.thinklab.exception.ThinklabScriptException;
 import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.thinklab.extensions.Interpreter;
+import org.integratedmodelling.thinklab.interfaces.annotations.LanguageInterpreter;
 import org.integratedmodelling.thinklab.interfaces.annotations.TaskNamespace;
 import org.integratedmodelling.thinklab.interfaces.applications.ISession;
 import org.integratedmodelling.thinklab.interfaces.literals.IValue;
@@ -36,6 +38,8 @@ import clojure.lang.RT;
 import clojure.lang.Symbol;
 import clojure.lang.Var;
 
+
+@LanguageInterpreter(language="clojure", fileExtension="clj")
 public class ClojureInterpreter implements Interpreter {
 
 	InputStream input = System.in;
@@ -79,6 +83,8 @@ public class ClojureInterpreter implements Interpreter {
 	@Override
 	public void loadBindings(URL source, ClassLoader cloader) throws ThinklabException {
 		
+		File mf = MiscUtilities.resolveUrlToFile(source.toString());
+		
         try {
         	
         	DynamicClassLoader cl = null;
@@ -87,7 +93,7 @@ public class ClojureInterpreter implements Interpreter {
         		RT.ROOT_CLASSLOADER = new DynamicClassLoader(cloader);
         	}
         		
-			Compiler.loadFile(Escape.fromURL(source.getFile().toString()));
+			Compiler.loadFile(mf.toString());
 			
 			if (cloader != null) {
 				RT.ROOT_CLASSLOADER = cl;

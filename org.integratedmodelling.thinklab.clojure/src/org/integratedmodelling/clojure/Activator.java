@@ -1,6 +1,7 @@
 package org.integratedmodelling.clojure;
 
 import org.integratedmodelling.thinklab.ThinklabActivator;
+import org.integratedmodelling.utils.MiscUtilities;
 
 import clojure.lang.RT;
 
@@ -15,9 +16,15 @@ public class Activator extends ThinklabActivator {
 	@Override
 	protected void doStart() throws Exception {
 		info("initializing Clojure runtime");
-		RT.loadResourceScript("clj/thinklab.clj");			
-		RT.loadResourceScript("clj/utils.clj");			
-		RT.loadResourceScript("clj/knowledge.clj");			
+		RT.loadResourceScript(
+				MiscUtilities.resolveUrlToFile(
+						getResourceURL("clj/thinklab.clj").toString()).toString());			
+		RT.loadResourceScript(
+				MiscUtilities.resolveUrlToFile(
+						getResourceURL("clj/utils.clj").toString()).toString());			
+		RT.loadResourceScript(
+				MiscUtilities.resolveUrlToFile(
+						getResourceURL("clj/knowledge.clj").toString()).toString());			
 		info("Clojure initialized successfully");
 	}
 
