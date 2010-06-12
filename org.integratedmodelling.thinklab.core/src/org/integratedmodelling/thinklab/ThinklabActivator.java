@@ -127,7 +127,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		this.id = context.getBundle().getSymbolicName();
 		
 		_activators.put(this.id, this);
-		
+				
 		loadConfiguration();
 
 		_classloader = this.getClass().getClassLoader();		

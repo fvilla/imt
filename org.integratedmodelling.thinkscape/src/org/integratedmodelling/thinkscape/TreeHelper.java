@@ -3,6 +3,7 @@ package org.integratedmodelling.thinkscape;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -25,22 +26,33 @@ import com.swtdesigner.ResourceManager;
 public class TreeHelper {
 	
 	ArrayList<IConcept> index;
+	ArrayList<IConcept> indexh;
 	TreeViewer viewer;
 	ViewPart   view;
 	IConcept   root = null;
+	TreeObject rooth = null;
 	
+	/*
+	 * ensure ontology tree is redefined if the plugin being loaded/unloaded provides ontologies
+	 */
 	class PluginListener implements IPluginLifecycleListener {
 
 		@Override
 		public void onPluginLoaded(IThinklabPlugin plugin) {
-			viewer.setContentProvider(new ViewContentProvider());
-			viewer.refresh();
+			if (plugin.getOntologiesLocation() != null) {
+				rooth = null;
+				viewer.setContentProvider(new ViewContentProvider());
+				viewer.refresh();
+			}
 		}
 
 		@Override
 		public void onPluginUnloaded(IThinklabPlugin plugin) {
-			viewer.setContentProvider(new ViewContentProvider());
-			viewer.refresh();
+			if (plugin.getOntologiesLocation() != null) {
+				rooth = null;
+				viewer.setContentProvider(new ViewContentProvider());
+				viewer.refresh();
+			}
 		}
 
 		@Override
@@ -199,14 +211,39 @@ public class TreeHelper {
 		}
 
 		private void initialize() {
-			index = new ArrayList<IConcept>();
-			this.invisibleRoot = (TreeParent) populate(root, index);
-			Collections.sort(index, new Comparator<IConcept>() {
-				@Override
-				public int compare(IConcept o1, IConcept o2) {
-					return o1.getLocalName().compareTo(o2.getLocalName());
+			
+			if (root == null)
+				root = KnowledgeManager.Thing();
+			
+			if (root.equals(KnowledgeManager.Thing()))  {
+				
+				// cache root hierarchy for speed
+				if (rooth == null) {
+					indexh = new ArrayList<IConcept>();
+					rooth = populate(root, indexh);
+					Collections.sort(indexh, new Comparator<IConcept>() {
+						@Override
+						public int compare(IConcept o1, IConcept o2) {
+							return o1.getLocalName().compareTo(o2.getLocalName());
+						}
+					});
+					index = indexh;
 				}
-			});
+				
+				this.invisibleRoot = (TreeParent) rooth;
+				index = indexh;
+				
+			} else {
+				// not root; recreate hierarchy
+				index = new ArrayList<IConcept>();
+				this.invisibleRoot = (TreeParent) populate(root, index);
+				Collections.sort(index, new Comparator<IConcept>() {
+					@Override
+					public int compare(IConcept o1, IConcept o2) {
+						return o1.getLocalName().compareTo(o2.getLocalName());
+					}
+				});
+			}
 		}
 		
 		private TreeObject populate(IConcept r, ArrayList<IConcept> idx) {
@@ -320,6 +357,7 @@ public class TreeHelper {
 			if (this.list.size() < 1)
 				return;
 
+			HashSet<IConcept> refs = new HashSet<IConcept>();
 			TreeParent parent = new TreeParent(this.list.get(0).getConceptSpace());
 			ArrayList<TreeObject> objs = new ArrayList<TreeObject>();
 
@@ -339,8 +377,10 @@ public class TreeHelper {
 					if (cur != null)
 						parent = new TreeParent(cur.getConceptSpace());
 				} 
-				
-				objs.add(new TreeObject(cur));
+				if (!refs.contains(cur)) {
+					objs.add(new TreeObject(cur));
+					refs.add(cur);
+				}
 			}
 			
 		}

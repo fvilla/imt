@@ -84,23 +84,19 @@ public class ClojureInterpreter implements Interpreter {
 	public void loadBindings(URL source, ClassLoader cloader) throws ThinklabException {
 		
 		File mf = MiscUtilities.resolveUrlToFile(source.toString());
-		
+		ClassLoader clsl = Thread.currentThread().getContextClassLoader();
+
         try {
-        	
-        	DynamicClassLoader cl = null;
         	if (cloader != null) {
-        		cl = RT.ROOT_CLASSLOADER;
-        		RT.ROOT_CLASSLOADER = new DynamicClassLoader(cloader);
+        		Thread.currentThread().setContextClassLoader(cloader);
         	}
-        		
 			Compiler.loadFile(mf.toString());
-			
-			if (cloader != null) {
-				RT.ROOT_CLASSLOADER = cl;
-			}
-			
 		} catch (Exception e) {
 			throw new ThinklabValidationException(e);
+		} finally {
+			if (cloader != null) {
+				Thread.currentThread().setContextClassLoader(clsl);
+			}
 		}
 	}
 
@@ -223,16 +219,16 @@ public class ClojureInterpreter implements Interpreter {
 		 */
     	
     	DynamicClassLoader cl = null;
-    	if (cloader != null) {
-    		cl = RT.ROOT_CLASSLOADER;
-    		RT.ROOT_CLASSLOADER = new DynamicClassLoader(cloader);
-    	}
-    	
+//    	if (cloader != null) {
+//    		cl = RT.ROOT_CLASSLOADER;
+//    		RT.ROOT_CLASSLOADER = new DynamicClassLoader(cloader);
+//    	}
+//    	
 		evalInNamespace(clj, ns);
 		
-		if (cloader != null) {
-			RT.ROOT_CLASSLOADER = cl;
-		}
+//		if (cloader != null) {
+//			RT.ROOT_CLASSLOADER = cl;
+//		}
 	}
 
 	@Override

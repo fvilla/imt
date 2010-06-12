@@ -20,7 +20,7 @@
     (if (seq rem)
       (recur (conj odds  (first rem))
              (conj evens (second rem))
-             (rrest rem))
+             (rest (rest rem)))
       [odds evens])))
       
 (defn assoc-map 
@@ -35,14 +35,14 @@
   [pred coll]
   (when (and (seq coll) (pred (first coll)))
     (lazy-cat (list (first coll) (second coll))
-	      (take-pair-while pred (rrest coll)))))
+	      (take-pair-while pred (rest (rest coll))))))
 
 (defn drop-pair-while
   "Returns a lazy seq of the items in coll starting from the first
    item for which (pred item) returns nil."
   [pred coll]
   (if (and (seq coll) (pred (first coll)))
-    (recur pred (rrest coll))
+    (recur pred (rest (rest coll)))
     (seq coll)))
 
 (defn split-pair-with
@@ -57,7 +57,7 @@
   [pred coll]
   (if (nil? coll) nil
       (if (pred (first coll)) 
-        (cons  (list (first coll) (second coll)) (group-if pred (rrest coll))) 
+        (cons  (list (first coll) (second coll)) (group-if pred (rest (rest coll)))) 
         (cons  (first coll) (group-if pred (rest coll)))))) 
 
 (defn group-keywords
@@ -89,10 +89,11 @@
 		(empty? (rest coll)) (list (list (first coll) filler))
 		:otherwise 
 			(if (pred (second coll))
-		     (lazy-cons 
+     ;; FV TODO CHECK - these were lazy-cons, see if cons makes sense here
+		     (cons 
 		     		(take 2 coll)
-						(group-with-following pred (rrest coll) filler))
-		     (lazy-cons 
+						(group-with-following pred (rest (rest coll)) filler))
+		     (cons 
 		     		(list (first coll) filler)
 						(group-with-following pred (rest coll) filler)))))
 

@@ -62,10 +62,10 @@ public class REPL {
 		// RT.init();
 		
 	   	DynamicClassLoader cl = null;
-    	if (this.classloader != null) {
-    		cl = RT.ROOT_CLASSLOADER;
-    		RT.ROOT_CLASSLOADER = new DynamicClassLoader(this.classloader);
-    	}
+//    	if (this.classloader != null) {
+//    		cl = RT.ROOT_CLASSLOADER;
+//    		RT.ROOT_CLASSLOADER = new DynamicClassLoader(this.classloader);
+//    	}
 
 		try {
 			// *ns* must be thread-bound for in-ns to work
@@ -133,9 +133,9 @@ public class REPL {
 			Var.popThreadBindings();
 		}
 		
-    	if (this.classloader != null) {
-			RT.ROOT_CLASSLOADER = cl;
-		}
+//    	if (this.classloader != null) {
+//			RT.ROOT_CLASSLOADER = cl;
+//		}
 	}
 	
 	public void runFile(String script) throws ThinklabException {

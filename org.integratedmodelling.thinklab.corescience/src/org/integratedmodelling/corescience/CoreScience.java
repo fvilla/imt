@@ -1,5 +1,6 @@
 package org.integratedmodelling.corescience;
 
+import org.integratedmodelling.clojure.ClojureActivator;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
@@ -111,6 +112,12 @@ public class CoreScience extends ThinklabActivator {
 	protected void doStop() throws Exception {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	protected void preStart() throws Exception {
+		// ensure we have Clojure 
+		ClojureActivator.get();
 	}
 
 	public static IConcept RankingModel() {

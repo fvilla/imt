@@ -39,6 +39,12 @@
             id="org.integratedmodelling.thinkscape.views.KnowledgeView"
             name="Knowledge">
       </view>
+      <view
+            category="org.integratedmodelling.thinkscape.thinkscape"
+            class="org.integratedmodelling.thinkscape.views.AnnotationsView"
+            id="org.integratedmodelling.thinkscape.views.AnnotationsView"
+            name="Annotations">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">

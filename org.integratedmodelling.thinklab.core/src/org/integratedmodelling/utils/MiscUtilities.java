@@ -92,6 +92,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.osgi.framework.Bundle;
 
 /**
@@ -1500,16 +1501,16 @@ loop:		for(;;)
 		
 		if (msource.contains("::")) {
 			
-//			/* plugin classpath: resolve plugin and get resource */
-//			int x = msource.indexOf("::");
-//			String plug = msource.substring(0, x);
-//			String reso = msource.substring(x+2);
-//			
-//			ThinklabPlugin plugin = Thinklab.resolvePlugin(plug, true);
-//			URL rurl = plugin.getResourceURL(reso);
-//			ret = CopyURL.getFileForURL(rurl);
+			/* plugin classpath: resolve plugin and get resource */
+			int x = msource.indexOf("::");
+			String plug = msource.substring(0, x);
+			String reso = msource.substring(x+2);
+			plug = Thinklab.resolvePluginName(plug, true);
+			IThinklabPlugin plugin = Thinklab.getPlugin(plug);
+			URL rurl = plugin.getResourceURL(reso);
+			ret = CopyURL.getFileForURL(rurl);
 		
-		} else if (msource.startsWith("http:") || msource.startsWith("file:")) {
+		} else if (msource.startsWith("http:") || msource.startsWith("file:") || msource.startsWith("bundleresource:")) {
 			try {
 				ret = CopyURL.getFileForURL(new URL(msource));
 			} catch (Exception e) {

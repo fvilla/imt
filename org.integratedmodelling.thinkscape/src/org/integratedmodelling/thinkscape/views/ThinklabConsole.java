@@ -40,12 +40,7 @@ public class ThinklabConsole extends ViewPart {
 	public static final String ID = "org.integratedmodelling.thinkscape.views.ThinklabConsole"; //$NON-NLS-1$
 	private Text text;
 	private StyledText styledText;
-	
-	private StyleRange normalStyle;
-	private StyleRange errorCommandStyle;
-	private StyleRange successCommandStyle;	
-	private StyleRange errorMessageStyle;
-	
+
 	private ConsoleSession session;
 
 	public class CaptureOutputStream extends OutputStream {
@@ -215,9 +210,7 @@ public class ThinklabConsole extends ViewPart {
 	}
 
 	private void appendText(String text, java.awt.Color c, int bold) {
-		
-		Thinklab.get().info("setting: " + text);
-		
+
 		Color col = new Color(styledText.getDisplay(), c.getRed(), c.getGreen(), c.getBlue());
 		int start = styledText.getText().length();
 		styledText.append(text);

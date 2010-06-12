@@ -35,7 +35,7 @@ package org.integratedmodelling.clojure.commands;
 
 import java.net.URL;
 
-import org.integratedmodelling.clojure.Activator;
+import org.integratedmodelling.clojure.ClojureActivator;
 import org.integratedmodelling.clojure.REPL;
 import org.integratedmodelling.clojure.interpreters.ClojureInterpreter;
 import org.integratedmodelling.thinklab.Thinklab;
@@ -60,14 +60,14 @@ public class Clojure implements ICommandHandler {
 
 		IValue ret = null;
 		String arg = null;
-		IThinklabPlugin plugin = Activator.get();
-		ClassLoader cloader = Activator.get().getClassLoader();
+		IThinklabPlugin plugin = ClojureActivator.get();
+		ClassLoader cloader = ClojureActivator.get().getClassLoader();
 
 		if (command.hasOption("context")) {
 
 			String contextplugin = command.getOptionAsString("context");
 			Bundle plug = Thinklab.resolvePlugin(contextplugin, true);
-			plugin = Activator.getPlugin(plug.getSymbolicName());
+			plugin = ClojureActivator.getPlugin(plug.getSymbolicName());
 			cloader = plugin.getClassLoader();
 		}
 
@@ -76,7 +76,7 @@ public class Clojure implements ICommandHandler {
 			
 			if (session.getInputStream() == null) {
 				/* not interactive: just ignore command */
-				Activator.get().warn("Clojure interpreter invoked by a non-interactive application");
+				ClojureActivator.get().warn("Clojure interpreter invoked by a non-interactive application");
 				return null;
 			}
 			

@@ -159,7 +159,7 @@ public class ClassificationModel extends DefaultDynamicAbstractModel {
 			while (set != null) {
 				Object o = set.first();
 				ret.addClassifier(getClassifier(o));
-				set = set.rest();
+				set = set.next();
 			}
 
 		} else if (classifier instanceof ISeq) {

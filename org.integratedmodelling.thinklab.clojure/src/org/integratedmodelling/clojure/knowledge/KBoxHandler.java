@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.integratedmodelling.clojure.Activator;
+import org.integratedmodelling.clojure.ClojureActivator;
 import org.integratedmodelling.clojure.utils.OptionListIterator;
 import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
@@ -99,7 +99,7 @@ public class KBoxHandler {
 				if (policy.equals(":disable-unless-empty") && this.kbox != null) {
 					if (this.kbox.getObjectCount() > 0l) {
 						_disabled = true;
-						Activator.get().warn("kbox not empty: any object definitions ignored");
+						ClojureActivator.get().warn("kbox not empty: any object definitions ignored");
 					}
 				} else if (policy.equals(":recreate-always") && this.kbox != null) {
 					this.kbox.resetToEmpty();
@@ -109,7 +109,7 @@ public class KBoxHandler {
 				try {
 					
 					Bundle bb = Thinklab.resolvePlugin(kv.getSecond().toString(), true);
-					IThinklabPlugin persistTo = Activator.getPlugin(bb.getSymbolicName());
+					IThinklabPlugin persistTo = ClojureActivator.getPlugin(bb.getSymbolicName());
 					
 					File dest = 
 						new File(persistTo.getScratchPath() + File.separator + MiscUtilities.getNameFromURL(this.kbox.getUri()) + ".kbox");
@@ -219,7 +219,7 @@ public class KBoxHandler {
 		File kboxFile = null;
 		
 		try {
-			kboxFile = new File(Activator.get().getScratchPath() + File.separator + "temp_kbox");
+			kboxFile = new File(ClojureActivator.get().getScratchPath() + File.separator + "temp_kbox");
 			kboxFile.mkdir();
 			kboxFile = new File(kboxFile + File.separator + name + ".kbox");
 			

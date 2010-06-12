@@ -112,7 +112,7 @@ public class KnowledgeView extends ViewPart {
 		conceptSearch.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		TabItem tbtmDataSpace = new TabItem(tabFolder, SWT.NONE);
-		tbtmDataSpace.setText("Data Space");
+		tbtmDataSpace.setText("Observation Space");
 		
 		Composite composite_1 = new Composite(tabFolder, SWT.NONE);
 		tbtmDataSpace.setControl(composite_1);
