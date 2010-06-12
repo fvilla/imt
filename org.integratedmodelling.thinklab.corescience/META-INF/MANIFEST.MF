@@ -23,7 +23,6 @@ Bundle-ClassPath: lib/Blas.jar,
  lib/ostermillerutils_1_06_00.jar,
  lib/ssj.jar,
  .
-Bundle-ActivationPolicy: lazy
 Export-Package: cern.clhep,
  cern.colt,
  cern.colt.bitvector,
@@ -253,3 +252,4 @@ Export-Package: cern.clhep,
  umontreal.iro.lecuyer.stat.list,
  umontreal.iro.lecuyer.stochprocess,
  umontreal.iro.lecuyer.util
+Bundle-ActivationPolicy: lazy

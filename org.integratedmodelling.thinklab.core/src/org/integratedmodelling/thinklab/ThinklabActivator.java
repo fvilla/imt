@@ -163,6 +163,9 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 			km.initialize();
 		}
 		
+		// can't be lazy
+		// bundle.start();
+		
 		doStart();
 
 //		loadExtensions();
@@ -191,7 +194,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 				found = true;
 			}
 			
-			ofiles.add(CopyURL.cache(f, ontoFolder, bundle.getLastModified()));
+			ofiles.add(CopyURL.cache(f, ontoFolder));
 		}
 
 		for (File of : ofiles) {

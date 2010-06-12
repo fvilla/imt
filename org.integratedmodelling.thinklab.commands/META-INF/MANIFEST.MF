@@ -13,4 +13,3 @@ Bundle-ClassPath: lib/jline-0.9.94.jar,
 Export-Package: jline,
  org.integratedmodelling.thinklab.commandline,
  org.integratedmodelling.thinklab.commandline.commands
-Bundle-ActivationPolicy: lazy

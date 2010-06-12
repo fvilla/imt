@@ -1,5 +1,8 @@
 package org.integratedmodelling.modelling;
 
+import org.integratedmodelling.clojure.ClojureActivator;
+import org.integratedmodelling.corescience.CoreScience;
+import org.integratedmodelling.geospace.Geospace;
 import org.integratedmodelling.modelling.visualization.VisualizationFactory;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.ThinklabActivator;
@@ -7,6 +10,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IInstance;
+import org.integratedmodelling.time.TimePlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -33,6 +37,13 @@ public class ModellingPlugin extends ThinklabActivator {
 		return (ModellingPlugin) getPlugin(PLUGIN_ID);
 	}
 	
+
+	@Override
+	protected void preStart() throws Exception {
+		ClojureActivator.get();
+//		Geospace.get();
+//		TimePlugin.get();
+	}
 
 	@Override
 	protected void doStart() throws Exception {

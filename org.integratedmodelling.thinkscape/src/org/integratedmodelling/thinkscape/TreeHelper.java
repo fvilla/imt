@@ -129,7 +129,7 @@ public class TreeHelper {
 			this.concept = name;
 		}
 		public String getName() {
-			return concept.getLocalName();
+			return concept == null ? "" : concept.getLocalName();
 		}
 		public void setParent(TreeParent parent) {
 			this.parent = parent;
@@ -368,7 +368,7 @@ public class TreeHelper {
 						this.list.get(i) :
 						null;
 	
-				if (cur == null || !cur.getConceptSpace().equals(parent.ontology)) {
+				if (cur == null || cur.getConceptSpace() == null || !cur.getConceptSpace().equals(parent.ontology)) {
 					for (TreeObject to : objs) {
 						parent.addChild(to);
 					}

@@ -448,5 +448,31 @@ public class ModelFactory {
 					+ agentId);
 		return (ThinkAgent) ret.clone();
 	}
+
+	/**
+	 * Return all defmodel'd models, in random order.
+	 * 
+	 * @return
+	 */
+	public Collection<Model> getModels() {
+		return modelsById.values();
+	}
+	
+	/**
+	 * Return all defscenario'd scenarios, in random order.
+	 * 
+	 * @return
+	 */
+	public Collection<Scenario> getScenarios() {
+		return scenariosById.values();
+	}
+
+	/**
+	 * Return all defagent'd agents, in random order.
+	 * @return
+	 */
+	public Collection<ThinkAgent> getAgents() {
+		return agentsById.values();
+	}
 	
 }

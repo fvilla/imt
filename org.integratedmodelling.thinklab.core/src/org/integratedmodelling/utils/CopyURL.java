@@ -172,13 +172,17 @@ public class CopyURL {
 		}
 	}
 
-	public static File cache(URL url, File ontoFolder, long lastModified) throws ThinklabIOException {
+	public static File cache(URL url, File ontoFolder) throws ThinklabIOException {
 
 		File fname = 
 			new File(ontoFolder + File.separator + MiscUtilities.getFileName(url.toString()));
 	
-		if (!fname.exists() || fname.lastModified() <= lastModified) {
-			copy(url, fname);
+		try {
+			if (!fname.exists() || fname.lastModified() <= url.openConnection().getLastModified()) {
+				copy(url, fname);
+			}
+		} catch (IOException e) {
+			throw new ThinklabIOException(e);
 		}
 		
 		return fname;

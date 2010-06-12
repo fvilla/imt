@@ -67,3 +67,4 @@ Export-Package: clojure,
  org.integratedmodelling.clojure.rfib,
  org.integratedmodelling.clojure.rfib.swing,
  org.integratedmodelling.clojure.utils
+Bundle-ActivationPolicy: lazy

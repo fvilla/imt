@@ -22,6 +22,8 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.factory.PropertyAuthorityFactory;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
+import org.integratedmodelling.clojure.ClojureActivator;
+import org.integratedmodelling.corescience.CoreScience;
 import org.integratedmodelling.geospace.gazetteers.PostgisGazetteer;
 import org.integratedmodelling.geospace.interfaces.IGazetteer;
 import org.integratedmodelling.geospace.literals.ShapeValue;
@@ -222,6 +224,12 @@ public class Geospace extends ThinklabActivator {
 	protected void doStop() throws Exception {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	protected void preStart() throws Exception {
+		ClojureActivator.get();
+		// CoreScience.get();
 	}
 	
 	public CoordinateReferenceSystem getPreferredCRS() {

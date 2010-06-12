@@ -56,6 +56,7 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		scanThinklabProjects();
+
 	}
 
 	/*
