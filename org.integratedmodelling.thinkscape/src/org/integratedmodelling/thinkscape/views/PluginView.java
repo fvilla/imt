@@ -18,6 +18,14 @@ import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.ToolItem;
+import com.swtdesigner.ResourceManager;
 
 
 /**
@@ -44,9 +52,6 @@ public class PluginView extends ViewPart {
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "org.integratedmodelling.thinkscape.views.PluginView";
-
-	private TableViewer viewer;
-	private Action doubleClickAction;
 
 	/*
 	 * The content provider class is responsible for
@@ -94,6 +99,8 @@ public class PluginView extends ViewPart {
 	class NameSorter extends ViewerSorter {
 	}
 
+	private TreeViewer treeViewer;
+
 	/**
 	 * The constructor.
 	 */
@@ -105,14 +112,23 @@ public class PluginView extends ViewPart {
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		viewer.setContentProvider(new ViewContentProvider());
-		viewer.setLabelProvider(new ViewLabelProvider());
-		viewer.setSorter(new NameSorter());
-		viewer.setInput(getViewSite());
-
-		// Create the help context id for the viewer's control
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.integratedmodelling.thinkscape.viewer");
+		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new GridLayout(1, false));
+		
+		ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
+		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+		toolItem.setToolTipText("New Thinklab project");
+		toolItem.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/etool16/new_wiz.gif"));
+		
+		this.treeViewer = new TreeViewer(composite, SWT.BORDER);
+		Tree tree = treeViewer.getTree();
+		tree.setLinesVisible(true);
+		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tree.setBounds(0, 0, 85, 85);
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();
@@ -127,9 +143,6 @@ public class PluginView extends ViewPart {
 				PluginView.this.fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(viewer.getControl());
-		viewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, viewer);
 	}
 
 	private void contributeToActionBars() {
@@ -151,29 +164,13 @@ public class PluginView extends ViewPart {
 	}
 
 	private void makeActions() {
-		doubleClickAction = new Action() {
-			public void run() {
-				ISelection selection = viewer.getSelection();
-				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				try {
-					((Bundle)obj).start();
-				} catch (BundleException e) {
-					throw new ThinklabRuntimeException(e);
-				}
-			}
-		};
 	}
 
 	private void hookDoubleClickAction() {
-		viewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-				doubleClickAction.run();
-			}
-		});
 	}
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
-			viewer.getControl().getShell(),
+			treeViewer.getControl().getShell(),
 			"Thinklab Projects",
 			message);
 	}
@@ -182,6 +179,6 @@ public class PluginView extends ViewPart {
 	 * Passing the focus request to the viewer's control.
 	 */
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		treeViewer.getControl().setFocus();
 	}
 }

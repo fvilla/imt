@@ -19,12 +19,17 @@ import org.integratedmodelling.modelling.ModelFactory;
 import org.integratedmodelling.modelling.ModellingPlugin;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.eclipse.swt.widgets.ToolBar;
 
 public class ThinklabModels extends ViewPart {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.views.ThinklabModels"; //$NON-NLS-1$
 	private Text text;
 	private ModelFactory manager;
+	private TreeViewer treeViewer_1;
+	private TreeViewer treeViewer_2;
+	private TreeViewer treeViewer_3;
+	private TreeViewer treeViewer;
 
 	public ThinklabModels() {
 
@@ -51,36 +56,78 @@ public class ThinklabModels extends ViewPart {
 				TabItem tbtmModels = new TabItem(tabFolder, SWT.NONE);
 				tbtmModels.setText("Models");
 				{
-					TreeViewer treeViewer = new TreeViewer(tabFolder, SWT.BORDER);
-					Tree tree = treeViewer.getTree();
-					tbtmModels.setControl(tree);
+					Composite composite = new Composite(tabFolder, SWT.NONE);
+					tbtmModels.setControl(composite);
+					composite.setLayout(new GridLayout(1, false));
+					{
+						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
+						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+						toolBar.setBounds(0, 0, 89, 23);
+					}
+					
+					treeViewer_1 = new TreeViewer(composite, SWT.BORDER);
+					Tree tree = treeViewer_1.getTree();
+					tree.setHeaderVisible(true);
+					tree.setLinesVisible(true);
+					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+					tree.setBounds(0, 0, 85, 85);
 				}
 			}
 			{
 				TabItem tbtmScenarios = new TabItem(tabFolder, SWT.NONE);
 				tbtmScenarios.setText("Scenarios");
 				{
-					TreeViewer treeViewer = new TreeViewer(tabFolder, SWT.BORDER);
-					Tree tree = treeViewer.getTree();
-					tbtmScenarios.setControl(tree);
+					Composite composite = new Composite(tabFolder, SWT.NONE);
+					tbtmScenarios.setControl(composite);
+					composite.setLayout(new GridLayout(1, false));
+					{
+						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
+						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+					}
+					
+					treeViewer_2 = new TreeViewer(composite, SWT.BORDER);
+					Tree tree = treeViewer_2.getTree();
+					tree.setLinesVisible(true);
+					tree.setHeaderVisible(true);
+					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 				}
 			}
 			{
 				TabItem tbtmAgents = new TabItem(tabFolder, SWT.NONE);
 				tbtmAgents.setText("Agents");
 				{
-					TreeViewer treeViewer = new TreeViewer(tabFolder, SWT.BORDER);
-					Tree tree = treeViewer.getTree();
-					tbtmAgents.setControl(tree);
+					Composite composite = new Composite(tabFolder, SWT.NONE);
+					tbtmAgents.setControl(composite);
+					composite.setLayout(new GridLayout(1, false));
+					{
+						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
+						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+					}
+					
+					treeViewer_3 = new TreeViewer(composite, SWT.BORDER);
+					Tree tree = treeViewer_3.getTree();
+					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+					tree.setLinesVisible(true);
+					tree.setHeaderVisible(true);
 				}
 			}
 			{
 				TabItem tbtmObservables = new TabItem(tabFolder, SWT.NONE);
 				tbtmObservables.setText("Observables");
 				{
-					TreeViewer treeViewer = new TreeViewer(tabFolder, SWT.BORDER);
+					Composite composite = new Composite(tabFolder, SWT.NONE);
+					tbtmObservables.setControl(composite);
+					composite.setLayout(new GridLayout(1, false));
+					{
+						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
+						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+					}
+					
+					treeViewer = new TreeViewer(composite, SWT.BORDER);
 					Tree tree = treeViewer.getTree();
-					tbtmObservables.setControl(tree);
+					tree.setHeaderVisible(true);
+					tree.setLinesVisible(true);
+					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 				}
 			}
 		}
@@ -121,5 +168,16 @@ public class ThinklabModels extends ViewPart {
 	public void setFocus() {
 		// Set the focus
 	}
-
+	protected TreeViewer getModelTreeViewer() {
+		return treeViewer_1;
+	}
+	public TreeViewer getScenarioTreeViewer() {
+		return treeViewer_2;
+	}
+	public TreeViewer getAgentTreeViewer() {
+		return treeViewer_3;
+	}
+	public TreeViewer getObservableTreeViewer() {
+		return treeViewer;
+	}
 }

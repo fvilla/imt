@@ -2,6 +2,9 @@ package org.integratedmodelling.thinkscape;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -25,23 +28,6 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 	}
 
-	/*
-	 * scan the workspace for projects to contribute to and build descriptors for
-	 * each of them.
-	 */
-	public void scanThinklabProjects() {
-		IPath path = Platform.getLocation();
-		File workspace = path.toFile();
-		if (workspace != null) {
-			for (File pfile : workspace.listFiles()) {
-				if (pfile.isDirectory() && isThinklabProject(pfile)) {
-					// TODO
-				}
-					
-			}
-		}
-		
-	}
 	
 	private boolean isThinklabProject(File pfile) {
 		// TODO Auto-generated method stub
@@ -55,8 +41,17 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		scanThinklabProjects();
+		setup();
 
+	}
+
+	private void setup() {
+		// TODO Auto-generated method stub
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		
+		for (IProject proj : root.getProjects()) {
+			
+		}
 	}
 
 	/*

@@ -45,6 +45,12 @@
             id="org.integratedmodelling.thinkscape.views.AnnotationsView"
             name="Annotations">
       </view>
+      <view
+            category="org.integratedmodelling.thinkscape.thinkscape"
+            class="org.integratedmodelling.thinkscape.views.ThinkcapView"
+            id="org.integratedmodelling.thinkscape.views.ThinkcapView"
+            name="Thinkcap Server">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -157,6 +163,11 @@
             name="Semantic annotation"
             priority="normal">
       </content-type>
+   </extension>
+   <extension
+         id="thinklabProjectAuditor"
+         name="thinklabProjectAuditor"
+         point="org.eclipse.core.resources.builders">
    </extension>
 
 </plugin>
