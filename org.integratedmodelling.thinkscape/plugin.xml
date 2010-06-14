@@ -11,43 +11,49 @@
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.PluginView"
-            icon="icons/sample.gif"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.views.PluginView"
             name="Thinklab Projects">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.ThinklabConsole"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.views.ThinklabConsole"
             name="Thinklab Console">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.Sources"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.views.Sources"
             name="Sources">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.ThinklabModels"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.views.ThinklabModels"
             name="Models">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.KnowledgeView"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.views.KnowledgeView"
             name="Knowledge">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.AnnotationsView"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.views.AnnotationsView"
             name="Annotations">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.ThinkcapView"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.views.ThinkcapView"
             name="Thinkcap Server">
       </view>
@@ -142,6 +148,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.integratedmodelling.thinkscape.perspectives.ThinklabPerspective"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.perspectives.ThinklabPerspective"
             name="Thinklab Modeling">
       </perspective>
@@ -150,6 +157,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
+            icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
             name="Annotation Editor">
       </editor>
@@ -158,16 +166,122 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             describer="org.integratedmodelling.thinkscape.describers.AnnotationDescriber"
-            file-extensions="annotation"
+            file-extensions="ann"
             id="org.integratedmodelling.thinkscape.semantic-annotation"
             name="Semantic annotation"
             priority="normal">
       </content-type>
    </extension>
    <extension
-         id="thinklabProjectAuditor"
-         name="thinklabProjectAuditor"
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.integratedmodelling.thinkscape"
+            name="thinkscape">
+      </category>
+      <wizard
+            category="org.integratedmodelling.thinkscape"
+            class="org.integratedmodelling.thinkscape.wizards.NewAnnotation"
+            icon="icons/lightbulb.png"
+            id="org.integratedmodelling.thinkscape.wizards.NewAnnotation"
+            name="New Semantic annotation">
+      </wizard>
+      <wizard
+            category="org.integratedmodelling.thinkscape"
+            class="org.integratedmodelling.thinkscape.wizards.NewProject"
+            descriptionImage="thinklab.png"
+            finalPerspective="org.integratedmodelling.thinkscape.perspectives.ThinklabPerspective"
+            icon="icons/lightbulb_add.png"
+            id="org.integratedmodelling.thinkscape.thinkproject"
+            name="New Thinklab Project"
+            project="true">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.splashHandlers">
+      <splashHandler
+            class="org.integratedmodelling.thinkscape.splash.InteractiveSplashHandler"
+            id="org.integratedmodelling.thinkscape.splash.interactive">
+      </splashHandler>
+      <splashHandlerProductBinding
+            productId="org.integratedmodelling.thinkscape.application"
+            splashId="org.integratedmodelling.thinkscape.splash.interactive">
+      </splashHandlerProductBinding>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.integratedmodelling.thinkscape.application"
+            description="Semantic Meta-Modelling IDE"
+            name="ThinkScape">
+      </product>
+   </extension>
+   <extension
+         id="thinkscape"
+         name="Thinkscape Project Builder"
          point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="org.integratedmodelling.thinkscape.builder.ThinkscapeBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="thinkscape"
+         name="Thinkscape Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.integratedmodelling.thinkscape.builder.ThinkscapeNature">
+         </run>
+      </runtime>
+      <builder
+            id="org.integratedmodelling.thinkscape.thinkscape">
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="org.integratedmodelling.thinkscape.contribution1"
+            nameFilter="*"
+            objectClass="org.eclipse.core.resources.IProject">
+         <action
+               class="org.integratedmodelling.thinkscape.builder.ToggleNatureAction"
+               enablesFor="+"
+               id="org.integratedmodelling.thinkscape.addRemoveNatureAction"
+               label="Add/Remove Sample Nature"
+               menubarPath="additions">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         id="xmlProblem"
+         name="XML Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="org.integratedmodelling.thinkscape.wizards.sampleCategory"
+            name="Source Import">
+      </category>
+      <wizard
+            category="org.integratedmodelling.thinkscape.wizards.sampleCategory"
+            class="org.integratedmodelling.thinkscape.wizards.SourceImportWizard"
+            icon="icons/sample.gif"
+            id="org.integratedmodelling.thinkscape.wizards.SourceImportWizard"
+            name="Import Source">
+         <description>
+            Import a file from the local file system into the workspace.
+         </description>
+      </wizard>
    </extension>
 
 </plugin>

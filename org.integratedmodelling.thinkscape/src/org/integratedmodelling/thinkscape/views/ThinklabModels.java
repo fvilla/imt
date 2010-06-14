@@ -33,13 +33,7 @@ public class ThinklabModels extends ViewPart {
 
 	public ThinklabModels() {
 
-		IConcept c = CoreScience.get().Ranking();
-		CoordinateReferenceSystem diozone = Geospace.get().getDefaultCRS();
-		
-		this.manager = ModellingPlugin.get().getModelManager();
-		for (Model m : manager.getModels()) {
-			System.out.println("here is a model: " + m);
-		}
+
 	}
 
 	/**

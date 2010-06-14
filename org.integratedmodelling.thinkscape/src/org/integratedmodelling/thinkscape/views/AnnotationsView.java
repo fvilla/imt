@@ -2,25 +2,33 @@ package org.integratedmodelling.thinkscape.views;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.ToolItem;
+
 import com.swtdesigner.ResourceManager;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.integratedmodelling.thinkscape.wizards.NewAnnotation;
 
 public class AnnotationsView extends ViewPart {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.views.AnnotationsView"; //$NON-NLS-1$
 	private Text text;
-
+	private Composite  ps;
+	
 	public AnnotationsView() {
 	}
 
@@ -30,6 +38,7 @@ public class AnnotationsView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		ps = parent;
 		parent.setLayout(new GridLayout(1, false));
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -40,6 +49,21 @@ public class AnnotationsView extends ViewPart {
 		toolBar.setBounds(0, 0, 89, 23);
 		
 		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+		toolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+		        NewAnnotation wizard = new NewAnnotation();
+				wizard.init(getSite().getWorkbenchWindow().getWorkbench(),
+				            (IStructuredSelection)null);
+		        WizardDialog dialog = new WizardDialog(ps.getShell(), wizard);
+		        dialog.setBlockOnOpen(true);
+		        int returnCode = dialog.open();
+		        if(returnCode == Dialog.OK)
+		          System.out.println("OK");
+		        else
+		          System.out.println("Cancelled");
+			}
+		});
 		toolItem.setHotImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/etool16/new_wiz.gif"));
 		
 		TreeViewer treeViewer = new TreeViewer(container, SWT.BORDER);

@@ -4,7 +4,14 @@ package org.integratedmodelling.thinkscape.views;
 import java.util.Collection;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.actions.NewProjectAction;
 import org.eclipse.ui.part.*;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.jface.action.*;
@@ -16,6 +23,7 @@ import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.eclipse.swt.layout.GridLayout;
@@ -26,33 +34,80 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.ToolItem;
 import com.swtdesigner.ResourceManager;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 
 /**
- * This sample class demonstrates how to plug-in a new
- * workbench view. The view shows data obtained from the
- * model. The sample creates a dummy model on the fly,
- * but a real implementation would connect to the model
- * available either in this or another plug-in (e.g. the workspace).
- * The view is connected to the model using a content provider.
- * <p>
- * The view uses a label provider to define how model
- * objects should be presented in the view. Each
- * view can present the same model objects using
- * different labels and icons, if needed. Alternatively,
- * a single label provider can be shared between views
- * in order to ensure that objects of the same type are
- * presented in the same way everywhere.
- * <p>
+ * The "navigator" for Thinklab projects.
  */
-
 public class PluginView extends ViewPart {
-
+	
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "org.integratedmodelling.thinkscape.views.PluginView";
 
+	
+	/**
+	* Create a new Project through a Wizard
+	*
+	* @return the newly created project
+	*/
+	private IProject displayNewProjectWizard() {
+
+		NewProjectListener newProjectListener = new NewProjectListener();
+		// Adding a Listener to listen for post change events
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(
+				newProjectListener,	
+				IResourceChangeEvent.POST_CHANGE);
+		NewProjectAction newProjectAction =
+			new NewProjectAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+		newProjectAction.run();
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(newProjectListener);
+		return newProjectListener.getNewProjectCreated();
+	}
+
+	/**
+	* A Project Creation Listener
+	*/
+	class NewProjectListener implements IResourceChangeListener {
+
+		// The Project that will be created
+
+		private IProject newProject_ = null;
+
+		@Override
+		public void resourceChanged(IResourceChangeEvent event) {
+
+			IResourceDelta root = event.getDelta();
+
+			// Get all the affected Children. One of them would be the newly created project
+			IResourceDelta[] projectDeltas = root.getAffectedChildren();
+
+			for (int i = 0; i < projectDeltas.length; i++) {
+
+				// Get individual delta's
+				IResourceDelta delta = projectDeltas[i];
+				IResource resource = delta.getResource();
+
+				if (delta.getKind() == IResourceDelta.ADDED) {
+					// The New Project that has been created via the New Project
+					// Wizard
+					newProject_ = (IProject) resource;
+				}
+			}
+		}
+
+		/**
+		 * Get the new Project Created
+		 */
+		public IProject getNewProjectCreated() {
+			return newProject_;
+		}
+	}
+
+	
 	/*
 	 * The content provider class is responsible for
 	 * providing objects to the view. It can wrap
@@ -121,6 +176,21 @@ public class PluginView extends ViewPart {
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+		toolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				IProject project = displayNewProjectWizard();
+				if (project != null) {
+					ThinklabProject tproj = new ThinklabProject(project);
+					try {
+						tproj.initialize();
+					} catch (ThinklabException e1) {
+						throw new ThinklabRuntimeException(e1);
+					}
+					
+				}
+			}
+		});
 		toolItem.setToolTipText("New Thinklab project");
 		toolItem.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/etool16/new_wiz.gif"));
 		

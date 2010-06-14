@@ -9,6 +9,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.integratedmodelling.corescience.CoreScience;
+import org.integratedmodelling.geospace.Geospace;
+import org.integratedmodelling.modelling.Model;
+import org.integratedmodelling.modelling.ModelFactory;
+import org.integratedmodelling.modelling.ModellingPlugin;
+import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
+import org.integratedmodelling.time.TimePlugin;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -29,7 +36,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	
-	private boolean isThinklabProject(File pfile) {
+	private boolean isThinklabProject(IProject pfile) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -46,6 +53,17 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	private void setup() {
+		
+		// force core plugins to load
+		IConcept c = CoreScience.Ranking();
+		Geospace.get().ArealLocation();
+		TimePlugin.DateTime();
+		ModelFactory manager = ModellingPlugin.get().getModelManager();
+
+		for (Model m : manager.getModels()) {
+			System.out.println("here is a model: " + m);
+		}
+		
 		// TODO Auto-generated method stub
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
