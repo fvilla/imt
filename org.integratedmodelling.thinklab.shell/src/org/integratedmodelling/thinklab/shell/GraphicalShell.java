@@ -133,7 +133,6 @@ public class GraphicalShell {
 			
 		}
 		
-
 		public  void printStatusMessage() {
 
 			console.println("ThinkLab shell v" + Thinklab.get().getVersion());
@@ -189,8 +188,8 @@ public class GraphicalShell {
 			
 			/* define commands from user input */
 			while(!finished) {
-				
-				console.print("> ");
+								
+	            console.print("> ");
 				console.setStyle(inputFont);
 				
 				// TODO change to console input stream
@@ -243,6 +242,7 @@ public class GraphicalShell {
 					    }
 					}
 				}
+				
 			}
 			
 			this.session = null;
@@ -267,7 +267,6 @@ public class GraphicalShell {
 	            
 	            console.getOut().flush();
 	            
-	            SwingUtilities.invokeAndWait(this);
 	            
 			} catch (Exception e) {
 				e.printStackTrace();
