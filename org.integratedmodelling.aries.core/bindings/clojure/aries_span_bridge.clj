@@ -30,7 +30,7 @@
         [clj-misc.utils          :only (mapmap remove-nil-val-entries constraints-1.0 p &)]
         [clj-misc.randvars       :only (cont-type disc-type successive-sums)]))
 
-(refer 'thinklab :only '(conc))
+(refer 'tl :only '(conc))
 
 (refer 'geospace :only '(grid-rows
                            grid-columns

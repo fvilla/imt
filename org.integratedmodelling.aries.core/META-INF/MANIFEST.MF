@@ -24,3 +24,16 @@ Require-Bundle: org.integratedmodelling.knowledge.foundational;bundle-version="1
  org.integratedmodelling.thinklab.shell;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.sql;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.time;bundle-version="1.0.0"
+Bundle-ClassPath: lib/clj-span.jar,
+ .
+Export-Package: clj_misc,
+ clj_span,
+ deprecated.aries.demo,
+ deprecated.span,
+ org.integratedmodelling.aries.core,
+ org.integratedmodelling.aries.core.commands,
+ org.integratedmodelling.aries.core.exceptions,
+ org.integratedmodelling.aries.core.implementations.datasources,
+ org.integratedmodelling.aries.core.implementations.observations,
+ org.integratedmodelling.aries.core.models,
+ org.integratedmodelling.aries.core.span
