@@ -228,8 +228,8 @@ public class Geospace extends ThinklabActivator {
 	
 	@Override
 	protected void preStart() throws Exception {
-		ClojureActivator.get();
-		// CoreScience.get();
+		ClojureActivator cj = ClojureActivator.get();
+		IConcept c = CoreScience.Ranking();
 	}
 	
 	public CoordinateReferenceSystem getPreferredCRS() {
