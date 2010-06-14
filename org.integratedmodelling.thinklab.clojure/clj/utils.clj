@@ -88,14 +88,14 @@
   	(empty? coll)   coll
 		(empty? (rest coll)) (list (list (first coll) filler))
 		:otherwise 
-			(if (pred (second coll))
-     ;; FV TODO CHECK - these were lazy-cons, see if cons makes sense here
+		(lazy-seq
+				(if (pred (second coll))
 		     (cons 
 		     		(take 2 coll)
 						(group-with-following pred (rest (rest coll)) filler))
 		     (cons 
 		     		(list (first coll) filler)
-						(group-with-following pred (rest coll) filler)))))
+						(group-with-following pred (rest coll) filler))))))
 
 
 (defn group-with-keywords

@@ -26,7 +26,6 @@ public class ClojureActivator extends ThinklabActivator {
 			ClassLoader cls = null;
 			try {
 //				cls = swapClassloader();
-				Class<?> clz = getClassLoader().loadClass("clojure.lang.Compiler");
 				Compiler.loadFile(MiscUtilities.resolveUrlToFile(getResourceURL("clj/thinklab.clj").toString()).toString());
 				Compiler.loadFile(MiscUtilities.resolveUrlToFile(getResourceURL("clj/utils.clj").toString()).toString());
 				Compiler.loadFile(MiscUtilities.resolveUrlToFile(getResourceURL("clj/knowledge.clj").toString()).toString());
