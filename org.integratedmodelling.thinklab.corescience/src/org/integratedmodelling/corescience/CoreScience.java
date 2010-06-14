@@ -91,6 +91,15 @@ public class CoreScience extends ThinklabActivator {
 		return (CoreScience)getPlugin(PLUGIN_ID);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.integratedmodelling.thinklab.ThinklabActivator#preStart()
+	 */
+	@Override
+	protected void preStart() throws Exception {
+		// force core plugins to load
+		ClojureActivator cj = ClojureActivator.get();
+	}
+
 	@Override
 	protected void doStart() throws Exception {
 
@@ -111,13 +120,6 @@ public class CoreScience extends ThinklabActivator {
 	@Override
 	protected void doStop() throws Exception {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void preStart() throws Exception {
-		// ensure we have Clojure 
-		ClojureActivator.get();
 	}
 
 	public static IConcept RankingModel() {
