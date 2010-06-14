@@ -1,5 +1,8 @@
 package org.integratedmodelling.time;
 
+import org.integratedmodelling.clojure.ClojureActivator;
+import org.integratedmodelling.corescience.CoreScience;
+import org.integratedmodelling.geospace.Geospace;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
@@ -38,6 +41,16 @@ public class TimePlugin extends ThinklabActivator {
 		return (TimePlugin) getPlugin(PLUGIN_ID);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.integratedmodelling.thinklab.ThinklabActivator#preStart()
+	 */
+	@Override
+	protected void preStart() throws Exception {
+		// force core plugins to load
+		ClojureActivator cj = ClojureActivator.get();
+		IConcept c = CoreScience.Ranking();
+		IConcept o = Geospace.RasterObservationSpace();
+	}
 
 	@Override
 	protected void doStart() throws Exception {
