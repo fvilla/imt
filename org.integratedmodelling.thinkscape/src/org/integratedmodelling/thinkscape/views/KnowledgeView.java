@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
@@ -21,12 +22,15 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.TreeHelper;
+import org.integratedmodelling.thinkscape.TreeHelper.TreeObject;
 
 import com.swtdesigner.ResourceManager;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 public class KnowledgeView extends ViewPart {
 
@@ -86,6 +90,14 @@ public class KnowledgeView extends ViewPart {
 		
 		this.conceptTree = new TreeViewer(composite, SWT.BORDER);
 		Tree tree = conceptTree.getTree();
+		tree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				treeHelper.handleDoubleClick(
+						((TreeSelection)conceptTree.getSelection()).getFirstElement(),
+						getSite().getPage());
+			}
+		});
 		tree.setLinesVisible(true);
 		tree.setHeaderVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

@@ -1,43 +1,43 @@
 package org.integratedmodelling.thinkscape;
 
-import java.io.File;
-
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.integratedmodelling.clojure.ClojureActivator;
 import org.integratedmodelling.corescience.CoreScience;
 import org.integratedmodelling.geospace.Geospace;
 import org.integratedmodelling.modelling.Model;
 import org.integratedmodelling.modelling.ModelFactory;
 import org.integratedmodelling.modelling.ModellingPlugin;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
+import org.integratedmodelling.thinkscape.builder.ThinkscapeNature;
 import org.integratedmodelling.time.TimePlugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class ThinkScape extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.integratedmodelling.thinkscape";
 
 	// The shared instance
-	private static Activator plugin;
+	private static ThinkScape plugin;
 	
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public ThinkScape() {
 	}
 
 	
-	private boolean isThinklabProject(IProject pfile) {
-		// TODO Auto-generated method stub
+	public static boolean isThinklabProject(IProject pfile) {
+		try {
+			return pfile.hasNature(ThinkscapeNature.NATURE_ID);
+		} catch (CoreException e) {
+		}
 		return false;
 	}
 
@@ -55,21 +55,21 @@ public class Activator extends AbstractUIPlugin {
 	private void setup() {
 		
 		// force core plugins to load
+		ClojureActivator cj = ClojureActivator.get();
 		IConcept c = CoreScience.Ranking();
 		Geospace.get().ArealLocation();
 		TimePlugin.DateTime();
 		ModelFactory manager = ModellingPlugin.get().getModelManager();
 
+		/*
+		 * set up global listeners
+		 */
+		
 		for (Model m : manager.getModels()) {
 			System.out.println("here is a model: " + m);
 		}
 		
 		// TODO Auto-generated method stub
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
-		for (IProject proj : root.getProjects()) {
-			
-		}
 	}
 
 	/*
@@ -86,7 +86,7 @@ public class Activator extends AbstractUIPlugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
+	public static ThinkScape getDefault() {
 		return plugin;
 	}
 

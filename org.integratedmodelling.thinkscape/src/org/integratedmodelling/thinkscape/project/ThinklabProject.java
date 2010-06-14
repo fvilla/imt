@@ -12,10 +12,10 @@ public class ThinklabProject {
 
 	IProject project = null;
 	
-	private IFolder modelPath;
-	private IFolder configPath;
-	private IFolder annotPath;
-	private IFolder ontoPath;
+	public IFolder modelPath;
+	public IFolder configPath;
+	public IFolder annotPath;
+	public IFolder ontoPath;
 	
 	public void initialize() throws ThinklabException  {
 		
@@ -67,6 +67,11 @@ public class ThinklabProject {
 
 	public ThinklabProject(IProject project) {
 		this.project = project;
+	}
+
+	public String getLabel() {
+		// TODO beautify this?
+		return project.getName();
 	}
 	
 }

@@ -1,41 +1,55 @@
 package org.integratedmodelling.thinkscape.views;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.actions.NewProjectAction;
-import org.eclipse.ui.part.*;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.jface.action.*;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.NewProjectAction;
+import org.eclipse.ui.part.ViewPart;
 import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
-import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
+import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.TreeModel;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.ToolItem;
+
 import com.swtdesigner.ResourceManager;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
 
 /**
@@ -43,11 +57,79 @@ import org.eclipse.swt.events.SelectionEvent;
  */
 public class PluginView extends ViewPart {
 	
+	class ProjectTreeModel extends TreeModel {
+
+		public ProjectTreeModel(TreeViewer viewer, ViewPart view) {
+			super(viewer, view);
+		}
+
+		@Override
+		public Object[] getChildren(Object object) {
+			
+			Object[] ret = null;
+			
+			if (object instanceof ThinklabProject) {
+				ret = new Object[3];
+				ret[0] = ((ThinklabProject)object).ontoPath;
+				ret[0] = ((ThinklabProject)object).annotPath;
+				ret[0] = ((ThinklabProject)object).modelPath;
+			}
+			return ret;
+		}
+
+		@Override
+		public Image getImage(Object object, int column) {
+
+			
+			if (object instanceof IProject) {
+				
+			}
+			
+			return null;
+		}
+
+		@Override
+		public String getName(Object object, int column) {
+
+			if (object instanceof IProject) {
+				return ((ThinklabProject)object).getLabel();
+			} else if (object instanceof IFolder) {
+				return object.toString();
+			}
+			return "";
+		}
+		
+	}
+	
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "org.integratedmodelling.thinkscape.views.PluginView";
 
+	private ArrayList<ThinklabProject> thinklabProjects;
+	private ProjectTreeModel treeModel;
+	
+	private void rescan() {
+		
+		this.thinklabProjects = new ArrayList<ThinklabProject>();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (IProject proj : root.getProjects()) {
+			if (ThinkScape.isThinklabProject(proj))
+					thinklabProjects.add(new ThinklabProject(proj));
+		}
+		
+		/*
+		 * rebuild the list
+		 */
+		this.treeModel.instrumentConceptTree(thinklabProjects);
+	}
+	
+	class ResourceListener implements IResourceChangeListener {
+		@Override
+		public void resourceChanged(IResourceChangeEvent arg0) {
+			rescan();
+		}
+	}
 	
 	/**
 	* Create a new Project through a Wizard
@@ -107,59 +189,17 @@ public class PluginView extends ViewPart {
 		}
 	}
 
-	
-	/*
-	 * The content provider class is responsible for
-	 * providing objects to the view. It can wrap
-	 * existing objects in adapters or simply return
-	 * objects as-is. These objects may be sensitive
-	 * to the current input of the view, or ignore
-	 * it and always show the same content 
-	 * (like Task List, for example).
-	 */
-	 
-	class ViewContentProvider implements IStructuredContentProvider {
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		}
-		public void dispose() {
-		}
-		public Object[] getElements(Object parent) {
-			Collection<Bundle> plugins;
-			try {
-				plugins = Thinklab.getThinklabPlugins();
-			} catch (ThinklabException e) {
-				throw new ThinklabRuntimeException(e);
-			}
-			Bundle[] ret = new Bundle[plugins.size()];
-			
-			int i = 0;
-			for (Bundle p : plugins)
-				ret[i++] = p;
-			
-			return ret;
-		}
-	}
-	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
-		public String getColumnText(Object obj, int index) {
-			return ((Bundle)obj).getSymbolicName();
-		}
-		public Image getColumnImage(Object obj, int index) {
-			return getImage(obj);
-		}
-		public Image getImage(Object obj) {
-			return PlatformUI.getWorkbench().
-					getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
-		}
-	}
-	class NameSorter extends ViewerSorter {
-	}
-
 	private TreeViewer treeViewer;
 
-	/**
-	 * The constructor.
-	 */
 	public PluginView() {
+
+		/*
+		 * install a listener to rescan after each resource change
+		 */
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(
+				new ResourceListener(),	
+				IResourceChangeEvent.POST_CHANGE);
+
 	}
 
 	/**
@@ -199,10 +239,15 @@ public class PluginView extends ViewPart {
 		tree.setLinesVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tree.setBounds(0, 0, 85, 85);
+		
+		this.treeModel = new ProjectTreeModel(treeViewer, this);
+		
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
+		
+		rescan();
 	}
 
 	private void hookContextMenu() {

@@ -161,6 +161,12 @@
             id="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
             name="Annotation Editor">
       </editor>
+      <editor
+            class="org.integratedmodelling.thinkscape.editors.ConceptEditorPart"
+            icon="icons/lightbulb.png"
+            id="org.integratedmodelling.thinkscape.editors.concept"
+            name="Concept Editor">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">

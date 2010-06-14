@@ -30,6 +30,9 @@ public class ThinkscapeBuilder extends IncrementalProjectBuilder {
 		 */
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			IResource resource = delta.getResource();
+			
+			System.out.println("VISITING CHANGED: " + resource);
+			
 			switch (delta.getKind()) {
 			case IResourceDelta.ADDED:
 				// handle added resource
@@ -50,6 +53,9 @@ public class ThinkscapeBuilder extends IncrementalProjectBuilder {
 
 	class SampleResourceVisitor implements IResourceVisitor {
 		public boolean visit(IResource resource) {
+
+			System.out.println("VISITING: " + resource);
+			
 			checkXML(resource);
 			//return true to continue visiting children.
 			return true;
@@ -110,6 +116,10 @@ public class ThinkscapeBuilder extends IncrementalProjectBuilder {
 	 */
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
+		
+		System.out.println("BUILDING: " + getProject());
+	
+		
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
 		} else {

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Thinkscape
 Bundle-SymbolicName: org.integratedmodelling.thinkscape; singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.integratedmodelling.thinkscape.Activator
+Bundle-Activator: org.integratedmodelling.thinkscape.ThinkScape
 Bundle-Vendor: integratedmodelling.org
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="3.5.1",

@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
@@ -119,7 +120,7 @@ public class TreeHelper {
 	 * (like Task List, for example).
 	 */
 	 
-	class TreeObject implements IAdaptable {
+	public class TreeObject implements IAdaptable {
 		
 		private IKnowledgeSubject concept;
 		private TreeParent parent;
@@ -142,6 +143,12 @@ public class TreeHelper {
 		}
 		public Object getAdapter(Class key) {
 			return null;
+		}
+		public boolean isConcept() {
+			return concept != null;
+		}
+		public boolean isOntology() {
+			return ontology != null;
 		}
 	}
 	
@@ -437,6 +444,16 @@ public class TreeHelper {
 		viewer.refresh();
 
 		
+	}
+
+	public void handleDoubleClick(Object obj, IWorkbenchPage page) {
+		// TODO open whatever editor we have associated with this object
+		TreeObject o = (TreeObject) obj;
+		if (o.isConcept()) {
+			
+		} else if (o.isOntology()) {
+			
+		}
 	}
 
 
