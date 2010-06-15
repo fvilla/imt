@@ -145,7 +145,10 @@ public class GraphicalShell {
 		}
 		
 		public void run() {
-					
+
+			ClassLoader cl = getContextClassLoader();
+			setContextClassLoader(Activator.get().getClassLoader());
+
 			ConsolePanel jpanels = new ConsolePanel();
 			this.console = jpanels.getConsole();
 			try {
@@ -165,90 +168,84 @@ public class GraphicalShell {
 					// no problem
 				}
 			}
-			
+
 			if (lines != null) {
 				for (Object line : lines) {
 					console.addToHistory(line.toString());
 				}
 			}
-			
+
 			/*
-			 * TODO
-			 * privileged shell by default. We may want to condition this
-			 * to authentication. For now all a privileged shell can do
-			 * is to auto-annotate concepts. 
+			 * TODO privileged shell by default. We may want to condition this
+			 * to authentication. For now all a privileged shell can do is to
+			 * auto-annotate concepts.
 			 */
 			KnowledgeManager.get().setAdminPrivileges(true);
-			
+
 			/* greet user */
 			printStatusMessage();
 
 			String input = "";
 			boolean finished = false;
-			
+
 			/* define commands from user input */
-			while(!finished) {
-								
-	            console.print("> ");
+			while (!finished) {
+
+				console.print("> ");
 				console.setStyle(inputFont);
-				
-				// TODO change to console input stream
+
 				try {
 					input = readLine(session.getInputStream()).trim();
 				} catch (ThinklabIOException e) {
-					throw new ThinklabRuntimeException(e);
 				}
-				
+
 				console.setStyle(outputFont);
-				
+
 				if ("exit".equals(input)) {
 					console.println("shell terminated");
 					finished = true;
-					
+
 				} else if (input.startsWith("!")) {
-					
+
 					String ss = input.substring(1);
 					for (int i = console.getHistory().size(); i > 0; i--) {
-						String s = console.getHistory().get(i-1);
+						String s = console.getHistory().get(i - 1);
 						if (s.startsWith(ss)) {
 							console.println(s);
 							execute(s);
 							break;
 						}
 					}
-					
+
 				} else if (!("".equals(input)) && /* WTF? */!input.equals(";")) {
-					
+
 					execute(input);
-					
-					// TODO see if we want to exclude commands that created errors.
-					if (/*!error*/true) {
-				          BufferedWriter bw = null;
-					      try {
-					        	 bw = new BufferedWriter(
-					        			  new FileWriter(historyFile, true));
-					          bw.write(input.trim());
-					          bw.newLine();
-					          bw.flush();
-					       } catch (IOException ioe) {
-					       } finally {
-					 	 if (bw != null) 
-					 		 try {
-					 			 bw.close();
-					 			 break;
-					 	 	} catch (IOException ioe2) {
-					 	 		break;
-					 	 	}
-					    }
+
+					if (/* !error */true) {
+						BufferedWriter bw = null;
+						try {
+							bw = new BufferedWriter(new FileWriter(historyFile,
+									true));
+							bw.write(input.trim());
+							bw.newLine();
+							bw.flush();
+						} catch (IOException ioe) {
+						} finally {
+							if (bw != null)
+								try {
+									bw.close();
+								} catch (IOException ioe2) {
+								}
+						}
 					}
 				}
-				
 			}
 			
+			setContextClassLoader(cl);
 			this.session = null;
-			this.console.setVisible(false);
-			this.console = null;
-			
+			jpanels.setVisible(false);
+			jpanels = null;
+
 		}
 
 		private void execute(String input) {
@@ -262,10 +259,11 @@ public class GraphicalShell {
 					return;
 				
 				IValue result = CommandManager.get().submitCommand(cmd, session);
-	            if (result != null)
-	                console.println(result.toString());
-	            
-	            console.getOut().flush();
+	            if (result != null) {
+	            	console.println(result.toString());	    		            
+	            	console.getOut().flush();
+	            	Thread.sleep(300);
+	            }
 	            
 	            
 			} catch (Exception e) {
@@ -307,6 +305,9 @@ public class GraphicalShell {
 	}
 	
 	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public GraphicalShell() throws ThinklabException {
 		
 		
