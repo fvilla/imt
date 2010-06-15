@@ -257,7 +257,6 @@ public class PluginView extends ViewPart {
 		
 		this.treeViewer = new TreeViewer(composite, SWT.BORDER);
 		Tree tree = treeViewer.getTree();
-		tree.setLinesVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tree.setBounds(0, 0, 85, 85);
 		
