@@ -1,5 +1,6 @@
 package org.integratedmodelling.thinklab.application;
 
+import java.util.Collection;
 import java.util.Hashtable;
 
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
@@ -23,7 +24,7 @@ public class ApplicationManager {
 	}
 
 	public void registerApplication(ApplicationDescriptor desc) {
-//		apps.put(desc.id, desc);
+		apps.put(desc.getId(), desc);
 	}
 	
 	public ApplicationDescriptor getApplicationDescriptor(String id) {
@@ -38,5 +39,9 @@ public class ApplicationManager {
 		
 		return ret;
 
+	}
+	
+	public Collection<ApplicationDescriptor> getApplicationDescriptors() {
+		return apps.values();
 	}
 }

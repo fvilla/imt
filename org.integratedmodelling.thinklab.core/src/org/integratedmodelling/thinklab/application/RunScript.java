@@ -35,7 +35,7 @@ public class RunScript implements ITask {
 
 	
 	@Override
-	public void run(ISession session) throws ThinklabException {
+	public void run(ISession session, ClassLoader loader) throws ThinklabException {
 		
 		/*
 		 * retrieve interpreter for language
@@ -50,7 +50,7 @@ public class RunScript implements ITask {
 		 * run whatever
 		 */
 		for (URL url : codeUrl) {
-			result = intp.eval(url);
+			intp.loadBindings(url, loader);
 		}
 		
 		/*

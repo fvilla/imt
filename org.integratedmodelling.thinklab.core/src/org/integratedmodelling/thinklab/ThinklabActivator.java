@@ -18,6 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.integratedmodelling.thinklab.application.ApplicationDescriptor;
+import org.integratedmodelling.thinklab.application.ApplicationManager;
 import org.integratedmodelling.thinklab.command.CommandDeclaration;
 import org.integratedmodelling.thinklab.command.CommandManager;
 import org.integratedmodelling.thinklab.configuration.LocalConfiguration;
@@ -58,6 +60,7 @@ import org.osgi.framework.Version;
 public abstract class ThinklabActivator implements BundleActivator, IThinklabPlugin {
 
 	final static public String BINDING_PROPERTY_PREFIX = "thinklab.bindings.";
+	final static public String TASK_DECLARATION_PREFIX = "thinklab.task.";
 	
 	protected ClassLoader _classloader;
 	static HashMap<String,ThinklabActivator> _activators = new HashMap<String, ThinklabActivator>();
@@ -156,15 +159,12 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 //		loadPersistentClasses();
 //		loadSessionListeners();
 		loadKboxes();
-//		loadApplications();
+		loadApplications();
 		loadLanguageBindings();
 
 		if (km != null) {
 			km.initialize();
 		}
-		
-		// can't be lazy
-		// bundle.start();
 		
 		doStart();
 
@@ -177,6 +177,28 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	}
 
 	
+	private void loadApplications() throws ThinklabException {
+
+		HashSet<String> loaded = new HashSet<String>();
+		for (Object p : properties.keySet()) {
+			if (p.toString().startsWith(TASK_DECLARATION_PREFIX)) {	
+				
+				String appId = p.toString().substring(TASK_DECLARATION_PREFIX.length());
+				appId = Path.getLeading(appId, '.');
+
+				if (loaded.contains(appId))
+					continue;
+				
+				ApplicationManager.get().registerApplication(
+						new ApplicationDescriptor(appId, this, properties));
+				
+				info("task " + appId + " registered");
+				
+				loaded.add(appId);
+			}
+		}
+	}
+
 	private void loadOntologies() throws ThinklabException {
 		
 		// cache in local dir; set ontoFolder to null if no ontologies in plugin.
