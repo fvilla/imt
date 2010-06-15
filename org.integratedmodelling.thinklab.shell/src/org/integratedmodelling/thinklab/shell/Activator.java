@@ -1,5 +1,6 @@
 package org.integratedmodelling.thinklab.shell;
 
+import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.commandline.CommandActivator;
 
@@ -19,6 +20,15 @@ public class Activator extends ThinklabActivator {
 
 	@Override
 	protected void doStop() throws Exception {
+	}
+
+	/* (non-Javadoc)
+	 * @see org.integratedmodelling.thinklab.ThinklabActivator#preStart()
+	 */
+	@Override
+	protected void preStart() throws Exception {
+		Thinklab.get().getId();
+		CommandActivator.get().getId();
 	}
 	
 
