@@ -30,20 +30,20 @@
         [clj-misc.utils          :only (mapmap remove-nil-val-entries constraints-1.0 p &)]
         [clj-misc.randvars       :only (cont-type disc-type successive-sums)]))
 
-(refer 'tl :only '(conc))
+#_(refer 'tl :only '(conc))
 
-(refer 'geospace :only '(grid-rows
+#_(refer 'geospace :only '(grid-rows
                            grid-columns
                            grid-extent?
                            get-shape
                            get-spatial-extent))
 
-(refer 'corescience :only '(find-state
+#_(refer 'corescience :only '(find-state
                               find-observation
                               get-state-map
                               get-observable-class))
-
-(refer 'modelling   :only '(probabilistic?
+                              
+#_(refer 'modelling   :only '(probabilistic?
                               binary?
                               encodes-continuous-distribution?
                               get-dist-breakpoints
@@ -51,7 +51,7 @@
                               get-probabilities
                               get-data
                               run-at-shape))
-
+                              
 #_(declare conc
          grid-rows
          grid-columns
@@ -78,10 +78,10 @@
   [ds rows cols]
   (let [n            (* rows cols)
         to-rationals (p map #(if (Double/isNaN %) 0 (rationalize %)))]
-    (if (and (probabilistic? ds) (not (binary? ds)))
-      (if (encodes-continuous-distribution? ds)
+    (if (and (modelling/probabilistic? ds) (not (modelling/binary? ds)))
+      (if (modelling/encodes-continuous-distribution? ds)
         ;; sampled continuous distributions (FIXME: How is missing information represented?)
-        (let [bounds                (get-dist-breakpoints ds)
+        (let [bounds                (modelling/get-dist-breakpoints ds)
               unbounded-from-below? (== Double/NEGATIVE_INFINITY (first bounds))
               unbounded-from-above? (== Double/POSITIVE_INFINITY (last bounds))]
           (let [prob-dist             (apply create-struct (to-rationals
@@ -94,19 +94,19 @@
                                                                 bounds))))
                 get-cdf-vals          (if unbounded-from-below?
                                         (if unbounded-from-above?
-                                          (& successive-sums to-rationals butlast (p get-probabilities ds))
-                                          (& successive-sums to-rationals (p get-probabilities ds)))
+                                          (& successive-sums to-rationals butlast (p modelling/get-probabilities ds))
+                                          (& successive-sums to-rationals (p modelling/get-probabilities ds)))
                                         (if unbounded-from-above?
-                                          (& (p successive-sums 0) to-rationals butlast (p get-probabilities ds))
-                                          (& (p successive-sums 0) to-rationals (p get-probabilities ds))))]
+                                          (& (p successive-sums 0) to-rationals butlast (p modelling/get-probabilities ds))
+                                          (& (p successive-sums 0) to-rationals (p modelling/get-probabilities ds))))]
             (for [idx (range n)]
               (with-meta (apply struct prob-dist (get-cdf-vals idx)) cont-type))))
         ;; discrete distributions (FIXME: How is missing information represented? Fns aren't setup for non-numeric values.)
-        (let [prob-dist (apply create-struct (get-possible-states ds))]
+        (let [prob-dist (apply create-struct (modelling/get-possible-states ds))]
           (for [idx (range n)]
-            (with-meta (apply struct prob-dist (to-rationals (get-probabilities ds idx))) disc-type))))
+            (with-meta (apply struct prob-dist (to-rationals (modelling/get-probabilities ds idx))) disc-type))))
       ;; binary distributions and deterministic values (FIXME: NaNs become 0s currently. Is this good?)
-      (for [value (to-rationals (get-data ds))]
+      (for [value (to-rationals (modelling/get-data ds))]
         (with-meta (array-map value 1) disc-type)))))
 
 (defn- layer-from-observation
@@ -114,7 +114,7 @@
    state values in the observation."
   [observation concept rows cols]
   (when concept
-    (seq2matrix rows cols (unpack-datasource (find-state observation concept) rows cols))))
+    (seq2matrix rows cols (unpack-datasource (corescience/find-state observation concept) rows cols))))
 
 (defn- layer-map-from-observation
   "Builds a map of {concept-names -> matrices}, where each concept's
@@ -124,16 +124,16 @@
   (when concept
     (mapmap (memfn getLocalName)
             #(seq2matrix rows cols (unpack-datasource % rows cols))
-            (get-state-map (find-observation observation concept)))))
+            (corescience/get-state-map (corescience/find-observation observation concept)))))
 
 (defn- get-hydrosheds-layer
   [observation rows cols]
-  (let [hydrosheds-observation  (run-at-shape "aries/flood/flow-direction"
-                                              (get-shape (get-spatial-extent observation)))
-        hydrosheds-native-rows  (grid-rows    hydrosheds-observation)
-        hydrosheds-native-cols  (grid-columns hydrosheds-observation)
+  (let [hydrosheds-observation  (modelling/run-at-shape "aries/flood/flow-direction"
+                                              (geospace/get-shape (geospace/get-spatial-extent observation)))
+        hydrosheds-native-rows  (geospace/grid-rows   hydrosheds-observation)
+        hydrosheds-native-cols  (geospace/grid-columns hydrosheds-observation)
         hydrosheds-native-layer (layer-from-observation hydrosheds-observation
-                                                        (conc 'geophysics:FlowDirection)
+                                                        (tl/conc 'geophysics:FlowDirection)
                                                         hydrosheds-native-rows
                                                         hydrosheds-native-cols)]
     (resample-matrix rows cols aggregate-flow-dirs hydrosheds-native-layer)))
@@ -149,10 +149,10 @@
            rv-max-states downscaling-factor source-type sink-type use-type benefit-type result-type]
     :or {result-type :closure-map}}]
   ;; This version of SPAN only works for grid-based observations (i.e. raster maps).
-  (constraints-1.0 {:pre [(grid-extent? observation)]})
-  (let [rows         (grid-rows    observation)
-        cols         (grid-columns observation)
-        flow-model   (.getLocalName (get-observable-class observation))
+  (constraints-1.0 {:pre [(geospace/grid-extent? observation)]})
+  (let [rows         (geospace/grid-rows   observation)
+        cols         (geospace/grid-columns observation)
+        flow-model   (.getLocalName (corescience/get-observable-class observation))
         source-layer (layer-from-observation observation source-concept rows cols)
         sink-layer   (layer-from-observation observation sink-concept   rows cols)
         use-layer    (layer-from-observation observation use-concept    rows cols)

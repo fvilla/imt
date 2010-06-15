@@ -154,7 +154,10 @@ public class GeoImageFactory {
 	 * @return
 	 * @throws ThinklabException
 	 */
-	public URL getSatelliteImage(Envelope envelope, int width, int height, String worldImage, URL otherImage, HAlignment horAligment, VAlignment verAlignment) throws ThinklabException {
+	public URL getSatelliteImage(
+			Envelope envelope, int width, int height, 
+			String worldImage, URL otherImage, 
+			HAlignment horAligment, VAlignment verAlignment) throws ThinklabException {
 		
 		URL f = null;
 		

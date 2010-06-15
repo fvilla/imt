@@ -227,7 +227,8 @@ public class TreeHelper {
 				// cache root hierarchy for speed
 				if (rooth == null) {
 					indexh = new ArrayList<IConcept>();
-					rooth = populate(root, indexh);
+					HashSet<IConcept> hash = new HashSet<IConcept>();					
+					rooth = populate(root, indexh, hash);
 					Collections.sort(indexh, new Comparator<IConcept>() {
 						@Override
 						public int compare(IConcept o1, IConcept o2) {
@@ -243,7 +244,8 @@ public class TreeHelper {
 			} else {
 				// not root; recreate hierarchy
 				index = new ArrayList<IConcept>();
-				this.invisibleRoot = (TreeParent) populate(root, index);
+				HashSet<IConcept> hash = new HashSet<IConcept>();
+				this.invisibleRoot = (TreeParent) populate(root, index, hash);
 				Collections.sort(index, new Comparator<IConcept>() {
 					@Override
 					public int compare(IConcept o1, IConcept o2) {
@@ -253,8 +255,13 @@ public class TreeHelper {
 			}
 		}
 		
-		private TreeObject populate(IConcept r, ArrayList<IConcept> idx) {
+		private TreeObject populate(IConcept r, ArrayList<IConcept> idx, HashSet<IConcept> refs) {
 
+			if (refs.contains(r))
+				return null;
+			
+			refs.add(r);
+			
 			TreeObject ret = 
 				root.getChildren().size() > 0 ?
 					new TreeParent(r) :
@@ -264,7 +271,9 @@ public class TreeHelper {
 					
 			if (ret instanceof TreeParent)
 				for (IConcept c : r.getChildren()) {
-					((TreeParent)ret).addChild(populate(c, idx));
+					TreeObject o = populate(c, idx, refs);
+					if (o != null)
+						((TreeParent)ret).addChild(o);
 				}
 			
 			return ret;	

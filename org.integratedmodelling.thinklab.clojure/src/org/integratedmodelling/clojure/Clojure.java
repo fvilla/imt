@@ -34,9 +34,8 @@ public class Clojure {
 					list2pInternal(((ISeq)list.first()), null) : 
 					list.first());
 		
-// TODO reintegrate
-//		if (list.rest() != null)
-//			plist = list2pInternal(list.rest(), plist);
+		if (list.next() != null)
+			plist = list2pInternal(list.next(), plist);
 		
 		return plist;
 		

@@ -12,4 +12,9 @@ Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.corescience;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.sql;bundle-version="1.0.0",
  org.integratedmodelling.thinklab.time;bundle-version="1.0.0"
-Export-Package: org.integratedmodelling.currency
+Export-Package: org.integratedmodelling.currency,
+ org.integratedmodelling.currency.commands,
+ org.integratedmodelling.currency.cpi,
+ org.integratedmodelling.currency.literals,
+ org.integratedmodelling.currency.observations,
+ org.integratedmodelling.currency.util

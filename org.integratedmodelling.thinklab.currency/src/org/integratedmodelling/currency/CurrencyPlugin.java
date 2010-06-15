@@ -26,12 +26,11 @@ public class CurrencyPlugin extends ThinklabActivator {
 		return (CurrencyPlugin) getPlugin(ID);
 	}
 
-	
 	@Override
 	protected void doStart() throws Exception {
 	
-		cpiDataURL = this.getResourceURL("cpidata.txt");
-		exchangeDataURL = this.getResourceURL("exchrates.txt");
+		cpiDataURL = this.getResourceURL("data/cpidata.txt");
+		exchangeDataURL = this.getResourceURL("data/exchrates.txt");
 
 		String db = getProperties().getProperty("currency.database", "hsqlmem://sa@localhost/currency");
 		

@@ -1,15 +1,19 @@
 package org.integratedmodelling.aries.core;
 
+import org.integratedmodelling.clojure.ClojureActivator;
+import org.integratedmodelling.corescience.CoreScience;
+import org.integratedmodelling.currency.CurrencyPlugin;
 import org.integratedmodelling.geospace.Geospace;
 import org.integratedmodelling.geospace.gazetteers.SimpleGazetteer;
+import org.integratedmodelling.knowledge.foundational.FoundationalKnowledgeActivator;
+import org.integratedmodelling.modelling.ModellingPlugin;
 import org.integratedmodelling.modelling.visualization.VisualizationFactory;
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.interfaces.storage.IKBox;
 import org.integratedmodelling.thinklab.kbox.KBoxManager;
 import org.integratedmodelling.thinklab.transformations.TransformationFactory;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.integratedmodelling.time.TimePlugin;
 
 public class ARIESCorePlugin extends ThinklabActivator {
 
@@ -48,6 +52,26 @@ public class ARIESCorePlugin extends ThinklabActivator {
 		}
 		return workingKbox;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.integratedmodelling.thinklab.ThinklabActivator#preStart()
+	 */
+	@Override
+	protected void preStart() throws Exception {
+		
+		// force core plugins to load
+		// TODO check we have them all
+		// FOCK I wish I didn't need to do this
+		ClojureActivator.get().getId();
+		CoreScience.get().getId();
+		Geospace.get().getId();
+		TimePlugin.get().getId();
+		ModellingPlugin.get().getId();
+		CurrencyPlugin.get().getId();
+		FoundationalKnowledgeActivator.get().getId();
+	}
+	
+	
 	
 
 }

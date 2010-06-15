@@ -3,9 +3,7 @@
 ;; --------------------------------------------------------------------------------------
 
 (ns aries
-  (:refer-clojure)
-  (:use [span.interface :only (span-driver)])
-  (:use [span.flow-model :only (simulate-service-flows)]))
+  (:use [clj-span.aries-span-bridge :only (span-driver)]))
 (refer 'tl          :only '(listp))
 (refer 'corescience :only '(get-observable-class))
 (refer 'modelling :only '(transform-model))

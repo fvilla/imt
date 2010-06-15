@@ -43,6 +43,7 @@ import org.integratedmodelling.thinklab.command.Command;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabScriptException;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
+import org.integratedmodelling.thinklab.interfaces.annotations.ThinklabCommand;
 import org.integratedmodelling.thinklab.interfaces.applications.ISession;
 import org.integratedmodelling.thinklab.interfaces.commands.ICommandHandler;
 import org.integratedmodelling.thinklab.interfaces.literals.IValue;
@@ -54,6 +55,7 @@ import org.osgi.framework.Bundle;
  * @author Ferdinando Villa, Ecoinformatics Collaboratory, UVM
  * 
  */
+@ThinklabCommand(name="clj")
 public class Clojure implements ICommandHandler {
 
 	public IValue execute(Command command, ISession session) throws ThinklabException {
@@ -63,27 +65,28 @@ public class Clojure implements ICommandHandler {
 		IThinklabPlugin plugin = ClojureActivator.get();
 		ClassLoader cloader = ClojureActivator.get().getClassLoader();
 
-		if (command.hasOption("context")) {
-
-			String contextplugin = command.getOptionAsString("context");
-			Bundle plug = Thinklab.resolvePlugin(contextplugin, true);
-			plugin = ClojureActivator.getPlugin(plug.getSymbolicName());
-			cloader = plugin.getClassLoader();
-		}
-
-		
-		if (!command.hasArgument("resource")) {
-			
-			if (session.getInputStream() == null) {
-				/* not interactive: just ignore command */
-				ClojureActivator.get().warn("Clojure interpreter invoked by a non-interactive application");
-				return null;
-			}
-			
-		} else {
-
-			arg = command.getArgumentAsString("resource");
-		}
+// TODO see if anyone needs this stuff
+//		if (command.hasOption("context")) {
+//
+//			String contextplugin = command.getOptionAsString("context");
+//			Bundle plug = Thinklab.resolvePlugin(contextplugin, true);
+//			plugin = ClojureActivator.getPlugin(plug.getSymbolicName());
+//			cloader = plugin.getClassLoader();
+//		}
+//
+//		
+//		if (!command.hasArgument("resource")) {
+//			
+//			if (session.getInputStream() == null) {
+//				/* not interactive: just ignore command */
+//				ClojureActivator.get().warn("Clojure interpreter invoked by a non-interactive application");
+//				return null;
+//			}
+//			
+//		} else {
+//
+//			arg = command.getArgumentAsString("resource");
+//		}
 
 		try {
 			

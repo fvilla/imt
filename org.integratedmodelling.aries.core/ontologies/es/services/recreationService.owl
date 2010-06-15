@@ -1,0 +1,573 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:protege="http://protege.stanford.edu/plugins/owl/protege#"
+    xmlns:habitat="http://www.integratedmodelling.org/ks/ecology/eco/habitat.owl#"
+    xmlns:recreationService="http://www.integratedmodelling.org/ks/es/recreationService.owl#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:thinklab-core="http://www.integratedmodelling.org/ks/thinklab/thinklab-core.owl#"
+    xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:DOLCE-Lite="http://www.loa-cnr.it/ontologies/DOLCE-Lite.owl#"
+    xmlns:eserv="http://www.integratedmodelling.org/ks/es/eserv.owl#"
+    xmlns:aestheticService="http://www.integratedmodelling.org/ks/es/aestheticService.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xml:base="http://www.integratedmodelling.org/ks/es/recreationService.owl">
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="http://www.integratedmodelling.org/ks/thinklab/thinklab-core.owl"/>
+    <owl:imports rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl"/>
+    <owl:imports rdf:resource="http://www.integratedmodelling.org/ks/es/aestheticService.owl"/>
+    <owl:imports rdf:resource="http://www.integratedmodelling.org/ks/ecology/eco/habitat.owl"/>
+    <owl:imports rdf:resource="http://www.integratedmodelling.org/ks/ecology/eco/ecology.owl"/>
+  </owl:Ontology>
+  <owl:Class rdf:ID="TransportationEnergyInfrastructure">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/thinklab/thinklab-core.owl#BooleanRanking"/>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#ContingentPolicyTarget"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="RecreationalQuality">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.loa-cnr.it/ontologies/DOLCE-Lite.owl#physical-quality"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="VisuallySignificantLanscapes">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Landscapes with aesthetic qualities that provide a scenic backdrop for outdoor recreation.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemGeneratedResource"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LowCongestion">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Congestion"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ModerateCongestion">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Congestion"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LongHikingDistance">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="HikingDistance"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LongTravelTime">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="TravelTime"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="WaterView">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemSupportedResource"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="PublicAccess">
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#ContingentPolicyTarget"/>
+  </owl:Class>
+  <owl:Class rdf:ID="HighIntensityDevelopment">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Development"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="RiverStreamAbsent">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="RiverStream"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemService"/>
+  <owl:Class rdf:ID="Moderate">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="HikingDifficulty"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="List_all_types_possible">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >(???)  Importance of income, transport, access, cultural norms...</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Recreationists"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="UniqueSpeciesOrEcosystems">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Unique species or ecosystems are more likely to be a target for birdwatching, ecotourism, etc.  These areas are also places where parks are more likely to be located.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemGeneratedResource"/>
+  </owl:Class>
+  <owl:Class rdf:ID="RecreationService">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >The use of nature as a place for rest, relaxation, or contemplation.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#VisuallySignificantLanscapes"/>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#ecologicalFocus"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="UniqueLandscapeFeatures"/>
+        </owl:someValuesFrom>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#ecologicalFocus"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="Recreation"/>
+        </owl:someValuesFrom>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#humanFocus"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#UniqueSpeciesOrEcosystems"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#ecologicalFocus"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="OutdoorRecreation"/>
+        </owl:someValuesFrom>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#producesBenefit"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="PlantsOrAnimalsForRecreationalHarvest"/>
+        </owl:someValuesFrom>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#ecologicalFocus"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemService"/>
+  </owl:Class>
+  <owl:Class rdf:ID="OtherOpenLand">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="OpenSpaceClass"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LowViewerEnjoyment">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="ViewerEnjoyment"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#PlantsOrAnimalsForRecreationalHarvest">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Populations of plants or animals that are harvested through hunting, fishing, or gathering activities.  For this service, these activities are by definition recreational rather than for subsistence or commercial purposes.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemGeneratedResource"/>
+  </owl:Class>
+  <owl:Class rdf:ID="LowQualityWaterView">
+    <rdfs:subClassOf rdf:resource="#WaterView"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ModerateTravelTime">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#TravelTime"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#TravelTime">
+    <rdfs:subClassOf rdf:resource="#RecreationalQuality"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ModerateSlope">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="HikingSlope"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ForestedLand">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#OpenSpaceClass"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="TransportationEnergyInfrastructureAbsent">
+    <rdfs:subClassOf rdf:resource="#TransportationEnergyInfrastructure"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#HumanConsumer"/>
+  <owl:Class rdf:ID="ViewPosition">
+    <rdfs:subClassOf rdf:resource="#RecreationalQuality"/>
+  </owl:Class>
+  <owl:Class rdf:about="#UniqueLandscapeFeatures">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Particular landscape features that make an area amenable to particular types of outdoor recreation (i.e., a beach that provides access for swimming, a mountain that people will want to climb).</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemGeneratedResource"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/aestheticService.owl#ScenicViews"/>
+  <owl:Class rdf:ID="EnergyInfrastructureAbsent">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="EnergyInfrastructure"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="UniqueSpeciesEcosystem">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >An ecosystem that includes regionally or globally significant species or ecosystems.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="RecreationallyValuableEcosystem"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#RiverStream">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Rivers and streams</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/aestheticService.owl#ScenicViews"/>
+  </owl:Class>
+  <owl:Class rdf:ID="HabitatForPlantsOrAnimals">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >An ecosystem that produces plants or animals that are recreationally hunted, fished, or gathered.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#RecreationallyValuableEcosystem"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ScenicLandscapes">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Scenic landscapes that draw people to an area for various types of outdoor recreation.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="ScenicLandscape"/>
+        </owl:someValuesFrom>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProducer"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#Existence"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#NonRenewableTransformation"/>
+  <owl:Class rdf:ID="RoadsAbsent">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Roads"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="TransportationEnergyInfrastructurePresent">
+    <rdfs:subClassOf rdf:resource="#TransportationEnergyInfrastructure"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ProductionOfPlantsOrAnimals">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >An ecosystem provides plant or animal species of interest for recreational hunters, fishermen, or plant gatherers.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#HabitatForPlantsOrAnimals"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProducer"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#Production"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="HighViewPosition">
+    <rdfs:subClassOf rdf:resource="#ViewPosition"/>
+  </owl:Class>
+  <owl:Class rdf:ID="PublicLand">
+    <rdfs:subClassOf rdf:resource="#PublicAccess"/>
+  </owl:Class>
+  <owl:Class rdf:ID="EnergyInfrastructurePresent">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#EnergyInfrastructure"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="RenewableHuntingFishingGathering">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Recreational hunting, fishing, or gathering of wild plant or animal species that takes place at levels low enough to allow long-term persistence of wild populations.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:about="#Recreationists"/>
+        </owl:someValuesFrom>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#hasConsumer"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#RenewableTransformation"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LowIntensityDevelopment">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Development"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#Recreationists">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >People who engage in outdoor recreation of any type.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#HumanConsumer"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ModerateHikingDistance">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#HikingDistance"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="LowViewPosition">
+    <rdfs:subClassOf rdf:resource="#ViewPosition"/>
+  </owl:Class>
+  <owl:Class rdf:ID="ShortHikingDistance">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#HikingDistance"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#HikingDifficulty">
+    <rdfs:subClassOf rdf:resource="#RecreationalQuality"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Easy">
+    <rdfs:subClassOf rdf:resource="#HikingDifficulty"/>
+  </owl:Class>
+  <owl:Class rdf:about="#HikingDistance">
+    <rdfs:subClassOf rdf:resource="#RecreationalQuality"/>
+  </owl:Class>
+  <owl:Class rdf:about="#ViewerEnjoyment">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#Contemplation"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="RoadsPresent">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Roads"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Is_it_worth_it_to_try_listing_all_different_types_possible">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Examples: bird watching, nature watching, cycling, hiking, camping, skiing/snowshoeing, snorkelling, swimming, kayaking, rafting, scuba diving, hunting, fishing, outdoor meditation, "drive through parks"</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#OutdoorRecreation"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#ScenicLandscape">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >A landscape with scenic value that increases its recreational use.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#RecreationallyValuableEcosystem"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ModerateViewerEnjoyment">
+    <rdfs:subClassOf rdf:resource="#ViewerEnjoyment"/>
+  </owl:Class>
+  <owl:Class rdf:ID="Strenuous">
+    <rdfs:subClassOf rdf:resource="#HikingDifficulty"/>
+  </owl:Class>
+  <owl:Class rdf:about="#EnergyInfrastructure">
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/thinklab/thinklab-core.owl#BooleanRanking"/>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#ContingentPolicyTarget"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Roads">
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/thinklab/thinklab-core.owl#BooleanRanking"/>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#ContingentPolicyTarget"/>
+  </owl:Class>
+  <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemBenefit"/>
+  <owl:Class rdf:about="#OutdoorRecreation">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >The enjoyment of nature through various outdoor activities.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="NonrenewableHuntingFishingGathering"/>
+        </owl:someValuesFrom>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#hasUsage"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="SpeciesOrEcosystems"/>
+        </owl:someValuesFrom>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProvision"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#ProductionOfPlantsOrAnimals"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProvision"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemBenefit"/>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#ScenicLandscapes"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProvision"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Recreationists"/>
+        <owl:onProperty>
+          <owl:ObjectProperty rdf:ID="isBeneficialFor"/>
+        </owl:onProperty>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#RenewableHuntingFishingGathering"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasUsage"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="NatureWatching"/>
+        </owl:someValuesFrom>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasUsage"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom>
+          <owl:Class rdf:ID="NaturalFeatures"/>
+        </owl:someValuesFrom>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProvision"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="PrivateLandWithAccess">
+    <rdfs:subClassOf rdf:resource="#PublicAccess"/>
+  </owl:Class>
+  <owl:Class rdf:ID="HighQualityWaterView">
+    <rdfs:subClassOf rdf:resource="#WaterView"/>
+  </owl:Class>
+  <owl:Class rdf:ID="AgriculturalLand">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#OpenSpaceClass"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="SteepSlope">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#HikingSlope"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="ShortTravelTime">
+    <rdfs:subClassOf rdf:resource="#TravelTime"/>
+  </owl:Class>
+  <owl:Class rdf:ID="NoPublicAccess">
+    <rdfs:subClassOf rdf:resource="#PublicAccess"/>
+  </owl:Class>
+  <owl:Class rdf:ID="LandscapeFeaturesPresent">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Presence of landscape features amenable to a particular type of recreation.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#RecreationallyValuableEcosystem"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="RiverStreamPresent">
+    <rdfs:subClassOf rdf:resource="#RiverStream"/>
+  </owl:Class>
+  <owl:Class rdf:ID="HighCongestion">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Congestion"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="MediumIntensityDevelopment">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Development"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#Development">
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/thinklab/thinklab-core.owl#BooleanRanking"/>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#ContingentPolicyTarget"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Recreation">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Spending leisure time outdoors, "in nature."  Outdoor recreation has important physical and psychological benefits, especially for urban populations that spend much of their lives indoors.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#HumanPolicyTarget"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#NonrenewableHuntingFishingGathering">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Recreational hunting, fishing, or gathering of wild plant or animal species that takes place at levels too high to allow long-term persistence of wild populations.</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Recreationists"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasConsumer"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#NonRenewableTransformation"/>
+  </owl:Class>
+  <owl:Class rdf:ID="LowSlope">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#HikingSlope"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="http://www.integratedmodelling.org/ks/ecology/eco/habitat.owl#Slope"/>
+  <owl:Class rdf:about="#NaturalFeatures">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Landscape features that attract a particular type of outdoor recreation (i.e., a whitewater river suitable for rafting or kayaking; a mountain ridge with scenic views from the top).</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#LandscapeFeaturesPresent"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProducer"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#Existence"/>
+  </owl:Class>
+  <owl:Class rdf:ID="NotDeveloped">
+    <rdfs:subClassOf rdf:resource="#Development"/>
+  </owl:Class>
+  <owl:Class rdf:about="#HikingSlope">
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/ecology/eco/habitat.owl#Slope"/>
+  </owl:Class>
+  <owl:Class rdf:about="#OpenSpaceClass">
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemSupportedResource"/>
+  </owl:Class>
+  <owl:Class rdf:ID="NotOpenLand">
+    <rdfs:subClassOf rdf:resource="#OpenSpaceClass"/>
+  </owl:Class>
+  <owl:Class rdf:about="#RecreationallyValuableEcosystem">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >An area that receives recreational use by humans.  Access is a critical factor in determining this, as are cultural norms and recreational activities of interest (i.e., the types of outdoor recreation that local human populations or visitors typically engage in).</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemProducer"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="HighViewerEnjoyment">
+    <rdfs:subClassOf rdf:resource="#ViewerEnjoyment"/>
+  </owl:Class>
+  <owl:Class rdf:about="#SpeciesOrEcosystems">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >The existence of unique species or ecosystems that make an area more desirable for outdoor recreation (i.e., an area that attracts high concentrations of migratory birds; a regionally or globally unique ecosystem that draws in nature viewers).</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#UniqueSpeciesEcosystem"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasProducer"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#Existence"/>
+  </owl:Class>
+  <owl:Class rdf:ID="MediumViewPosition">
+    <rdfs:subClassOf rdf:resource="#ViewPosition"/>
+  </owl:Class>
+  <owl:Class rdf:about="#Congestion">
+    <rdfs:subClassOf rdf:resource="#RecreationalQuality"/>
+  </owl:Class>
+  <owl:Class rdf:about="#NatureWatching">
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Non-exploitative use of nature, where the recreationist either intentionally views a certain part of the landscape (i.e., bird watchers, visitors to a particular unique ecosystem) or uses it as a natural backdrop for various outdoor activities.  Thus nature watching can encompass very diverse types of activities and modes of use (i.e., hiking on a mountain trail, riding on a bicycle trail, diving in a coral reef).</rdfs:comment>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:someValuesFrom rdf:resource="#Recreationists"/>
+        <owl:onProperty rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#hasConsumer"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#Contemplation"/>
+  </owl:Class>
+  <owl:Class rdf:ID="NoWaterView">
+    <rdfs:subClassOf rdf:resource="#WaterView"/>
+  </owl:Class>
+  <owl:ObjectProperty rdf:about="#isBeneficialFor">
+    <rdfs:domain rdf:resource="http://www.integratedmodelling.org/ks/es/eserv.owl#EcosystemBenefit"/>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Identifies the beneficiary for each benefit.</rdfs:comment>
+  </owl:ObjectProperty>
+</rdf:RDF>
+
+<!-- Created with TopBraid -->

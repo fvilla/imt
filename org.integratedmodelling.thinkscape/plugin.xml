@@ -18,42 +18,42 @@
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.ThinklabConsole"
-            icon="icons/lightbulb.png"
+            icon="icons/computer.png"
             id="org.integratedmodelling.thinkscape.views.ThinklabConsole"
             name="Thinklab Console">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.Sources"
-            icon="icons/lightbulb.png"
+            icon="icons/database_refresh.png"
             id="org.integratedmodelling.thinkscape.views.Sources"
             name="Sources">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.ThinklabModels"
-            icon="icons/lightbulb.png"
+            icon="icons/database_gear.png"
             id="org.integratedmodelling.thinkscape.views.ThinklabModels"
             name="Models">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.KnowledgeView"
-            icon="icons/lightbulb.png"
+            icon="icons/database_lightning.png"
             id="org.integratedmodelling.thinkscape.views.KnowledgeView"
             name="Knowledge">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.AnnotationsView"
-            icon="icons/lightbulb.png"
+            icon="icons/database_edit.png"
             id="org.integratedmodelling.thinkscape.views.AnnotationsView"
             name="Annotations">
       </view>
       <view
             category="org.integratedmodelling.thinkscape.thinkscape"
             class="org.integratedmodelling.thinkscape.views.ThinkcapView"
-            icon="icons/lightbulb.png"
+            icon="icons/server_go.png"
             id="org.integratedmodelling.thinkscape.views.ThinkcapView"
             name="Thinkcap Server">
       </view>
@@ -92,12 +92,12 @@
          point="org.eclipse.ui.commands">
       <category
             id="org.integratedmodelling.thinkscape.commands.category"
-            name="Sample Category">
+            name="Thinkscape commands">
       </category>
       <command
             categoryId="org.integratedmodelling.thinkscape.commands.category"
             id="org.integratedmodelling.thinkscape.commands.sampleCommand"
-            name="Sample Command">
+            name="Open a Thinklab console">
       </command>
    </extension>
    <extension
@@ -137,9 +137,9 @@
                id="org.integratedmodelling.thinkscape.toolbars.sampleToolbar">
             <command
                   commandId="org.integratedmodelling.thinkscape.commands.sampleCommand"
-                  icon="icons/sample.gif"
+                  icon="icons/computer.gif"
                   id="org.integratedmodelling.thinkscape.toolbars.sampleCommand"
-                  tooltip="Say hello world">
+                  tooltip="Open a Thinklab console">
             </command>
          </toolbar>
       </menuContribution>
@@ -214,14 +214,6 @@
       </splashHandlerProductBinding>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.products">
-      <product
-            application="org.integratedmodelling.thinkscape.application"
-            description="Semantic Meta-Modelling IDE"
-            name="ThinkScape">
-      </product>
-   </extension>
-   <extension
          id="thinkscape"
          name="Thinkscape Project Builder"
          point="org.eclipse.core.resources.builders">
@@ -281,7 +273,7 @@
       <wizard
             category="org.integratedmodelling.thinkscape.wizards.sampleCategory"
             class="org.integratedmodelling.thinkscape.wizards.SourceImportWizard"
-            icon="icons/sample.gif"
+            icon="icons/database_refresh.png"
             id="org.integratedmodelling.thinkscape.wizards.SourceImportWizard"
             name="Import Source">
          <description>

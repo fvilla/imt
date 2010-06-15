@@ -24,8 +24,7 @@ public class ShellHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 //		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		try {
-			GraphicalShell shell = new GraphicalShell();
-			shell.startConsole();
+			new GraphicalShell().startConsole();
 		} catch (Exception e) {
 			throw new ExecutionException(e.getMessage());
 		}
