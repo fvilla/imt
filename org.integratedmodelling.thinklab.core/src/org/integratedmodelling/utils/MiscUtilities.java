@@ -191,9 +191,14 @@ public class MiscUtilities{
 			ret = new ArrayList<Class<?>>();
 
 		// Translate the package name into an absolute path
-		String name = "bin/" + new String(pckgname).replace('.', '/');
-		
+		String name = new String(pckgname).replace('.', '/');
 		Enumeration<URL> clf = bundle.findEntries(name, "*.class", true);
+
+		// try with bin/ at the start
+		if (clf == null) {
+			name = "bin/" + new String(pckgname).replace('.', '/');
+			clf = bundle.findEntries(name, "*.class", true);
+		}
 		
 		String cls = null;
 		if (clf != null) {
