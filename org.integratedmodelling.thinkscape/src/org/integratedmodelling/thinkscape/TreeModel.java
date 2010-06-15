@@ -178,7 +178,7 @@ public abstract class TreeModel {
 
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
-			return TreeModel.this.getImage(element, columnIndex);
+			return TreeModel.this.getImage(((TreeObject)element).data, columnIndex);
 		}
 
 		@Override

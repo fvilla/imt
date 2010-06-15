@@ -43,17 +43,15 @@ public class ThinklabProject {
 			if (!this.ontoPath.exists())	
 				this.ontoPath.create(true, true, null);
 			
-			// add thinklab nature
-			boolean hasNature = false;
-			IProjectDescription desc = project.getDescription();
-			String[] natures = new String[desc.getNatureIds().length + 1];
-			int i = 0;
-			for (String s : desc.getNatureIds()) {
-				natures[i++] = s;
-				if (s.equals(ThinkscapeNature.NATURE_ID))
-					hasNature = true;
-			}
+			// add thinklab nature if necessary
+			boolean hasNature = project.hasNature(ThinkscapeNature.NATURE_ID);
 			if (!hasNature) {
+				IProjectDescription desc = project.getDescription();
+				String[] natures = new String[desc.getNatureIds().length + 1];
+				int i = 0;
+				for (String s : desc.getNatureIds()) {
+					natures[i++] = s;
+				}
 				natures[i] = ThinkscapeNature.NATURE_ID;			
 				desc.setNatureIds(natures);
 				project.setDescription(desc, null);
@@ -65,8 +63,9 @@ public class ThinklabProject {
 		
 	}
 
-	public ThinklabProject(IProject project) {
+	public ThinklabProject(IProject project) throws ThinklabException {
 		this.project = project;
+		initialize();
 	}
 
 	public String getLabel() {

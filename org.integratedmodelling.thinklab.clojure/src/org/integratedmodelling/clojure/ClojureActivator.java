@@ -1,8 +1,5 @@
 package org.integratedmodelling.clojure;
 
-import java.io.File;
-import java.net.URL;
-
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
 import org.integratedmodelling.utils.MiscUtilities;
@@ -23,9 +20,7 @@ public class ClojureActivator extends ThinklabActivator {
 
 		if (!runtimeInited) {
 			info("initializing Clojure runtime....");
-			ClassLoader cls = null;
 			try {
-//				cls = swapClassloader();
 				Compiler.loadFile(MiscUtilities.resolveUrlToFile(getResourceURL("clj/thinklab.clj").toString()).toString());
 				Compiler.loadFile(MiscUtilities.resolveUrlToFile(getResourceURL("clj/utils.clj").toString()).toString());
 				Compiler.loadFile(MiscUtilities.resolveUrlToFile(getResourceURL("clj/knowledge.clj").toString()).toString());
@@ -35,8 +30,6 @@ public class ClojureActivator extends ThinklabActivator {
 			} catch (Exception e) {
 				System.out.println("PORCA MADONNA: " + e);
 				throw new ThinklabPluginException(e);	
-			} finally {
-//				resetClassLoader(cls);
 			}
 			info("Clojure runtime initialized");
 			runtimeInited = true;

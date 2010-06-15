@@ -2,8 +2,8 @@ package org.integratedmodelling.thinkscape.views;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -18,12 +18,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,19 +31,17 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.NewProjectAction;
 import org.eclipse.ui.part.ViewPart;
-import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.TreeModel;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
-import org.osgi.framework.Bundle;
 
 import com.swtdesigner.ResourceManager;
 
@@ -71,8 +65,12 @@ public class PluginView extends ViewPart {
 			if (object instanceof ThinklabProject) {
 				ret = new Object[3];
 				ret[0] = ((ThinklabProject)object).ontoPath;
-				ret[0] = ((ThinklabProject)object).annotPath;
-				ret[0] = ((ThinklabProject)object).modelPath;
+				ret[1] = ((ThinklabProject)object).annotPath;
+				ret[2] = ((ThinklabProject)object).modelPath;
+			} else if (object instanceof IFolder) {
+				/*
+				 * TODO filter out files
+				 */
 			}
 			return ret;
 		}
@@ -80,21 +78,37 @@ public class PluginView extends ViewPart {
 		@Override
 		public Image getImage(Object object, int column) {
 
-			
-			if (object instanceof IProject) {
+			String ret = "icons/bullet_orange.png";
+			if (object instanceof ThinklabProject) {
+				ret = "icons/folder_lightbulb.png";
+			} else if (object instanceof IFolder) {
+				if (object.toString().contains("models"))
+					ret = "icons/database_gear.png";
+				else if (object.toString().contains("annotations"))
+					ret = "icons/database_edit.png";
+				else if (object.toString().contains("ontologies"))
+					ret = "icons/database_lightning.png";
+			} else if (object instanceof IFile) {
 				
 			}
 			
-			return null;
+			return ResourceManager.getPluginImage(
+					"org.integratedmodelling.thinkscape", ret);
 		}
 
 		@Override
 		public String getName(Object object, int column) {
 
-			if (object instanceof IProject) {
+			if (object instanceof ThinklabProject) {
 				return ((ThinklabProject)object).getLabel();
 			} else if (object instanceof IFolder) {
-				return object.toString();
+				if (object.toString().contains("/models"))
+					return "Models";
+				else if (object.toString().contains("/annotations"))
+					return "Semantic Annotations";
+				else if (object.toString().contains("/ontologies"))
+					return "Ontologies";
+				
 			}
 			return "";
 		}
@@ -109,7 +123,7 @@ public class PluginView extends ViewPart {
 	private ArrayList<ThinklabProject> thinklabProjects;
 	private ProjectTreeModel treeModel;
 	
-	private void rescan() {
+	private void rescan() throws ThinklabException {
 		
 		this.thinklabProjects = new ArrayList<ThinklabProject>();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -127,7 +141,11 @@ public class PluginView extends ViewPart {
 	class ResourceListener implements IResourceChangeListener {
 		@Override
 		public void resourceChanged(IResourceChangeEvent arg0) {
-			rescan();
+			try {
+				rescan();
+			} catch (ThinklabException e) {
+				throw new ThinklabRuntimeException(e);
+			}
 		}
 	}
 	
@@ -221,13 +239,16 @@ public class PluginView extends ViewPart {
 			public void widgetSelected(SelectionEvent e) {
 				IProject project = displayNewProjectWizard();
 				if (project != null) {
-					ThinklabProject tproj = new ThinklabProject(project);
 					try {
-						tproj.initialize();
+						ThinklabProject tproj = new ThinklabProject(project);
 					} catch (ThinklabException e1) {
 						throw new ThinklabRuntimeException(e1);
 					}
-					
+					/*
+					 * TODO do something with the project? The listener should already
+					 * take care of notifying it. I'm not sure there is a notion of
+					 * current project in Eclipse.
+					 */
 				}
 			}
 		});
@@ -242,12 +263,20 @@ public class PluginView extends ViewPart {
 		
 		this.treeModel = new ProjectTreeModel(treeViewer, this);
 		
+		TreeViewerColumn treeViewerColumn = new TreeViewerColumn(treeViewer, SWT.NONE);
+		TreeColumn treeColumn = treeViewerColumn.getColumn();
+		treeColumn.setWidth(440);
+		
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
 		
-		rescan();
+		try {
+			rescan();
+		} catch (ThinklabException e1) {
+			throw new ThinklabRuntimeException(e1);
+		}
 	}
 
 	private void hookContextMenu() {
