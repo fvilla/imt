@@ -3,6 +3,7 @@ package org.integratedmodelling.thinklab.shell;
 import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.commandline.CommandActivator;
+import org.integratedmodelling.thinklab.commandline.shells.GraphicalShell;
 
 public class Activator extends ThinklabActivator {
 
@@ -14,7 +15,6 @@ public class Activator extends ThinklabActivator {
 	
 	@Override
 	protected void doStart() throws Exception {
-		CommandActivator.get();	
 		new GraphicalShell().startConsole();
 	}
 

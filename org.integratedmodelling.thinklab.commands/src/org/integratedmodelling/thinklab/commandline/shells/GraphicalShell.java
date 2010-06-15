@@ -31,7 +31,7 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GNU General Public License v3
  * @link      http://www.integratedmodelling.org
  **/
-package org.integratedmodelling.thinklab.shell;
+package org.integratedmodelling.thinklab.commandline.shells;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -47,13 +47,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.FileUtils;
 import org.integratedmodelling.thinklab.KnowledgeManager;
@@ -61,6 +59,7 @@ import org.integratedmodelling.thinklab.Thinklab;
 import org.integratedmodelling.thinklab.command.Command;
 import org.integratedmodelling.thinklab.command.CommandManager;
 import org.integratedmodelling.thinklab.command.CommandParser;
+import org.integratedmodelling.thinklab.commandline.CommandActivator;
 import org.integratedmodelling.thinklab.configuration.LocalConfiguration;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
@@ -145,9 +144,6 @@ public class GraphicalShell {
 		}
 		
 		public void run() {
-
-			ClassLoader cl = getContextClassLoader();
-			setContextClassLoader(Activator.get().getClassLoader());
 
 			ConsolePanel jpanels = new ConsolePanel();
 			this.console = jpanels.getConsole();
@@ -241,7 +237,6 @@ public class GraphicalShell {
 				}
 			}
 			
-			setContextClassLoader(cl);
 			this.session = null;
 			jpanels.setVisible(false);
 			jpanels = null;
@@ -313,7 +308,7 @@ public class GraphicalShell {
 		
 		historyFile = 
 			new File(
-				Activator.get().getScratchPath() + 
+				CommandActivator.get().getScratchPath() + 
 				File.separator + 
 				".history");
 	}

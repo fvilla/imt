@@ -3,7 +3,7 @@ package org.integratedmodelling.thinkscape.handlers;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.integratedmodelling.thinklab.shell.GraphicalShell;
+import org.integratedmodelling.thinklab.commandline.shells.GraphicalShell;
 
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
@@ -22,7 +22,6 @@ public class ShellHandler extends AbstractHandler {
 	 * from the application context.
 	 */
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-//		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		try {
 			new GraphicalShell().startConsole();
 		} catch (Exception e) {

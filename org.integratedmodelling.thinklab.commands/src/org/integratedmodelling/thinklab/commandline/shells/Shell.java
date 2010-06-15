@@ -31,7 +31,7 @@
  * @license   http://www.gnu.org/licenses/gpl.txt GNU General Public License v3
  * @link      http://www.integratedmodelling.org
  **/
-package org.integratedmodelling.thinklab.shell;
+package org.integratedmodelling.thinklab.commandline.shells;
 
 import java.io.IOException;
 

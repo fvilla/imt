@@ -12,4 +12,5 @@ Bundle-ClassPath: lib/jline-0.9.94.jar,
  .
 Export-Package: jline,
  org.integratedmodelling.thinklab.commandline,
- org.integratedmodelling.thinklab.commandline.commands
+ org.integratedmodelling.thinklab.commandline.commands,
+ org.integratedmodelling.thinklab.commandline.shells
