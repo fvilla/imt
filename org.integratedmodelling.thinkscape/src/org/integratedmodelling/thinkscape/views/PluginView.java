@@ -1,8 +1,6 @@
 package org.integratedmodelling.thinkscape.views;
 
 
-import java.util.ArrayList;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -10,7 +8,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -48,6 +45,8 @@ import com.swtdesigner.ResourceManager;
 
 /**
  * The "navigator" for Thinklab projects.
+ * 
+ * TODO double-click projects to select the active project; ensure the active project shows up differently.
  */
 public class PluginView extends ViewPart {
 	
@@ -68,6 +67,7 @@ public class PluginView extends ViewPart {
 				ret[1] = ((ThinklabProject)object).annotPath;
 				ret[2] = ((ThinklabProject)object).modelPath;
 			} else if (object instanceof IFolder) {
+				
 				/*
 				 * TODO filter out files
 				 */
@@ -107,12 +107,11 @@ public class PluginView extends ViewPart {
 				else if (object.toString().contains("/annotations"))
 					return "Semantic Annotations";
 				else if (object.toString().contains("/ontologies"))
-					return "Ontologies";
+					return "Observed Concepts";
 				
 			}
 			return "";
 		}
-		
 	}
 	
 	/**
@@ -120,22 +119,10 @@ public class PluginView extends ViewPart {
 	 */
 	public static final String ID = "org.integratedmodelling.thinkscape.views.PluginView";
 
-	private ArrayList<ThinklabProject> thinklabProjects;
 	private ProjectTreeModel treeModel;
 	
-	private void rescan() throws ThinklabException {
-		
-		this.thinklabProjects = new ArrayList<ThinklabProject>();
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		for (IProject proj : root.getProjects()) {
-			if (ThinkScape.isThinklabProject(proj))
-					thinklabProjects.add(new ThinklabProject(proj));
-		}
-		
-		/*
-		 * rebuild the list
-		 */
-		this.treeModel.instrumentConceptTree(thinklabProjects);
+	private void rescan() throws ThinklabException {		
+		this.treeModel.instrumentConceptTree(ThinkScape.scanProjects());
 	}
 	
 	class ResourceListener implements IResourceChangeListener {
@@ -311,6 +298,7 @@ public class PluginView extends ViewPart {
 
 	private void hookDoubleClickAction() {
 	}
+	
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
 			treeViewer.getControl().getShell(),

@@ -4,6 +4,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -18,6 +19,7 @@ import org.integratedmodelling.modelling.Model;
 import org.integratedmodelling.modelling.ModelFactory;
 import org.integratedmodelling.modelling.ModellingPlugin;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
+import org.integratedmodelling.thinkscape.TreeModel;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.eclipse.swt.widgets.ToolBar;
 
@@ -31,6 +33,34 @@ public class ThinklabModels extends ViewPart {
 	private TreeViewer treeViewer_3;
 	private TreeViewer treeViewer;
 
+	public class ModelTreeModel extends TreeModel {
+
+		public ModelTreeModel(TreeViewer viewer, ViewPart view) {
+			super(viewer, view);
+		}
+
+		@Override
+		public Object[] getChildren(Object object) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Image getImage(Object object, int column) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getName(Object object, int column) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+	
+	
+	
 	public ThinklabModels() {
 
 
@@ -107,7 +137,7 @@ public class ThinklabModels extends ViewPart {
 			}
 			{
 				TabItem tbtmObservables = new TabItem(tabFolder, SWT.NONE);
-				tbtmObservables.setText("Observables");
+				tbtmObservables.setText("Contexts");
 				{
 					Composite composite = new Composite(tabFolder, SWT.NONE);
 					tbtmObservables.setControl(composite);
@@ -171,7 +201,7 @@ public class ThinklabModels extends ViewPart {
 	public TreeViewer getAgentTreeViewer() {
 		return treeViewer_3;
 	}
-	public TreeViewer getObservableTreeViewer() {
+	public TreeViewer getContextTreeViewer() {
 		return treeViewer;
 	}
 }

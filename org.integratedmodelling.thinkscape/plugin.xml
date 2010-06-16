@@ -57,6 +57,12 @@
             id="org.integratedmodelling.thinkscape.views.ThinkcapView"
             name="Thinkcap Server">
       </view>
+      <view
+            category="org.integratedmodelling.thinkscape.thinkscape"
+            class="org.integratedmodelling.thinkscape.views.ObservablesView"
+            id="org.integratedmodelling.thinkscape.views.ObservablesView"
+            name="Observables">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -157,15 +163,24 @@
          point="org.eclipse.ui.editors">
       <editor
             class="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
+            extensions="ann"
             icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
             name="Annotation Editor">
       </editor>
       <editor
+      		extensions="concept"
             class="org.integratedmodelling.thinkscape.editors.ConceptEditorPart"
             icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.editors.concept"
             name="Concept Editor">
+      </editor>
+      <editor
+            class="org.integratedmodelling.thinkscape.gedit.ModelEditor"
+            extensions="model"
+            icon="icons/lightbulb.png"
+            id="org.integratedmodelling.thinkscape.gedit.ModelEditor"
+            name="Model Editor">
       </editor>
    </extension>
    <extension

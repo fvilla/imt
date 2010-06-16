@@ -1,8 +1,15 @@
 package org.integratedmodelling.thinkscape;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.integratedmodelling.clojure.ClojureActivator;
 import org.integratedmodelling.corescience.CoreScience;
@@ -10,8 +17,11 @@ import org.integratedmodelling.geospace.Geospace;
 import org.integratedmodelling.modelling.Model;
 import org.integratedmodelling.modelling.ModelFactory;
 import org.integratedmodelling.modelling.ModellingPlugin;
+import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.builder.ThinkscapeNature;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.time.TimePlugin;
 import org.osgi.framework.BundleContext;
 
@@ -25,6 +35,11 @@ public class ThinkScape extends AbstractUIPlugin {
 
 	// The shared instance
 	private static ThinkScape plugin;
+	
+	/*
+	 * we have an active project
+	 */
+	static ThinklabProject activeProject = null;
 	
 	/**
 	 * The constructor
@@ -90,6 +105,17 @@ public class ThinkScape extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	public static Collection<ThinklabProject> scanProjects() throws ThinklabException {
+		
+		ArrayList<ThinklabProject> ret = new ArrayList<ThinklabProject>();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (IProject proj : root.getProjects()) {
+			if (isThinklabProject(proj))
+					ret.add(new ThinklabProject(proj));
+		}
+		return ret;
+	}
+	
 	/**
 	 * Returns an image descriptor for the image file at the given
 	 * plug-in relative path
@@ -99,5 +125,28 @@ public class ThinkScape extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	public static ThinklabProject getActiveProject() {
+
+		if (activeProject == null) {
+			Collection<ThinklabProject> prjs = null;
+			try {
+				prjs = scanProjects();
+			} catch (ThinklabException e) {
+				throw new ThinklabRuntimeException(e);
+			}
+			if (prjs.size() > 0)
+				// FIXME offer to select it if more than one.
+				activeProject = prjs.iterator().next();
+		}
+		
+		if (activeProject == null) {	
+			MessageDialog.openWarning(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				"Thinkscape Notification","No current project selected. Please create a project.");
+		}
+		
+		return activeProject;
 	}
 }

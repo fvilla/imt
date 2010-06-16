@@ -78,6 +78,7 @@ public class FileKnowledgeRepository implements IKnowledgeRepository {
 	private File backupDirectory;
 	private File tempDirectory;
 	protected Hashtable<String, IOntology> ontologies = new Hashtable<String, IOntology>();
+	protected Hashtable<String, String> ont2bundle = new Hashtable<String, String>();
 	protected Hashtable<String, String> ontologyfn = new Hashtable<String, String>();
 	protected Hashtable<String, IOntology> tempontologies = new Hashtable<String, IOntology>();
 	

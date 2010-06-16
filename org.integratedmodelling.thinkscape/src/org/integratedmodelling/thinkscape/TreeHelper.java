@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -14,13 +15,19 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ViewPart;
 import org.integratedmodelling.thinklab.KnowledgeManager;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IKnowledgeSubject;
 import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
+import org.integratedmodelling.thinkscape.annotation.ThinkscapeAnnotationFactory;
 
 import com.swtdesigner.ResourceManager;
 
@@ -451,14 +458,29 @@ public class TreeHelper {
 		viewer.setSorter(new NameSorter());
 		viewer.setInput(view.getViewSite());
 		viewer.refresh();
-
-		
 	}
 
 	public void handleDoubleClick(Object obj, IWorkbenchPage page) {
-		// TODO open whatever editor we have associated with this object
+		
+		// TODO open whatever editor we have associated with this object. This should only
+		// happen when the tree view is active.
 		TreeObject o = (TreeObject) obj;
 		if (o.isConcept()) {
+			
+			/*
+			 * fire up concept annotation editor; create concept axiom file if not there
+			 */
+			IFile file = ThinkscapeAnnotationFactory.getConceptAnnotationFile(o.concept);
+			if (file != null) {
+				IEditorDescriptor desc = 
+						PlatformUI.getWorkbench().
+							getEditorRegistry().getDefaultEditor(file.getName());
+				try {
+					page.openEditor(new FileEditorInput(file), desc.getId());
+				} catch (PartInitException e) {
+					throw new ThinklabRuntimeException(e);
+				}
+			}
 			
 		} else if (o.isOntology()) {
 			

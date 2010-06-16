@@ -10,7 +10,7 @@ import org.integratedmodelling.thinkscape.builder.ThinkscapeNature;
 
 public class ThinklabProject {
 
-	IProject project = null;
+	public IProject project = null;
 	
 	public IFolder modelPath;
 	public IFolder configPath;
