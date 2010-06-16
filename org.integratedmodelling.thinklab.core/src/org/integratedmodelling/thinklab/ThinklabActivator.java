@@ -18,6 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.integratedmodelling.thinklab.annotation.AnnotationProvider;
+import org.integratedmodelling.thinklab.annotation.IAnnotationProvider;
 import org.integratedmodelling.thinklab.application.ApplicationDescriptor;
 import org.integratedmodelling.thinklab.application.ApplicationManager;
 import org.integratedmodelling.thinklab.command.CommandDeclaration;
@@ -40,6 +42,7 @@ import org.integratedmodelling.thinklab.interfaces.annotations.LiteralImplementa
 import org.integratedmodelling.thinklab.interfaces.annotations.ThinklabCommand;
 import org.integratedmodelling.thinklab.interfaces.commands.ICommandHandler;
 import org.integratedmodelling.thinklab.interfaces.commands.IListingProvider;
+import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IInstanceImplementation;
 import org.integratedmodelling.thinklab.interpreter.InterpreterManager;
 import org.integratedmodelling.thinklab.kbox.KBoxManager;
@@ -154,6 +157,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		loadLanguageInterpreters();
 		loadCommandHandlers();
 		loadListingProviders();
+		loadAnnotationProviders();
 		loadTransformations();
 		loadInstanceImplementationConstructors();
 //		loadPersistentClasses();
@@ -177,6 +181,35 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 	}
 
 	
+	private void loadAnnotationProviders() throws ThinklabException {
+		
+		String ipack = this.getClass().getPackage().getName() + ".annotations";
+		
+		for (Class<?> cls : MiscUtilities.findSubclasses(AnnotationProvider.class, ipack, bundle)) {	
+			
+			/*
+			 * lookup annotation, ensure we can use the class
+			 */
+			if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers()))
+				continue;
+			
+			for (Annotation annotation : cls.getAnnotations()) {
+				if (annotation instanceof IAnnotationProvider) {
+					
+					String id = 
+						((IAnnotationProvider)annotation).id();
+					String description = 
+						((IAnnotationProvider)annotation).description();
+					IConcept concept =
+						KnowledgeManager.get().requireConcept(
+								((IAnnotationProvider)annotation).dataSourceConcept());					
+					// TODO!
+					//					AnnotationFactory.registerAnnotationProvider();
+					break;
+				}
+			}
+		}	}
+
 	private void loadApplications() throws ThinklabException {
 
 		HashSet<String> loaded = new HashSet<String>();

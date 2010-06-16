@@ -1,6 +1,7 @@
-package org.integratedmodelling.modelling.annotation;
+package org.integratedmodelling.thinklab.annotation;
 
 import org.integratedmodelling.utils.xml.XMLDocument;
+import org.w3c.dom.Node;
 
 /**
  * An annotation is a container of observation descriptors describing the 
@@ -11,11 +12,13 @@ import org.integratedmodelling.utils.xml.XMLDocument;
  * @author Ferdinando
  *
  */
-public class Annotation {
+public interface Annotation {
 
 	
 	
-	public XMLDocument asXML() {
-		return null;
-	}
+	public XMLDocument asXML();
+
+	public void addObjectFromXML(Node n);
+
+	public String getSourceUrl();
 }
