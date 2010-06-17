@@ -85,7 +85,7 @@ public void deactivate() {
 }
 
 public Connection getModel() {
-	return (Connection) getModel();
+	return (Connection)super.getModel();
 }
 
 /* (non-Javadoc)

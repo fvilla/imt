@@ -1,6 +1,7 @@
 package org.integratedmodelling.thinkscape;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -268,16 +269,16 @@ public class TreeHelper {
 				return null;
 			
 			refs.add(r);
-			
+			Collection<IConcept> ch = r.getChildren();
 			TreeObject ret = 
-				root.getChildren().size() > 0 ?
+				ch.size() > 0 ?
 					new TreeParent(r) :
 					new TreeObject(r);
 			
 	        idx.add(r);
 					
 			if (ret instanceof TreeParent)
-				for (IConcept c : r.getChildren()) {
+				for (IConcept c : ch) {
 					TreeObject o = populate(c, idx, refs);
 					if (o != null)
 						((TreeParent)ret).addChild(o);

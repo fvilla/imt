@@ -269,11 +269,9 @@ protected void setInput(IEditorInput input) {
 	super.setInput(input);
 	try {
 		IFile file = ((IFileEditorInput) input).getFile();
-		if (file.exists()) {
-			ObjectInputStream in = new ObjectInputStream(file.getContents());
-			diagram = (ModelDiagram) in.readObject();
-			in.close();
-		}
+		ObjectInputStream in = new ObjectInputStream(file.getContents());
+		diagram = (ModelDiagram) in.readObject();
+		in.close();
 		setPartName(file.getName());
 	} catch (IOException e) { 
 		handleLoadException(e); 
