@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IAnnotationProvider {
+public @interface ISemanticAnnotationProvider {
 	public String id();
 	public String description();
 	public String dataSourceConcept();

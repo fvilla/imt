@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
  * @author Ferdinando
  *
  */
-public interface AnnotationProvider {
+public interface SemanticAnnotationProvider {
 
 	/**
 	 * Produce an annotation from the given URL, parsing all content. This is called after the 
@@ -22,7 +22,7 @@ public interface AnnotationProvider {
 	 * @return
 	 * @throws ThinklabException
 	 */
-	AnnotationContainer annotateSource(String sourceUrl) throws ThinklabException;
+	SemanticAnnotationContainer annotateSource(String sourceUrl) throws ThinklabException;
 
 	/**
 	 * Get the URL of the source from the given XML datasource specification.
@@ -40,7 +40,7 @@ public interface AnnotationProvider {
 	 * @param n
 	 * @param ann
 	 */
-	void addObjectFromXML(Node n, AnnotationContainer ann);
+	void addObjectFromXML(Node n, SemanticAnnotationContainer ann);
 
 	
 	/**
@@ -49,6 +49,6 @@ public interface AnnotationProvider {
 	 * @param source
 	 * @return
 	 */
-	AnnotationContainer createEmptyAnnotation(String source);
+	SemanticAnnotationContainer createEmptyAnnotation(String source);
 
 }

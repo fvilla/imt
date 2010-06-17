@@ -13,8 +13,8 @@ import org.integratedmodelling.opal.OPALLoader;
 import org.integratedmodelling.opal.OPALPlugin;
 import org.integratedmodelling.opal.OPALValidator;
 import org.integratedmodelling.thinklab.KnowledgeManager;
-import org.integratedmodelling.thinklab.annotation.AnnotationContainer;
-import org.integratedmodelling.thinklab.annotation.AnnotationProvider;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
 import org.integratedmodelling.thinklab.exception.ThinklabStorageException;
@@ -32,14 +32,14 @@ import org.w3c.dom.Node;
  */
 public class AnnotationFactory {
 
-	private Hashtable<String, AnnotationProvider> byId = 
-		new Hashtable<String, AnnotationProvider>();
-	private IntelligentMap<AnnotationProvider> byConcept = 
-		new IntelligentMap<AnnotationProvider>();
+	private Hashtable<String, SemanticAnnotationProvider> byId = 
+		new Hashtable<String, SemanticAnnotationProvider>();
+	private IntelligentMap<SemanticAnnotationProvider> byConcept = 
+		new IntelligentMap<SemanticAnnotationProvider>();
 	
-	public AnnotationContainer annotate(String annotationServiceId, URL sourceUrl) throws ThinklabException {
+	public SemanticAnnotationContainer annotate(String annotationServiceId, URL sourceUrl) throws ThinklabException {
 		
-		AnnotationProvider prv = byId.get(annotationServiceId);
+		SemanticAnnotationProvider prv = byId.get(annotationServiceId);
 		
 		if (prv == null) {
 			throw new ThinklabResourceNotFoundException(
@@ -57,10 +57,10 @@ public class AnnotationFactory {
 	 * @param doc
 	 * @return
 	 */
-	public Collection<AnnotationContainer> parseXML(URL f, Collection<AnnotationContainer> annotations) throws ThinklabException {
+	public Collection<SemanticAnnotationContainer> parseXML(URL f, Collection<SemanticAnnotationContainer> annotations) throws ThinklabException {
 		
-		ArrayList<AnnotationContainer> ret = new ArrayList<AnnotationContainer>();
-		HashMap<String,AnnotationContainer> anmap = new HashMap<String, AnnotationContainer>();
+		ArrayList<SemanticAnnotationContainer> ret = new ArrayList<SemanticAnnotationContainer>();
+		HashMap<String,SemanticAnnotationContainer> anmap = new HashMap<String, SemanticAnnotationContainer>();
 		XMLDocument	doc = new XMLDocument(f);
 
 		for (Node n = doc.root().getFirstChild(); n != null; n = n
@@ -77,24 +77,24 @@ public class AnnotationFactory {
 			IConcept c =
 				KnowledgeManager.get().requireConcept(dn.getNodeName());
 
-			AnnotationProvider prv = byConcept.get(c);
+			SemanticAnnotationProvider prv = byConcept.get(c);
 			if (prv == null)
 				continue;
 
 			String source = prv.getSourceURL(dn);
-			AnnotationContainer ann = anmap.get(source);
+			SemanticAnnotationContainer ann = anmap.get(source);
 			if (ann == null)
 				ann = prv.createEmptyAnnotation(source);
 
 			prv.addObjectFromXML(n, ann);
 		}		
 		
-		for (AnnotationContainer ann : anmap.values())
+		for (SemanticAnnotationContainer ann : anmap.values())
 			ret.add(ann);
 		
-		Collections.sort(ret, new Comparator<AnnotationContainer>() {
+		Collections.sort(ret, new Comparator<SemanticAnnotationContainer>() {
 			@Override
-			public int compare(AnnotationContainer o1, AnnotationContainer o2) {
+			public int compare(SemanticAnnotationContainer o1, SemanticAnnotationContainer o2) {
 				return o1.getSourceUrl().compareTo(o2.getSourceUrl());
 			}
 		});
@@ -102,7 +102,7 @@ public class AnnotationFactory {
 		return ret;
 	}
 	
-	public void registerAnnotation(IConcept dataconcept, String id, AnnotationProvider annotation) {
+	public void registerAnnotation(IConcept dataconcept, String id, SemanticAnnotationProvider annotation) {
 		byConcept.put(dataconcept, annotation);
 		byId.put(id, annotation);
 	}

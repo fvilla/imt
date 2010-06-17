@@ -1,29 +1,29 @@
 package org.integratedmodelling.geospace.annotations;
 
-import org.integratedmodelling.thinklab.annotation.AnnotationContainer;
-import org.integratedmodelling.thinklab.annotation.AnnotationProvider;
-import org.integratedmodelling.thinklab.annotation.IAnnotationProvider;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationProvider;
+import org.integratedmodelling.thinklab.annotation.ISemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.w3c.dom.Node;
 
-@IAnnotationProvider(id="WCS",description="Web Coverage Service",
+@ISemanticAnnotationProvider(id="WCS",description="Web Coverage Service",
 			dataSourceConcept="geospace:WCSDataSource")
-public class WCSAnnotationProvider implements AnnotationProvider {
+public class WCSAnnotationProvider implements SemanticAnnotationProvider {
 
 	@Override
-	public void addObjectFromXML(Node n, AnnotationContainer ann) {
+	public void addObjectFromXML(Node n, SemanticAnnotationContainer ann) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public AnnotationContainer annotateSource(String sourceUrl) throws ThinklabException {
+	public SemanticAnnotationContainer annotateSource(String sourceUrl) throws ThinklabException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public AnnotationContainer createEmptyAnnotation(String source) {
+	public SemanticAnnotationContainer createEmptyAnnotation(String source) {
 		// TODO Auto-generated method stub
 		return null;
 	}

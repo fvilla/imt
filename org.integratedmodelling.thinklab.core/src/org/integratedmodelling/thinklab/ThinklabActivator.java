@@ -18,8 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import org.integratedmodelling.thinklab.annotation.AnnotationProvider;
-import org.integratedmodelling.thinklab.annotation.IAnnotationProvider;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationProvider;
+import org.integratedmodelling.thinklab.annotation.ISemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.application.ApplicationDescriptor;
 import org.integratedmodelling.thinklab.application.ApplicationManager;
 import org.integratedmodelling.thinklab.command.CommandDeclaration;
@@ -185,7 +185,7 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		
 		String ipack = this.getClass().getPackage().getName() + ".annotations";
 		
-		for (Class<?> cls : MiscUtilities.findSubclasses(AnnotationProvider.class, ipack, bundle)) {	
+		for (Class<?> cls : MiscUtilities.findSubclasses(SemanticAnnotationProvider.class, ipack, bundle)) {	
 			
 			/*
 			 * lookup annotation, ensure we can use the class
@@ -194,15 +194,15 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 				continue;
 			
 			for (Annotation annotation : cls.getAnnotations()) {
-				if (annotation instanceof IAnnotationProvider) {
+				if (annotation instanceof ISemanticAnnotationProvider) {
 					
 					String id = 
-						((IAnnotationProvider)annotation).id();
+						((ISemanticAnnotationProvider)annotation).id();
 					String description = 
-						((IAnnotationProvider)annotation).description();
+						((ISemanticAnnotationProvider)annotation).description();
 					IConcept concept =
 						KnowledgeManager.get().requireConcept(
-								((IAnnotationProvider)annotation).dataSourceConcept());					
+								((ISemanticAnnotationProvider)annotation).dataSourceConcept());					
 					// TODO!
 					//					AnnotationFactory.registerAnnotationProvider();
 					break;
