@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/jasper-compiler-5.5.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jasper-compiler-jdt-5.5.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-6.1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-util-6.1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/timelinez.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/zcommon.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/zcommons-el.jar"/>
