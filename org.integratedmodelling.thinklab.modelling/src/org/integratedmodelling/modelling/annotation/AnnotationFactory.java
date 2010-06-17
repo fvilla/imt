@@ -13,9 +13,10 @@ import org.integratedmodelling.opal.OPALLoader;
 import org.integratedmodelling.opal.OPALPlugin;
 import org.integratedmodelling.opal.OPALValidator;
 import org.integratedmodelling.thinklab.KnowledgeManager;
-import org.integratedmodelling.thinklab.annotation.Annotation;
+import org.integratedmodelling.thinklab.annotation.AnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.AnnotationProvider;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
 import org.integratedmodelling.thinklab.exception.ThinklabStorageException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.datastructures.IntelligentMap;
@@ -36,8 +37,16 @@ public class AnnotationFactory {
 	private IntelligentMap<AnnotationProvider> byConcept = 
 		new IntelligentMap<AnnotationProvider>();
 	
-	public Annotation annotate(URL sourceUrl) throws ThinklabException {
-		return null;
+	public AnnotationContainer annotate(String annotationServiceId, URL sourceUrl) throws ThinklabException {
+		
+		AnnotationProvider prv = byId.get(annotationServiceId);
+		
+		if (prv == null) {
+			throw new ThinklabResourceNotFoundException(
+					"no annotation provider of type " + annotationServiceId + " was registered");
+		}
+		
+		return prv.annotateSource(sourceUrl.toString());
 	}
 	
 	/**
@@ -48,10 +57,10 @@ public class AnnotationFactory {
 	 * @param doc
 	 * @return
 	 */
-	public Collection<Annotation> parseXML(URL f, Collection<Annotation> annotations) throws ThinklabException {
+	public Collection<AnnotationContainer> parseXML(URL f, Collection<AnnotationContainer> annotations) throws ThinklabException {
 		
-		ArrayList<Annotation> ret = new ArrayList<Annotation>();
-		HashMap<String,Annotation> anmap = new HashMap<String, Annotation>();
+		ArrayList<AnnotationContainer> ret = new ArrayList<AnnotationContainer>();
+		HashMap<String,AnnotationContainer> anmap = new HashMap<String, AnnotationContainer>();
 		XMLDocument	doc = new XMLDocument(f);
 
 		for (Node n = doc.root().getFirstChild(); n != null; n = n
@@ -73,19 +82,19 @@ public class AnnotationFactory {
 				continue;
 
 			String source = prv.getSourceURL(dn);
-			Annotation ann = anmap.get(source);
+			AnnotationContainer ann = anmap.get(source);
 			if (ann == null)
-				ann = prv.getAnnotation(source);
+				ann = prv.createEmptyAnnotation(source);
 
-			ann.addObjectFromXML(n);
+			prv.addObjectFromXML(n, ann);
 		}		
 		
-		for (Annotation ann : anmap.values())
+		for (AnnotationContainer ann : anmap.values())
 			ret.add(ann);
 		
-		Collections.sort(ret, new Comparator<Annotation>() {
+		Collections.sort(ret, new Comparator<AnnotationContainer>() {
 			@Override
-			public int compare(Annotation o1, Annotation o2) {
+			public int compare(AnnotationContainer o1, AnnotationContainer o2) {
 				return o1.getSourceUrl().compareTo(o2.getSourceUrl());
 			}
 		});

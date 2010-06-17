@@ -1,5 +1,6 @@
 package org.integratedmodelling.thinklab.annotation;
 
+import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.w3c.dom.Node;
 
 /**
@@ -13,8 +14,41 @@ import org.w3c.dom.Node;
  */
 public interface AnnotationProvider {
 
-	Annotation getAnnotation(String sourceUrl);
+	/**
+	 * Produce an annotation from the given URL, parsing all content. This is called after the 
+	 * AnnotationFactory has chosen this provider based on a user choice of type.
+	 * 
+	 * @param sourceUrl
+	 * @return
+	 * @throws ThinklabException
+	 */
+	AnnotationContainer annotateSource(String sourceUrl) throws ThinklabException;
 
-	String getSourceURL(Node dn);
+	/**
+	 * Get the URL of the source from the given XML datasource specification.
+	 * 
+	 * @param dn
+	 * @return
+	 * @throws ThinklabException
+	 */
+	String getSourceURL(Node dn) throws ThinklabException;
+
+	/**
+	 * Reverse-engineer an object from the corresponding XML annotation and add it to the passed annotation
+	 * container.
+	 * 
+	 * @param n
+	 * @param ann
+	 */
+	void addObjectFromXML(Node n, AnnotationContainer ann);
+
+	
+	/**
+	 * Create an empty annotation for the given source.
+	 * 
+	 * @param source
+	 * @return
+	 */
+	AnnotationContainer createEmptyAnnotation(String source);
 
 }

@@ -12,13 +12,30 @@ import org.w3c.dom.Node;
  * @author Ferdinando
  *
  */
-public interface Annotation {
+public interface AnnotationContainer {
 
+	/**
+	 * Synchronize our contents with our source.
+	 */
+	public void synchronize();
 	
-	
+	/**
+	 * Produce an XML document describing all of our content.
+	 * @return
+	 */
 	public XMLDocument asXML();
 
+	/**
+	 * Add the given object from the given node. If object exists, synchronize with our content.
+	 * 
+	 * @param n
+	 */
 	public void addObjectFromXML(Node n);
 
+	/**
+	 * Get the URL of our source. Must never return null.
+	 * 
+	 * @return
+	 */
 	public String getSourceUrl();
 }
