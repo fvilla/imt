@@ -41,7 +41,6 @@ public interface SemanticAnnotationProvider {
 	 * @param ann
 	 */
 	void addObjectFromXML(Node n, SemanticAnnotationContainer ann);
-
 	
 	/**
 	 * Create an empty annotation for the given source.
