@@ -13,10 +13,6 @@ import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapException;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.utils.MiscUtilities;
-import org.java.plugin.PluginLifecycleException;
-import org.java.plugin.PluginManager;
-import org.java.plugin.registry.Extension;
-import org.java.plugin.registry.ExtensionPoint;
 import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.Sessions;
 
@@ -29,7 +25,6 @@ public class Thinkcap {
 	public static final String THINKCAP_SESSION_PROPERTY = "thinkcap.session.thinkcapsession";
 	public static Thinkcap _this;
 	
-	private PluginManager pluginManager = null;
 	private HashMap<String, ThinkcapApplication> applications =
 		new HashMap<String, ThinkcapApplication>();
 
@@ -41,10 +36,6 @@ public class Thinkcap {
 		if (_this == null)
 			_this = new Thinkcap();
 		return _this;
-	}
-	
-	void setPluginManager(PluginManager pm) {
-		pluginManager = pm;
 	}
 	
 	void setWebSpace(File ws) {
@@ -62,11 +53,7 @@ public class Thinkcap {
 	public File getWebSpace() {
 		return serverWebSpace;
 	}
-	
-	public PluginManager getPluginManager() {
-		return pluginManager;
-	}
-	
+		
 	public ThinkcapApplication getApplication(String appname) {
 		return applications.get(appname);
 	}
@@ -146,36 +133,16 @@ public class Thinkcap {
 	 * 
 	 * @throws PluginLifecycleException
 	 */
-	public void publishApplications() throws PluginLifecycleException {
-		
-		ExtensionPoint toolExtPoint = 
-			pluginManager.getRegistry().
-				getExtensionPoint("org.integratedmodelling.thinkcap.core", "thinkcap-application");
-		
-		for (Iterator<Extension> it =  toolExtPoint.getConnectedExtensions().iterator(); it.hasNext(); ) {
-			Extension ext = it.next();
-			pluginManager.activatePlugin(ext.getDeclaringPluginDescriptor().getId());
-		}
-	}
-
-	/**
-	 * Bypass ZK's rigid handling of resource finding by
-	 * making sure that all plugins that declare ZK resources are activated before the
-	 * server is started. Activation will make all the ZK resources available by creating
-	 * appropriate jars in the WEB-INF/lib directory.
-	 * 
-	 * @throws PluginLifecycleException 
-	 */
-	public void publishZKResources() throws PluginLifecycleException {
-		
-		ExtensionPoint toolExtPoint = 
-			pluginManager.getRegistry().
-				getExtensionPoint("org.integratedmodelling.thinkcap.core", "zk");
-		
-		for (Iterator<Extension> it =  toolExtPoint.getConnectedExtensions().iterator(); it.hasNext(); ) {
-			Extension ext = it.next();
-			pluginManager.activatePlugin(ext.getDeclaringPluginDescriptor().getId());
-		}
+	public void publishApplications() {
+//		
+//		ExtensionPoint toolExtPoint = 
+//			pluginManager.getRegistry().
+//				getExtensionPoint("org.integratedmodelling.thinkcap.core", "thinkcap-application");
+//		
+//		for (Iterator<Extension> it =  toolExtPoint.getConnectedExtensions().iterator(); it.hasNext(); ) {
+//			Extension ext = it.next();
+//			pluginManager.activatePlugin(ext.getDeclaringPluginDescriptor().getId());
+//		}
 	}
 
 }

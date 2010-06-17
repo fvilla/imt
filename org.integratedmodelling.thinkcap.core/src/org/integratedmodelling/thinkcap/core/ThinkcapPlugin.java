@@ -1,126 +1,48 @@
 package org.integratedmodelling.thinkcap.core;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapException;
-import org.integratedmodelling.thinkcap.core.utils.FileOps;
-//import org.integratedmodelling.thinkcap.view.ZKUtils;
-//import org.integratedmodelling.thinkcap.view.LayoutDescriptor;
-//import org.integratedmodelling.thinkcap.view.PortletDescriptor;
-import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapRuntimeException;
+import org.integratedmodelling.thinklab.KnowledgeManager;
+import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.interfaces.applications.ISession;
-import org.integratedmodelling.thinklab.plugin.ThinklabPlugin;
-import org.integratedmodelling.utils.CopyURL;
-import org.integratedmodelling.utils.MiscUtilities;
-import org.java.plugin.registry.Extension;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.webapp.WebAppClassLoader;
+import org.mortbay.jetty.webapp.WebAppContext;
 
-/**
- * 
- * @author Ferdinando Villa
- *
- */
-public abstract class ThinkcapPlugin extends ThinklabPlugin {
+public class ThinkcapPlugin extends ThinklabActivator {
+
+	public static final String PLUGIN_ID = "org.integratedmodelling.thinkcap.core";
 	
-	/**
-	 * Create a jar containing the passed lang-addon.xml and the contents of any components/
-	 * directory, put it in the web server's WEB-INF/lib directory.
-	 * @throws ThinkcapException 
-	 */
-	public static void createComponentJar(ThinkcapPlugin plugin) throws ThinkcapException {
+	private Server server;
 
-		File zklang = new File(plugin.getLoadDirectory() + File.separator + "lang-addon.xml");
-		
-		if (!zklang.exists())
-			return;
-		
-		plugin.logger().info(
-				"publishing ZK resources");
-		
-		File outfile = new File(
-				Thinkcap.get().getWebSpace() + 
-				File.separator + 
-				"WEB-INF" +
-				File.separator +
-				"lib" + 
-				File.separator +
-				ThinkcapPlugin.getPluginName(plugin.getDescriptor().getId()) +
-				"z.jar");
-		
-		FileOutputStream fos = null;
-		JarOutputStream jos = null;
-		
-		try {
-			fos = new FileOutputStream(outfile);
-		
-			// stupid manifest		
-			Manifest manifest = new Manifest();
-			Attributes manifestAttr = manifest.getMainAttributes();
-			manifestAttr.putValue("Manifest-Version", "1.0");
-		
-			jos = new JarOutputStream(fos, manifest);
-			
-			jos.putNextEntry(new JarEntry("metainfo/"));
-			jos.putNextEntry(new JarEntry("metainfo/zk/"));
-
-			FileInputStream in = new FileInputStream(zklang);
-			byte[] buf = new byte[4096];
-			
-			jos.putNextEntry(new JarEntry("metainfo/zk/lang-addon.xml"));      
-
-			int len;
-			while ((len = in.read(buf)) > 0) {
-			   jos.write(buf, 0, len);
-			}
-
-			jos.closeEntry();
-			in.close();
-			
-			File zkcomp = 
-				new File(plugin.getLoadDirectory() + File.separator + "components");
-
-			if (zkcomp.exists() && zkcomp.isDirectory()) {
-				
-				jos.putNextEntry(new JarEntry("components/"));
-				
-				for (File cmp :  zkcomp.listFiles()) {
-
-					/*
-					 * TODO check if we want to include something other than 
-					 * .zul files.
-					 */
-					if (!cmp.isDirectory() && !cmp.isHidden() && cmp.toString().endsWith(".zul")) {
-						
-						String bname = MiscUtilities.getFileName(cmp.toString());
-						jos.putNextEntry(new JarEntry("component/" + bname));
-
-						in = new FileInputStream(cmp);
-						while ((len = in.read(buf)) > 0) {
-						   jos.write(buf, 0, len);
-						}
-
-						jos.closeEntry();
-						in.close();
-					}
-				}
-			}
-			
-			jos.close();
-			
-		} catch (Exception e) {
-			throw new ThinkcapException(e);
-		} finally {
-
-		}
+	public static ThinkcapPlugin get() {
+		return (ThinkcapPlugin)getPlugin(PLUGIN_ID);
 	}
 	
+	@Override
+	protected void doStart() throws Exception {
+
+		/*
+		 * tell thinklab to generate ThinkcapSessions
+		 */
+		KnowledgeManager.get().setSessionManager(new ThinkcapSessionManager());
+
+		/*
+		 * TODO setup web space
+		 */
+
+	}
+
+	@Override
+	protected void doStop() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 	/**
 	 * 
@@ -131,8 +53,7 @@ public abstract class ThinkcapPlugin extends ThinklabPlugin {
 		
 		File outfile =
 			new File(
-					Thinkcap.get().getWebSpace()+"/" + 
-					getDescriptor().getId());
+					Thinkcap.get().getWebSpace() + File.separator + getId());
 
 		return outfile;
 	}
@@ -146,8 +67,8 @@ public abstract class ThinkcapPlugin extends ThinklabPlugin {
 		
 		File outfile =
 			new File(
-					Thinkcap.get().getWebSpace()+"/" + 
-					getDescriptor().getId() + "/" + subdir);
+					Thinkcap.get().getWebSpace()+  File.separator + 
+					getId() + File.separator + subdir);
 		outfile.mkdirs();
 		return outfile;
 	}
@@ -161,8 +82,8 @@ public abstract class ThinkcapPlugin extends ThinklabPlugin {
 		
 		File outfile =
 			new File(
-					Thinkcap.get().getWebSpace()+"/" + 
-					getDescriptor().getId() + "/" + session.getSessionWorkspace());
+					Thinkcap.get().getWebSpace()+ File.separator + 
+					getId() + File.separator + session.getSessionWorkspace());
 		outfile.mkdirs();
 		return outfile;
 	}
@@ -173,8 +94,8 @@ public abstract class ThinkcapPlugin extends ThinklabPlugin {
 	 * @return
 	 */
 	public String getPluginWebSpaceUrl(String subdir) {
-		return Thinkcap.get().getBaseUrl() + "/" + 
-			getDescriptor().getId() + "/" +
+		return Thinkcap.get().getBaseUrl() + File.separator + 
+			getId() + File.separator +
 			subdir;
 	}
 	
@@ -184,8 +105,8 @@ public abstract class ThinkcapPlugin extends ThinklabPlugin {
 	 * @return
 	 */
 	public String getPluginWebSpaceUrl() {
-		return Thinkcap.get().getBaseUrl() + "/" + 
-			getDescriptor().getId();
+		return Thinkcap.get().getBaseUrl() + File.separator + 
+			getId();
 	}
 	
 	
@@ -195,8 +116,8 @@ public abstract class ThinkcapPlugin extends ThinklabPlugin {
 	 * @return
 	 */
 	public String getPluginWebSpaceUrl(ISession session) {
-		return Thinkcap.get().getBaseUrl() + "/" + 
-			getDescriptor().getId() + "/" +
+		return Thinkcap.get().getBaseUrl() + File.separator + 
+			getId() + File.separator +
 			session.getSessionWorkspace();
 	}
 	
@@ -210,173 +131,52 @@ public abstract class ThinkcapPlugin extends ThinklabPlugin {
 		String[] pids = pluginId.split("\\.");
 		return pids[pids.length - 1];
 	}
-	
-	@Override
-	protected void loadExtensions() throws Exception {
+
+	public void stopServer() {
+
+		if (server != null)
+			try {
+				info("stopping Jetty server");
+				server.stop();
+			} catch (Exception e) {
+				throw new ThinkcapRuntimeException(e);
+			} finally {
+				server = null;
+			}
+	}
+
+	public void startServer(String host, int port) throws Exception {
+		
+		info("starting Jetty server on " + host + ":" + port);
 		
 		/*
-		 * brute force is good for ZK, and saves so much effort trying to make
-		 * it work otherwise. Oh I LOVE embedded servers.
+		 * do all preparatory chores before starting the server
 		 */
-		publishZKComponents();
+		Thinkcap.get().setBaseUrl("http://" + host + ":" + port);
+		
+		if (server != null)
+			throw new ThinkcapException("thinkcap server is already active");
+		
+		server = new Server(); 
+		SelectChannelConnector connector = new SelectChannelConnector(); 
+		connector.setHost(host);
+		connector.setPort(port); 
+		server.setConnectors (new Connector[]{connector}); 
+		
+		WebAppContext wah = new WebAppContext(); 
+		wah.setContextPath("/"); 
+		wah.setWar(Thinkcap.get().getWebSpace().toString()); 
+		
+		ClassLoader cl = this.getClass().getClassLoader(); 
+		WebAppClassLoader wacl = new WebAppClassLoader(cl, wah); 
+		wah.setClassLoader(wacl); 
+		 
+		server.addHandler(wah); 
+		server.setStopAtShutdown(true);
 
-		/*
-		 * independent from declared applications, if there is a web/ directory that is visible within
-		 * the plugin space, copy its contents under the plugin ID in the main web space so all web
-		 * resources are made available.
-		 */
-		publishWebResources();
-		
-		registerQueryForms();
-		registerTypeDecorations();
-		registerApplications();
-//		registerPortlets();
-//		registerLayouts();
-		
-	}
-	
-	private void publishWebResources() throws IOException {
-		
-		File webDir = new File(getLoadDirectory() + "/web");
-		
-		if (webDir.exists()) {
-			
-			File dest = new File(getPluginWebSpace() + "/" + getDescriptor().getId());
-			FileOps.copyFilesCached(webDir, dest);
-			
-		}
-		
+		server.start();
+		server.join();
 	}
 
-	/**
-	 * Copy a resource to a file in the web space and return a URL to it.
-	 * @param prefix
-	 * @param resource
-	 * @return
-	 * @throws ThinklabException
-	 */
-	public String publishResource(String resource) throws ThinklabException {
-		
-		URL res = getResourceURL(resource);
-		
-		/* copy in web area under plugin directory */		
-		File newf = new File(getPluginWebSpace() + "/" + MiscUtilities.getFileName(resource.toString()));
-		
-		CopyURL.copy(res, newf);
-		
-		return 
-			getPluginWebSpaceUrl() +
-			"/" 
-			+ MiscUtilities.getFileName(resource.toString());
-	}
-	
-	/**
-	 * Copy a resource to a file in the session-specific web space and return a URL to it.
-	 * @param prefix
-	 * @param resource
-	 * @return
-	 * @throws ThinklabException
-	 */
-	public String publishResource(String resource, ISession session) throws ThinklabException {
-		
-		URL res = getResourceURL(resource);
-		
-		/* copy in web area under plugin directory */		
-		File newf = new File(getPluginWebSpace(session) + "/" + MiscUtilities.getFileName(resource.toString()));
-		
-		CopyURL.copy(res, newf);
-		
-		return 
-			getPluginWebSpaceUrl(session) +
-			"/" 
-			+ MiscUtilities.getFileName(resource.toString());
-	}
-	
-	/**
-	 * Copy a resource to a file in a given folder of the web space and return a URL to it.
-	 * @param prefix
-	 * @param resource
-	 * @return
-	 * @throws ThinklabException
-	 */
-	public String publishResource(String resource, String folder) throws ThinklabException {
-		
-		URL res = getResourceURL(resource);
-		
-		/* copy in web area under plugin directory */		
-		File newf = new File(getPluginWebSpace(folder) + "/" + MiscUtilities.getFileName(resource.toString()));
-		
-		CopyURL.copy(res, newf);
-		
-		return 
-			getPluginWebSpaceUrl(folder) +
-			"/" +
-			MiscUtilities.getFileName(resource.toString());
-	}
 
-	private void publishZKComponents() throws ThinkcapException {
-		
-		/*
-		 * check if we have a lang-addon.xml anywhere visible;
-		 * if so, jar it along with any macro component definitions
-		 * and put it in the lib/ webapp dir before the server
-		 * starts.
-		 */
-		createComponentJar(this);
-		
-	}
-
-	@Override
-	protected void unloadExtensions() throws Exception {
-		
-		unregisterApplications();
-		unregisterTypeDecorations();
-		unregisterQueryForms();
-	}
-
-	private void registerApplications() {
-
-		/*
-		 * publish all applications from loaded plugins.
-		 */
-		for (Extension ext : getOwnExtensions("org.integratedmodelling.thinkcap.core", "thinkcap-application")) {
-			Thinkcap.get().registerThinkcapApplication(new ThinkcapApplication(this, ext));
-		}
-	}
-	
-//	private void registerPortlets() {
-//
-//		for (Extension ext : getOwnExtensions("org.integratedmodelling.thinkcap.core", "portlet")) {
-//			Thinkcap.get().registerPortlet(new PortletDescriptor(this, ext));
-//		}
-//	}
-//	private void registerLayouts() {
-//
-//		for (Extension ext : getOwnExtensions("org.integratedmodelling.thinkcap.core", "layout")) {
-//			Thinkcap.get().registerLayout(new LayoutDescriptor(this, ext));
-//		}
-//	}
-	
-	private void unregisterApplications() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void registerTypeDecorations() {
-		
-	}
-
-	private void unregisterTypeDecorations() {
-		
-	}
-
-	private void registerQueryForms() {
-		
-	}
-
-	private void unregisterQueryForms() {
-		
-	}
-	
-	
 }

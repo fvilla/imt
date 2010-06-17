@@ -1,5 +1,7 @@
 package org.integratedmodelling.modelling;
 
+import java.util.HashSet;
+
 import org.integratedmodelling.clojure.ClojureActivator;
 import org.integratedmodelling.corescience.CoreScience;
 import org.integratedmodelling.geospace.Geospace;
@@ -7,6 +9,9 @@ import org.integratedmodelling.modelling.visualization.VisualizationFactory;
 import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.time.TimePlugin;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 
 public class ModellingPlugin extends ThinklabActivator {
 
@@ -21,6 +26,7 @@ public class ModellingPlugin extends ThinklabActivator {
 	public static String PLUGIN_ID = "org.integratedmodelling.thinklab.modelling";
 	
 	private ModelFactory manager = null;
+	private HashSet<String> modelPluginIds = new HashSet<String>();
 	
 	// TODO move cache to ModelFactory
 	private ObservationCache cache = null;
@@ -31,11 +37,29 @@ public class ModellingPlugin extends ThinklabActivator {
 		return (ModellingPlugin) getPlugin(PLUGIN_ID);
 	}
 	
+	public class ModelPluginListener implements BundleListener {
 
+		@Override
+		public void bundleChanged(BundleEvent event) {
+			
+			if (event.getType() != BundleEvent.STARTED)
+				return;
+			
+			Bundle b = event.getBundle();
+			if (!modelPluginIds.contains(b.getSymbolicName())) {
+				if (isModelPlugin(b)) {
+					loadModels(b);
+					modelPluginIds.add(b.getSymbolicName());
+				}
+			}
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.integratedmodelling.thinklab.ThinklabActivator#preStart()
 	 */
 	@Override
+	@SuppressWarnings("unused")
 	protected void preStart() throws Exception {
 		// force core plugins to load
 		ClojureActivator cj = ClojureActivator.get();
@@ -45,9 +69,36 @@ public class ModellingPlugin extends ThinklabActivator {
 	}
 
 
+	/**
+	 * Check if a plugin is a Thinklab user plugin, which provides models, ontologies
+	 * and semantic annotations.
+	 * 
+	 * @param b
+	 * @return
+	 */
+	public boolean isModelPlugin(Bundle b) {
+		return b.findEntries("THINKLAB-INF", "catalog.properties", false) != null;
+	}
+
+	/**
+	 * load all modeling resources from a plugin that has the THINKLAB-INF extensions.
+	 * @param b
+	 */
+	private void loadModels(Bundle b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 	@Override
 	protected void doStart() throws Exception {
 
+		/**
+		 * Install a listener to load models and annotations from all plugins that
+		 * provide them.
+		 */
+		this.bundle.getBundleContext().addBundleListener(new ModelPluginListener());
+		
 		boolean persistent = false;
 		manager = new ModelFactory();
 		if (getProperties().containsKey(USE_CACHE_PROPERTY) &&

@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/timelinez.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zcommon.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zcommons-el.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zhtml.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zk.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zkdiagram.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zkex.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zkmax.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zkplus.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zkworkflow.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zml.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zul.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/zweb.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>

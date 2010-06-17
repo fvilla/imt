@@ -57,4 +57,28 @@ public interface SemanticAnnotationContainer {
 	 * @return
 	 */
 	public SemanticAnnotation getAnnotation(String id);
+	
+	/**
+	 * Get the IDs of all sources that can be annotated, no matter if there is an annotation
+	 * for them or not.
+	 * 
+	 * @return
+	 */
+	public Collection<String> getSourceIds();
+	
+	/**
+	 * Get the source for the specific ID, or null.
+	 * @param id
+	 * @return
+	 */
+	public SemanticSource getSource(String id);
+	
+	/**
+	 * Get the annotation for the given source ID, if any.
+	 * @param sourceId
+	 * @return
+	 */
+	public SemanticAnnotation getAnnotationForSource(String sourceId);
+	
+	
 }

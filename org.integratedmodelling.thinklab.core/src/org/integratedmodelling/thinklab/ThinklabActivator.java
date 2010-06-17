@@ -486,6 +486,11 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 		// TODO Auto-generated method stub
 
 	}
+	
+	@Override
+	public Bundle getBundle() {
+		return bundle;
+	}
 
 	@Override
 	public ClassLoader swapClassloader() {

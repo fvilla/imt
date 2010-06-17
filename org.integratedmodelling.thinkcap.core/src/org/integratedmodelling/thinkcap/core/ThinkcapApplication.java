@@ -44,13 +44,15 @@ import java.util.Map.Entry;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapException;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapRuntimeException;
 import org.integratedmodelling.thinkcap.core.utils.FileOps;
-import org.integratedmodelling.thinkcap.core.utils.JPFUtils;
 import org.integratedmodelling.thinklab.Thinklab;
+import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
+import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
 import org.integratedmodelling.thinklab.interfaces.applications.ISession;
 import org.integratedmodelling.utils.MiscUtilities;
 import org.integratedmodelling.utils.Pair;
+import org.osgi.framework.BundleException;
 
 /**
  * Represents metadata and properties connected to a specific Thinkcap application.
@@ -60,10 +62,12 @@ import org.integratedmodelling.utils.Pair;
  * @author Ferdinando Villa
  * @see WEB-INF/thinkcap.xml for syntax example.
  */
-public class ThinkcapApplication extends ThinklabApplication {
+public class ThinkcapApplication  {
 
 	
 	volatile int currentUserCount = 0;
+	ThinklabActivator registeringPlugin = null;
+	String id = null;
 	
 	/*
 	 * these are properties in user config that users can override with respect
@@ -127,7 +131,6 @@ public class ThinkcapApplication extends ThinklabApplication {
 		
 	public ThinkcapApplication(String id, ThinklabActivator plugin, Properties prop) {
 
-		super (id, plugin, prop);
 		
 //		this.location = ext.getParameter("location").valueAsString();
 //		this.entryPoint = ext.getParameter("entry-point").valueAsString();
@@ -186,7 +189,6 @@ public class ThinkcapApplication extends ThinklabApplication {
 		
 		this.plugins = actp;
 		
-		writeProperties();
 	}
 	
 	public synchronized void notifyUserConnected(ThinkcapSession session) {
@@ -198,40 +200,16 @@ public class ThinkcapApplication extends ThinklabApplication {
 		this.currentUserCount --;
 	}
 	
-	/*
-	 * write only the modified application-specific properties to user
-	 * config file.
-	 */
-	private void writeProperties() throws ThinklabIOException {
-	
-		Properties p = registeringPlugin.getProperties();
-		
-		if (this.plugins != null)
-			p.setProperty(id + "." + PLUGINS_PROPERTY, this.plugins);
-		if (this.banner != null)
-			p.setProperty(id + "." + BANNER_PROPERTY, this.plugins);
-		if (this.style != null)
-			p.setProperty(id + "." + STYLE_PROPERTY, this.plugins);
-		if (this.skin != null)
-			p.setProperty(id + "." + SKIN_PROPERTY, this.plugins);
-		
-		((ThinklabPlugin)registeringPlugin).writeConfiguration();
-		
-	}
-
 	public void setBanner(String banner) throws ThinklabIOException {
 		this.banner = banner;
-		((ThinklabPlugin)registeringPlugin).writeConfiguration();
 	}
 	
 	public void setStyle(String style) throws ThinklabIOException {
 		this.style = style;
-		((ThinklabPlugin)registeringPlugin).writeConfiguration();
 	}
 	
 	public void setSkin(String skin) throws ThinklabIOException {
 		this.skin = skin;
-		((ThinklabPlugin)registeringPlugin).writeConfiguration();
 	}
 
 	public String getId() {
@@ -311,19 +289,16 @@ public class ThinkcapApplication extends ThinklabApplication {
 		 * first of all, make sure the registering plugin is activated
 		 */
 		try {
-			Thinkcap.get().getPluginManager().activatePlugin(
-					registeringPlugin.getDescriptor().getId());
-		} catch (PluginLifecycleException e) {
-			throw new ThinkcapException(e);
+			Thinklab.getPlugin(registeringPlugin.getId()).getBundle().start();
+		} catch (BundleException e1) {
+			throw new ThinklabPluginException(e1);
 		}
 		
 		/*
 		 * override any application-specific configurations from plugin 
 		 * user config.
 		 */
-		if (registeringPlugin instanceof ThinklabPlugin)
-			for (Entry<Object, Object> eset : 
-				((ThinklabPlugin)registeringPlugin).getProperties().entrySet()) {
+			for (Entry<Object, Object> eset : registeringPlugin.getProperties().entrySet()) {
 			
 				String pname = eset.getKey().toString();
 				String pvalu = eset.getValue().toString();
@@ -340,14 +315,12 @@ public class ThinkcapApplication extends ThinklabApplication {
 						setSkin(pvalu);
 					}
 				}
-		}
+			}
 		
 		/*
 		 * look for location dir in registering plugin
 		 */
-		URL uloc = registeringPlugin.getManager().getPluginClassLoader(
-					registeringPlugin.getDescriptor()).
-						getResource(location);
+		URL uloc = registeringPlugin.getResourceURL(location);
 		
 		File fsource = null;
 		if (uloc != null)
@@ -357,7 +330,7 @@ public class ThinkcapApplication extends ThinklabApplication {
 			throw new ThinkcapException(
 					"location " + location + " (" + fsource + ") for application " +
 					id + " absent or invisible in plugin " +
-					registeringPlugin.getDescriptor().getId() +
+					registeringPlugin.getId() +
 					", or is not a directory");
 		}
 		
