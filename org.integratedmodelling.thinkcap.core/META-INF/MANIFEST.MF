@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Thinkcap
-Bundle-SymbolicName: org.integratedmodelling.thinkcap.core
+Bundle-SymbolicName: org.integratedmodelling.thinkcap.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.integratedmodelling.thinkcap.core.ThinkcapPlugin
+Bundle-Activator: org.integratedmodelling.thinkcap.ThinkcapPlugin
 Bundle-Vendor: www.integratedmodelling.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

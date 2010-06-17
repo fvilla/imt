@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.Map.Entry;
 
+import org.integratedmodelling.thinkcap.ThinkcapPlugin;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapException;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapRuntimeException;
 import org.integratedmodelling.thinkcap.core.utils.FileOps;

@@ -16,7 +16,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import org.integratedmodelling.thinkcap.core.Thinkcap;
-import org.integratedmodelling.thinkcap.core.ThinkcapPlugin;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapException;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapRuntimeException;
 import org.integratedmodelling.thinkcap.view.TypeManager;

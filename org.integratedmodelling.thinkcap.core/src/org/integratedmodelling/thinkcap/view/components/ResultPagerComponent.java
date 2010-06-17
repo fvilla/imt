@@ -35,9 +35,9 @@ package org.integratedmodelling.thinkcap.view.components;
 import java.util.ArrayList;
 
 import org.integratedmodelling.thinkcap.TC;
+import org.integratedmodelling.thinkcap.ThinkcapPlugin;
 import org.integratedmodelling.thinkcap.core.Thinkcap;
 import org.integratedmodelling.thinkcap.core.ThinkcapApplication;
-import org.integratedmodelling.thinkcap.core.ThinkcapPlugin;
 import org.integratedmodelling.thinkcap.core.ThinkcapSession;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.interfaces.query.IQueryResult;

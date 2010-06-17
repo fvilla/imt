@@ -3,13 +3,10 @@ package org.integratedmodelling.thinkcap.core;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
 
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapException;
-//import org.integratedmodelling.thinkcap.view.LayoutDescriptor;
-//import org.integratedmodelling.thinkcap.view.PortletDescriptor;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.utils.MiscUtilities;
@@ -42,7 +39,7 @@ public class Thinkcap {
 		serverWebSpace = ws;
 	}
 	
-	void setBaseUrl(String s) {
+	public void setBaseUrl(String s) {
 		baseUrl = s;
 	}
 

@@ -1,7 +1,9 @@
-package org.integratedmodelling.thinkcap.core;
+package org.integratedmodelling.thinkcap;
 
 import java.io.File;
 
+import org.integratedmodelling.thinkcap.core.Thinkcap;
+import org.integratedmodelling.thinkcap.core.ThinkcapSessionManager;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapException;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapRuntimeException;
 import org.integratedmodelling.thinklab.KnowledgeManager;

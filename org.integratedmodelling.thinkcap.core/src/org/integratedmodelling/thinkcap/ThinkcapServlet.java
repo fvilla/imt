@@ -17,7 +17,6 @@ import javax.servlet.http.HttpSessionBindingListener;
 import org.integratedmodelling.thinkcap.core.Thinkcap;
 import org.integratedmodelling.thinkcap.core.ThinkcapApplication;
 import org.integratedmodelling.thinkcap.core.ThinkcapModel;
-import org.integratedmodelling.thinkcap.core.ThinkcapPlugin;
 import org.integratedmodelling.thinkcap.core.ThinkcapSession;
 import org.integratedmodelling.thinkcap.core.exceptions.ThinkcapRuntimeException;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
