@@ -1,4 +1,4 @@
-package org.integratedmodelling.modelling.annotation;
+package org.integratedmodelling.thinklab.annotation;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -8,16 +8,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 
-import org.integratedmodelling.corescience.CoreScience;
-import org.integratedmodelling.opal.OPALLoader;
-import org.integratedmodelling.opal.OPALPlugin;
-import org.integratedmodelling.opal.OPALValidator;
 import org.integratedmodelling.thinklab.KnowledgeManager;
-import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
-import org.integratedmodelling.thinklab.annotation.SemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
-import org.integratedmodelling.thinklab.exception.ThinklabStorageException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.datastructures.IntelligentMap;
 import org.integratedmodelling.utils.xml.XMLDocument;
@@ -30,12 +23,23 @@ import org.w3c.dom.Node;
  * @author Ferdinando
  *
  */
-public class AnnotationFactory {
+public class SemanticAnnotationFactory {
 
 	private Hashtable<String, SemanticAnnotationProvider> byId = 
 		new Hashtable<String, SemanticAnnotationProvider>();
 	private IntelligentMap<SemanticAnnotationProvider> byConcept = 
 		new IntelligentMap<SemanticAnnotationProvider>();
+	
+	private static SemanticAnnotationFactory _this = null;
+	
+	private SemanticAnnotationFactory() {
+	}
+	
+	public static SemanticAnnotationFactory get() {
+		if (_this == null)
+			_this = new SemanticAnnotationFactory();
+		return _this;
+	}
 	
 	public SemanticAnnotationContainer annotate(String annotationServiceId, URL sourceUrl) throws ThinklabException {
 		
@@ -66,7 +70,7 @@ public class AnnotationFactory {
 		for (Node n = doc.root().getFirstChild(); n != null; n = n
 				.getNextSibling()) {
 			
-			Node dn = XMLDocument.findNode(n, CoreScience.HAS_DATASOURCE);
+			Node dn = XMLDocument.findNode(n, "observation:hasDataSource");
 			if (dn == null)
 				// for now
 				continue;
@@ -102,7 +106,7 @@ public class AnnotationFactory {
 		return ret;
 	}
 	
-	public void registerAnnotation(IConcept dataconcept, String id, SemanticAnnotationProvider annotation) {
+	public void registerAnnotationProvider(IConcept dataconcept, String id, String description, SemanticAnnotationProvider annotation) {
 		byConcept.put(dataconcept, annotation);
 		byId.put(id, annotation);
 	}

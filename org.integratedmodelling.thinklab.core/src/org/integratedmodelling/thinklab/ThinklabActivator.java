@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationFactory;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.annotation.ISemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.application.ApplicationDescriptor;
@@ -203,8 +204,12 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 					IConcept concept =
 						KnowledgeManager.get().requireConcept(
 								((ISemanticAnnotationProvider)annotation).dataSourceConcept());					
-					// TODO!
-					//					AnnotationFactory.registerAnnotationProvider();
+
+					try {
+						SemanticAnnotationFactory.get().registerAnnotationProvider(concept, id, description, (SemanticAnnotationProvider) cls.newInstance());
+					} catch (Exception e) {
+						throw new ThinklabPluginException(e);
+					}
 					break;
 				}
 			}
