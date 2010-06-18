@@ -106,9 +106,17 @@ public class SemanticAnnotationFactory {
 		return ret;
 	}
 	
-	public void registerAnnotationProvider(IConcept dataconcept, String id, String description, SemanticAnnotationProvider annotation) {
+	public void registerAnnotationProvider(IConcept dataconcept, String id, SemanticAnnotationProvider annotation) {
 		byConcept.put(dataconcept, annotation);
 		byId.put(id, annotation);
+	}
+
+	public Collection<String> getAnnotatorIds() {
+		return byId.keySet();
+	}
+	
+	public SemanticAnnotationProvider getAnnotator(String id) {
+		return byId.get(id);
 	}
 	
 }

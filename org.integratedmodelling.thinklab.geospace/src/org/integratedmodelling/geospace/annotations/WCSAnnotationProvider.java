@@ -6,8 +6,7 @@ import org.integratedmodelling.thinklab.annotation.ISemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.w3c.dom.Node;
 
-@ISemanticAnnotationProvider(id="WCS",description="Web Coverage Service",
-			dataSourceConcept="geospace:WCSDataSource")
+@ISemanticAnnotationProvider(id="WCS", dataSourceConcept="geospace:WCSDataSource")
 public class WCSAnnotationProvider implements SemanticAnnotationProvider {
 
 	@Override
@@ -32,6 +31,18 @@ public class WCSAnnotationProvider implements SemanticAnnotationProvider {
 	public String getSourceURL(Node dn) throws ThinklabException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getDescription() {
+		return 
+		"This service connects to a WCS server and allows to annotate each " +
+		"coverage as a separate, spatially explicit observation.";
+	}
+
+	@Override
+	public String getLabel() {
+		return "Web Coverage Service - raster map server URL";
 	}
 
 

@@ -199,14 +199,12 @@ public abstract class ThinklabActivator implements BundleActivator, IThinklabPlu
 					
 					String id = 
 						((ISemanticAnnotationProvider)annotation).id();
-					String description = 
-						((ISemanticAnnotationProvider)annotation).description();
 					IConcept concept =
 						KnowledgeManager.get().requireConcept(
 								((ISemanticAnnotationProvider)annotation).dataSourceConcept());					
 
 					try {
-						SemanticAnnotationFactory.get().registerAnnotationProvider(concept, id, description, (SemanticAnnotationProvider) cls.newInstance());
+						SemanticAnnotationFactory.get().registerAnnotationProvider(concept, id, (SemanticAnnotationProvider) cls.newInstance());
 					} catch (Exception e) {
 						throw new ThinklabPluginException(e);
 					}

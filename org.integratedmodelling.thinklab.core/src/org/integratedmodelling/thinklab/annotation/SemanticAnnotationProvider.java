@@ -50,4 +50,18 @@ public interface SemanticAnnotationProvider {
 	 */
 	SemanticAnnotationContainer createEmptyAnnotation(String source);
 
+	/**
+	 * A longer label that describes the source summarily.
+	 * 
+	 * @return
+	 */
+	public String getLabel();
+
+	
+	/**
+	 * A multi-line description of the source.
+	 * 
+	 * @return
+	 */
+	public String getDescription();
 }

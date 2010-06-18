@@ -3,16 +3,23 @@ package org.integratedmodelling.thinkscape.wizards;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.Workbench;
+import org.eclipse.ui.part.FileEditorInput;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
+import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.editors.AnnotationEditor;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 public class NewSourceWizard extends Wizard implements INewWizard {
 
@@ -37,7 +44,11 @@ public class NewSourceWizard extends Wizard implements INewWizard {
 		if (validate(src, typ)) {
 			IWorkbenchPage pg = workbench.getActiveWorkbenchWindow().getActivePage();
 			try {
-				IDE.openEditor(pg, new URI(src), AnnotationEditor.ID, true);
+				/*
+				 * TODO load up annotation unless we have it
+				 */
+				
+
 			} catch (Exception e) {
 				throw new ThinklabRuntimeException(e);
 			}

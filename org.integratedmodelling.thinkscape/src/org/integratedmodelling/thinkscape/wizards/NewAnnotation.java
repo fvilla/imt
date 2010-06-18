@@ -29,6 +29,7 @@ import org.eclipse.ui.ide.IDE;
 public class NewAnnotation extends Wizard implements INewWizard {
 	private NewAnnotationPage page;
 	private ISelection selection;
+	private String filename;
 
 	/**
 	 * Constructor for NewAnnotation.
@@ -89,38 +90,40 @@ public class NewAnnotation extends Wizard implements INewWizard {
 		String fileName,
 		IProgressMonitor monitor)
 		throws CoreException {
-		// create a sample file
-		monitor.beginTask("Creating " + fileName, 2);
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(new Path(containerName));
-		if (!resource.exists() || !(resource instanceof IContainer)) {
-			throwCoreException("Container \"" + containerName + "\" does not exist.");
-		}
-		IContainer container = (IContainer) resource;
-		final IFile file = container.getFile(new Path(fileName));
-		try {
-			InputStream stream = openContentStream();
-			if (file.exists()) {
-				file.setContents(stream, true, true, monitor);
-			} else {
-				file.create(stream, true, monitor);
-			}
-			stream.close();
-		} catch (IOException e) {
-		}
-		monitor.worked(1);
-		monitor.setTaskName("Opening file for editing...");
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				IWorkbenchPage page =
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				try {
-					IDE.openEditor(page, file, true);
-				} catch (PartInitException e) {
-				}
-			}
-		});
-		monitor.worked(1);
+		
+		this.filename = fileName;
+//		// create a sample file
+//		monitor.beginTask("Creating " + fileName, 2);
+//		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+//		IResource resource = root.findMember(new Path(containerName));
+//		if (!resource.exists() || !(resource instanceof IContainer)) {
+//			throwCoreException("Container \"" + containerName + "\" does not exist.");
+//		}
+//		IContainer container = (IContainer) resource;
+//		final IFile file = container.getFile(new Path(fileName));
+//		try {
+//			InputStream stream = openContentStream();
+//			if (file.exists()) {
+//				file.setContents(stream, true, true, monitor);
+//			} else {
+//				file.create(stream, true, monitor);
+//			}
+//			stream.close();
+//		} catch (IOException e) {
+//		}
+//		monitor.worked(1);
+//		monitor.setTaskName("Opening file for editing...");
+//		getShell().getDisplay().asyncExec(new Runnable() {
+//			public void run() {
+//				IWorkbenchPage page =
+//					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+//				try {
+//					IDE.openEditor(page, file, true);
+//				} catch (PartInitException e) {
+//				}
+//			}
+//		});
+//		monitor.worked(1);
 	}
 	
 	/**
@@ -146,5 +149,9 @@ public class NewAnnotation extends Wizard implements INewWizard {
 	 */
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
+	}
+
+	public String getFile() {
+		return filename;
 	}
 }

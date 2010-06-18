@@ -471,16 +471,15 @@ public class TreeHelper {
 			/*
 			 * fire up concept annotation editor; create concept axiom file if not there
 			 */
-			IFile file = ThinkscapeAnnotationFactory.getConceptAnnotationFile(o.concept);
-			if (file != null) {
-				IEditorDescriptor desc = 
-						PlatformUI.getWorkbench().
-							getEditorRegistry().getDefaultEditor(file.getName());
-				try {
-					page.openEditor(new FileEditorInput(file), desc.getId());
-				} catch (PartInitException e) {
-					throw new ThinklabRuntimeException(e);
-				}
+			IFile file = 
+				ThinkScape.getActiveProject().getNewConceptFile((IConcept) o.concept);
+			IEditorDescriptor desc = 
+				PlatformUI.getWorkbench().
+				getEditorRegistry().getDefaultEditor(file.getName());
+			try {
+				page.openEditor(new FileEditorInput(file), desc.getId());
+			} catch (PartInitException e) {
+				throw new ThinklabRuntimeException(e);
 			}
 			
 		} else if (o.isOntology()) {

@@ -15,6 +15,5 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ISemanticAnnotationProvider {
 	public String id();
-	public String description();
 	public String dataSourceConcept();
 }

@@ -1,10 +1,16 @@
 package org.integratedmodelling.thinkscape.views;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.ToolBar;
@@ -21,6 +27,8 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.swtdesigner.ResourceManager;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.wizards.NewAnnotation;
 
 public class AnnotationsView extends ViewPart {
@@ -52,16 +60,31 @@ public class AnnotationsView extends ViewPart {
 		toolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				IWorkbenchPage pg = 
+					getSite().getWorkbenchWindow().getWorkbench().
+						getActiveWorkbenchWindow().getActivePage();
 		        NewAnnotation wizard = new NewAnnotation();
 				wizard.init(getSite().getWorkbenchWindow().getWorkbench(),
 				            (IStructuredSelection)null);
 		        WizardDialog dialog = new WizardDialog(ps.getShell(), wizard);
 		        dialog.setBlockOnOpen(true);
 		        int returnCode = dialog.open();
-		        if(returnCode == Dialog.OK)
-		          System.out.println("OK");
-		        else
-		          System.out.println("Cancelled");
+		        
+		        if (returnCode == WizardDialog.OK) {
+		        	/*
+		        	 * fire up annotation editor; create concept axiom file if not there
+		        	 */
+		        	IFile file = 
+		        		ThinkScape.getActiveProject().getNewAnnotationFile(wizard.getFile());
+		        	IEditorDescriptor desc = 
+		        		PlatformUI.getWorkbench().
+		        			getEditorRegistry().getDefaultEditor(file.getName());
+		        	try {
+		        		pg.openEditor(new FileEditorInput(file), desc.getId());
+		        	} catch (PartInitException ee) {
+		        		throw new ThinklabRuntimeException(ee);
+		        	}
+		        }
 			}
 		});
 		toolItem.setHotImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/etool16/new_wiz.gif"));
