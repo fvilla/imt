@@ -121,8 +121,13 @@ public abstract class TreeModel {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof TreeObject) 
-				return data.equals(((TreeObject)obj).data);
-			return data.equals(obj);
+				return data == null ? 
+						(((TreeObject)obj).data == null) : 
+						(data instanceof TreeObject && data.equals(((TreeObject)obj).data));
+						
+			return data == null ?
+					obj == null :
+					data.equals(obj);
 		}
 		
 		/* (non-Javadoc)

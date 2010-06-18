@@ -72,7 +72,7 @@ public class XML {
 
 				if (o instanceof String) {
 					String text = (String)o;
-					ret.setTextContent(text);
+					XMLDocument.setTextContent(doc, ret, text);
 				} else if (o instanceof Collection<?>) {
 					for (Iterator<?> it = ((Collection<?>)o).iterator(); it.hasNext(); ) {
 						Object no = it.next();
@@ -103,7 +103,7 @@ public class XML {
 
 				if (o instanceof String) {
 					String text = (String)o;
-					self.setTextContent(text);
+					XMLDocument.setTextContent(doc, self, text);
 				} else if (o instanceof Collection<?>) {
 					for (Iterator<?> it = ((Collection<?>)o).iterator(); it.hasNext(); ) {
 						Object no = it.next();

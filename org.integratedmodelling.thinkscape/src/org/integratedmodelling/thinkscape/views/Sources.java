@@ -39,6 +39,10 @@ import org.integratedmodelling.thinkscape.TreeModel;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.wizards.NewSourceWizard;
 import com.swtdesigner.ResourceManager;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.ColumnPixelData;
+import org.eclipse.swt.dnd.DragSource;
 
 public class Sources extends ViewPart implements IPropertyChangeListener {
 
@@ -108,7 +112,12 @@ public class Sources extends ViewPart implements IPropertyChangeListener {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		
+		
 		final Composite ps = parent;
+		
+		ThinkScape.getDefault().addPropertyChangeListener(this);
+		
 		parent.setLayout(new GridLayout(1, false));
 		{
 			ToolBar toolBar = new ToolBar(parent, SWT.FLAT | SWT.RIGHT);
@@ -137,23 +146,21 @@ public class Sources extends ViewPart implements IPropertyChangeListener {
 		{
 			Composite composite = new Composite(parent, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-			composite.setLayout(new TreeColumnLayout());
+			TreeColumnLayout tcl_composite = new TreeColumnLayout();
+			composite.setLayout(tcl_composite);
 			{
 				this.treeViewer = new TreeViewer(composite, SWT.BORDER);
 				Tree tree = treeViewer.getTree();
-				tree.setHeaderVisible(true);
 				tree.setLinesVisible(true);
 				{
-					DropTarget dropTarget = new DropTarget(tree, DND.DROP_MOVE);
-					dropTarget.addDropListener(new DropTargetAdapter() {
-						public void drop(DropTargetEvent event) {
-							System.out.println("PORK! DROP!" + event + "!");
-						}
-						@Override
-						public void dropAccept(DropTargetEvent event) {
-							System.out.println("E ALORA! DROP!" + event + "!");
-						}
-					});
+					{
+						TreeViewerColumn treeViewerColumn = new TreeViewerColumn(treeViewer, SWT.NONE);
+						TreeColumn treeColumn = treeViewerColumn.getColumn();
+						tcl_composite.setColumnData(treeColumn, new ColumnPixelData(416, true, true));
+					}
+					{
+						DragSource dragSource = new DragSource(tree, DND.DROP_MOVE);
+					}
 				}
 			}
 		}

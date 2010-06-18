@@ -349,7 +349,7 @@ public class XMLDocument {
 		if (n.hasAttributes()) {
 			Node nn = n.getAttributes().getNamedItem(attr);
 			if (nn != null)
-				ret = nn.getTextContent();
+				ret = getNodeValue(nn);
 		}
 
 		return ret;
@@ -411,7 +411,7 @@ public class XMLDocument {
 	public Node appendTextNode(String tag, String text, Node parent) {
 		
 		Node nn = createNode(tag, parent);
-		nn.setTextContent(text);
+		setTextContent(dom, nn, text);
 		return nn;
 	}
 
@@ -469,5 +469,9 @@ public class XMLDocument {
 		} catch (Exception e) {
 			throw new ThinklabIOException(e);
 		}
+	}
+
+	public static void setTextContent(Document doc, Node node, String text) {
+		node.appendChild(doc.createTextNode(text));
 	}
 }
