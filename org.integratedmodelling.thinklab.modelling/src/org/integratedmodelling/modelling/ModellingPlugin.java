@@ -32,6 +32,9 @@ public class ModellingPlugin extends ThinklabActivator {
 	private ObservationCache cache = null;
 
 	public static final String STATEFUL_MERGER_OBSERVATION = "modeltypes:MergerObservation";
+
+	// PROPERTY IDs for thinklab.metadata in model plugins
+	public static final String SEMANTIC_ANNOTATION_SOURCES_PROPERTY = "thinklab.annotation.sources";
 	
 	public static ModellingPlugin get() {
 		return (ModellingPlugin) getPlugin(PLUGIN_ID);
@@ -68,7 +71,6 @@ public class ModellingPlugin extends ThinklabActivator {
 		IConcept t = TimePlugin.DateTime();
 	}
 
-
 	/**
 	 * Check if a plugin is a Thinklab user plugin, which provides models, ontologies
 	 * and semantic annotations.
@@ -77,7 +79,7 @@ public class ModellingPlugin extends ThinklabActivator {
 	 * @return
 	 */
 	public boolean isModelPlugin(Bundle b) {
-		return b.findEntries("THINKLAB-INF", "catalog.properties", false) != null;
+		return b.findEntries("THINKLAB-INF", "thinklab.properties", false) != null;
 	}
 
 	/**

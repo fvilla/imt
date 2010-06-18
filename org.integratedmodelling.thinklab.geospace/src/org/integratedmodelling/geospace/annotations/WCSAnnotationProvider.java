@@ -4,6 +4,7 @@ import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.annotation.ISemanticAnnotationProvider;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.utils.xml.XMLDocument;
 import org.w3c.dom.Node;
 
 @ISemanticAnnotationProvider(id="WCS", dataSourceConcept="geospace:WCSDataSource")
@@ -17,8 +18,7 @@ public class WCSAnnotationProvider implements SemanticAnnotationProvider {
 
 	@Override
 	public SemanticAnnotationContainer annotateSource(String sourceUrl) throws ThinklabException {
-		// TODO Auto-generated method stub
-		return null;
+		return new WCSAnnotationContainer(sourceUrl);
 	}
 
 	@Override
@@ -29,7 +29,9 @@ public class WCSAnnotationProvider implements SemanticAnnotationProvider {
 
 	@Override
 	public String getSourceURL(Node dn) throws ThinklabException {
-		// TODO Auto-generated method stub
+		Node nn = XMLDocument.findNode(dn, "geospace:hasServiceURL");
+		if (nn != null)
+			return XMLDocument.getNodeValue(nn);
 		return null;
 	}
 

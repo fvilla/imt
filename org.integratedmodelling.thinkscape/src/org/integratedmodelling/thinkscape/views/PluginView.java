@@ -15,6 +15,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
@@ -37,18 +39,18 @@ import org.eclipse.ui.part.ViewPart;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.ThinkscapeEvent;
 import org.integratedmodelling.thinkscape.TreeModel;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 import com.swtdesigner.ResourceManager;
-
 
 /**
  * The "navigator" for Thinklab projects.
  * 
  * TODO double-click projects to select the active project; ensure the active project shows up differently.
  */
-public class PluginView extends ViewPart {
+public class PluginView extends ViewPart implements IPropertyChangeListener {
 	
 	class ProjectTreeModel extends TreeModel {
 
@@ -125,17 +127,6 @@ public class PluginView extends ViewPart {
 		this.treeModel.instrumentConceptTree(ThinkScape.scanProjects());
 	}
 	
-	class ResourceListener implements IResourceChangeListener {
-		@Override
-		public void resourceChanged(IResourceChangeEvent arg0) {
-			try {
-				rescan();
-			} catch (ThinklabException e) {
-				throw new ThinklabRuntimeException(e);
-			}
-		}
-	}
-	
 	/**
 	* Create a new Project through a Wizard
 	*
@@ -144,10 +135,12 @@ public class PluginView extends ViewPart {
 	private IProject displayNewProjectWizard() {
 
 		NewProjectListener newProjectListener = new NewProjectListener();
-		// Adding a Listener to listen for post change events
+		
+		// make sure we get notified if anything changes the projects
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
-				newProjectListener,	
-				IResourceChangeEvent.POST_CHANGE);
+				newProjectListener,
+				IResourceChangeEvent.POST_BUILD);
+		
 		NewProjectAction newProjectAction =
 			new NewProjectAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 		newProjectAction.run();
@@ -197,14 +190,7 @@ public class PluginView extends ViewPart {
 	private TreeViewer treeViewer;
 
 	public PluginView() {
-
-		/*
-		 * install a listener to rescan after each resource change
-		 */
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(
-				new ResourceListener(),	
-				IResourceChangeEvent.POST_CHANGE);
-
+		ThinkScape.getDefault().addPropertyChangeListener(this);
 	}
 
 	/**
@@ -212,6 +198,7 @@ public class PluginView extends ViewPart {
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
+		
 		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -311,5 +298,20 @@ public class PluginView extends ViewPart {
 	 */
 	public void setFocus() {
 		treeViewer.getControl().setFocus();
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(ThinkscapeEvent.WORKSPACE_CHANGE)) {
+				ThinkScape.getDefault().getWorkbench().getDisplay().syncExec(new Runnable() {
+					public void run() {
+						try {
+							rescan();
+						} catch (ThinklabException e) {
+							throw new ThinklabRuntimeException(e);
+						}
+					}
+				});
+		}
 	}
 }

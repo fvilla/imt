@@ -1,24 +1,21 @@
 package org.integratedmodelling.thinkscape.wizards;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.Workbench;
-import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.progress.IProgressService;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
-import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.ThinkScape;
-import org.integratedmodelling.thinkscape.editors.AnnotationEditor;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 public class NewSourceWizard extends Wizard implements INewWizard {
@@ -38,20 +35,22 @@ public class NewSourceWizard extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 
-		String src = page.getSrc();
-		String typ = page.getType();
+		final String src = page.getSrc();
+		final String typ = page.getType().split("\\ ")[0].trim();
 		
 		if (validate(src, typ)) {
-			IWorkbenchPage pg = workbench.getActiveWorkbenchWindow().getActivePage();
-			try {
-				/*
-				 * TODO load up annotation unless we have it
-				 */
-				
 
-			} catch (Exception e) {
-				throw new ThinklabRuntimeException(e);
-			}
+			final ThinklabProject active = ThinkScape.getActiveProject();
+						
+			Job job = new WorkspaceJob("Importing: " + src) {
+			      public IStatus runInWorkspace(IProgressMonitor monitor) 
+			         throws CoreException {
+			         	active.importNewSemanticSource(typ, src);
+						return Status.OK_STATUS;
+			      }
+			   };
+			   
+			job.schedule();				
 			return true;
 		}
 		

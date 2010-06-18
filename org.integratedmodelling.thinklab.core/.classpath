@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/xsd-2.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xsdlib-20050614.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis-1.0.b2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis-xerces-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
@@ -28,13 +35,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/owlapi-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/owlsyntax.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/pellet.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xml-apis-1.0.b2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xml-apis-xerces-2.7.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xsd-2.2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xsdlib-20050614.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jopt-simple-2.4-beta2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/protege-owl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/protege.jar"/>

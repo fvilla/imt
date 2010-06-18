@@ -169,8 +169,9 @@ public abstract class TreeModel {
 
 		private void initialize(Collection<?> roots) {
 			this.invisibleRoot = new TreeObject(null);
-			for (Object o : roots)
-				this.invisibleRoot.addChild(new TreeObject(o));
+			if (roots != null)
+				for (Object o : roots)
+					this.invisibleRoot.addChild(new TreeObject(o));
 		}		
 	}
 	

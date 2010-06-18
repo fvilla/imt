@@ -1,5 +1,8 @@
 package org.integratedmodelling.thinkscape.views;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -8,6 +11,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -24,13 +29,76 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
+import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.ThinkscapeEvent;
+import org.integratedmodelling.thinkscape.TreeModel;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.wizards.NewSourceWizard;
 import com.swtdesigner.ResourceManager;
 
-public class Sources extends ViewPart {
+public class Sources extends ViewPart implements IPropertyChangeListener {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.views.Sources"; //$NON-NLS-1$
 
+	public class SourceTreeModel extends TreeModel {
+
+		public SourceTreeModel(TreeViewer viewer, ViewPart view) {
+			super(viewer, view);
+		}
+
+		@Override
+		public Object[] getChildren(Object object) {
+			
+			if (object instanceof SemanticAnnotationContainer) {
+				SemanticAnnotationContainer sc = (SemanticAnnotationContainer)object;
+				ArrayList<String> al = new ArrayList<String>();
+				for (String ss : sc.getSourceIds()) {
+					if (sc.getAnnotationForSource(ss) != null) {
+						ss = ss + "@";
+					}
+					al.add(ss);
+				}
+				Collections.sort(al);
+				return al.toArray(new String[al.size()]);
+			}
+			return null;
+		}
+
+		@Override
+		public Image getImage(Object object, int column) {
+			String ret = "icons/bullet_orange.png";
+			if (object instanceof SemanticAnnotationContainer) {
+					ret = "icons/database_refresh.png";
+			} else if (object instanceof String) {
+				if (object.toString().endsWith("@"))
+					ret = "icons/pencil.png";
+			}
+			return ResourceManager.getPluginImage(
+					"org.integratedmodelling.thinkscape", ret);
+		}
+
+		@Override
+		public String getName(Object object, int column) {
+			if (object instanceof SemanticAnnotationContainer) {
+				return ((SemanticAnnotationContainer)object).getSourceUrl();
+			} else if (object instanceof String) {
+				return object.toString().endsWith("@") ? 
+						object.toString().substring(0, object.toString().length()-2) :
+						object.toString();
+				
+			}
+			return null;
+		}
+		
+	}
+
+	private TreeViewer treeViewer;
+	private SourceTreeModel sourceTreeModel;
+	
 	public Sources() {
 	}
 
@@ -71,7 +139,7 @@ public class Sources extends ViewPart {
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 			composite.setLayout(new TreeColumnLayout());
 			{
-				TreeViewer treeViewer = new TreeViewer(composite, SWT.BORDER);
+				this.treeViewer = new TreeViewer(composite, SWT.BORDER);
 				Tree tree = treeViewer.getTree();
 				tree.setHeaderVisible(true);
 				tree.setLinesVisible(true);
@@ -89,6 +157,8 @@ public class Sources extends ViewPart {
 				}
 			}
 		}
+
+		this.sourceTreeModel = new SourceTreeModel(treeViewer, this);
 
 		createActions();
 		initializeToolBar();
@@ -120,6 +190,30 @@ public class Sources extends ViewPart {
 	@Override
 	public void setFocus() {
 		// Set the focus
+	}
+	
+
+	private void rescan() throws ThinklabException {
+		ThinklabProject project = ThinkScape.getActiveProject();
+		this.sourceTreeModel.instrumentConceptTree(
+				project == null ? null : project.getSemanticSources());
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(ThinkscapeEvent.WORKSPACE_CHANGE) ||
+			event.getProperty().equals(ThinkscapeEvent.ANNOTATION_SOURCE_CONNECTED)) {
+				ThinkScape.getDefault().getWorkbench().getDisplay().syncExec(new Runnable() {
+					public void run() {
+						try {
+							rescan();
+						} catch (ThinklabException e) {
+							throw new ThinklabRuntimeException(e);
+						}
+					}
+
+				});
+		}
 	}
 
 }

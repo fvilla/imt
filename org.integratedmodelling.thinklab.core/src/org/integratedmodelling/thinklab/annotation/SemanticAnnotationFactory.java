@@ -41,7 +41,8 @@ public class SemanticAnnotationFactory {
 		return _this;
 	}
 	
-	public SemanticAnnotationContainer annotate(String annotationServiceId, URL sourceUrl) throws ThinklabException {
+	public SemanticAnnotationContainer createAnnotationContainer(
+			String annotationServiceId, URL sourceUrl) throws ThinklabException {
 		
 		SemanticAnnotationProvider prv = byId.get(annotationServiceId);
 		

@@ -13,7 +13,6 @@ import org.integratedmodelling.utils.MiscUtilities;
 import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.Sessions;
 
-
 /*
  * A global register for anything that the thinkcap plugins send our way.
  */

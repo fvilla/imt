@@ -2,13 +2,23 @@ package org.integratedmodelling.thinkscape;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 
+import org.eclipse.core.internal.resources.WorkspaceRoot;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.integratedmodelling.clojure.ClojureActivator;
@@ -23,7 +33,9 @@ import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.builder.ThinkscapeNature;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.time.TimePlugin;
+import org.integratedmodelling.utils.Pair;
 import org.osgi.framework.BundleContext;
+import org.postgresql.translation.messages_cs;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -36,17 +48,42 @@ public class ThinkScape extends AbstractUIPlugin {
 	// The shared instance
 	private static ThinkScape plugin;
 	
+	private Queue<Pair<Integer, Object>> messages = new LinkedList<Pair<Integer,Object>>();
+
+	/**
+	 * Dispatch relevant workspace events to views or any other listening objects.
+	 */
+	class DispatchingListener implements IResourceChangeListener {
+
+		@Override
+		public void resourceChanged(IResourceChangeEvent event) {
+			
+			IResourceDelta delta = event.getDelta();
+			IResource resource = delta == null ? null : delta.getResource();
+			System.out.println("EVENT: " + event.getType() + " CHANGE: " + delta + " ON " + resource);
+
+			/*
+			 * TODO decide what to notify
+			 */
+			if (resource instanceof WorkspaceRoot) {
+				notifyPropertyChange(ThinkscapeEvent.WORKSPACE_CHANGE, resource);
+			}
+		}
+	}
+
+	
 	/*
 	 * we have an active project
 	 */
 	static ThinklabProject activeProject = null;
+
+	private ArrayList<IPropertyChangeListener> listeners = new ArrayList<IPropertyChangeListener>();
 	
 	/**
 	 * The constructor
 	 */
 	public ThinkScape() {
 	}
-
 	
 	public static boolean isThinklabProject(IProject pfile) {
 		try {
@@ -56,6 +93,8 @@ public class ThinkScape extends AbstractUIPlugin {
 		return false;
 	}
 
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
@@ -75,16 +114,10 @@ public class ThinkScape extends AbstractUIPlugin {
 		Geospace.get().ArealLocation();
 		TimePlugin.DateTime();
 		ModelFactory manager = ModellingPlugin.get().getModelManager();
-
-		/*
-		 * set up global listeners
-		 */
 		
-		for (Model m : manager.getModels()) {
-			System.out.println("here is a model: " + m);
-		}
-		
-		// TODO Auto-generated method stub
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(
+				new DispatchingListener(),
+				IResourceChangeEvent.POST_BUILD);
 	}
 
 	/*
@@ -114,6 +147,21 @@ public class ThinkScape extends AbstractUIPlugin {
 					ret.add(new ThinklabProject(proj));
 		}
 		return ret;
+	}
+
+	public void addPropertyChangeListener(IPropertyChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removePropertyChangeListener(IPropertyChangeListener listener) {
+		listeners.remove(listener);
+	}
+
+	public void notifyPropertyChange(String type, Object data) {
+		for (Iterator<IPropertyChangeListener> iter = listeners.iterator(); iter.hasNext();) {
+			IPropertyChangeListener element = iter.next();
+			element.propertyChange(new PropertyChangeEvent(this, type, null , data));		
+		}
 	}
 	
 	/**
@@ -149,4 +197,22 @@ public class ThinkScape extends AbstractUIPlugin {
 		
 		return activeProject;
 	}
+
+	public static void addProject(String src) {
+		
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IProject proj = root.getProject(src);
+		try {
+			proj.create(null);
+			activeProject = new ThinklabProject(proj);
+			getDefault().notifyPropertyChange(ThinkscapeEvent.WORKSPACE_CHANGE, activeProject);
+		} catch (Exception e) {
+			throw new ThinklabRuntimeException(e);
+		}
+	}
+
+	public static void enqueue(int type, Object data) {
+		getDefault().messages.add(new Pair<Integer,Object>(type, data));
+	}
+
 }

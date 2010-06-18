@@ -7,11 +7,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.integratedmodelling.geospace.Geospace;
 import org.integratedmodelling.geospace.coverage.WCSCoverage;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticSource;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.utils.xml.XMLDocument;
 import org.w3c.dom.Element;
@@ -60,15 +62,14 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 		}
 		
 		Node n = cap.findNode("ContentMetadata");
-		parseMetadata(n, serviceUrl, null);
-
+		if (n == null)
+			throw new ThinklabIOException("service " + serviceUrl + " is offline or not a WCS service");
+		
+		parseMetadata(n, null);
 	}
 	
-	private int parseMetadata(Node n, String server, String match) throws ThinklabException {
+	private int parseMetadata(Node n, String match) throws ThinklabException {
 
-		Properties p = new Properties();
-		
-		p.put(WCSCoverage.WCS_SERVICE_PROPERTY, server);
 		int i = 0; Node child; Node next = (Node)n.getFirstChild();
 		while ((child = next) != null) {
 				 
@@ -77,8 +78,12 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 				  
 				  String covId = XMLDocument.getTextValue((Element) child, "name");
 				  if (match != null && !covId.startsWith(match))
-					  continue;				  
-				  parseDescriptor(covId);
+					  continue;
+				  try {
+					  parseDescriptor(covId);
+				  } catch (ThinklabException e)	{
+					  Geospace.get().error(e.toString());
+				  }
 				  i++;
 			  }
 		  }
@@ -106,12 +111,16 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 
 		Node n = desc.findNode("gml:Envelope");
 
+		if (n == null)
+			throw new ThinklabIOException("no envelope found for coverage " + coverageId);
+			
 		String srs = XMLDocument.getAttributeValue(n, "srsName").trim();
 
 		if (srs != null) {
 			source.set("srs", srs);
 		} else {
-			// TODO complain - not acceptable.
+			if (n == null)
+				throw new ThinklabIOException("no coordinate reference system found for coverage " + coverageId);
 		}
 		
 		int i = 0;
@@ -194,7 +203,7 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 		 */
 		n = desc.findNode("keywords");
 		i = 0;
-		next = (Node) n.getFirstChild();
+		next = n == null ? null : (Node) n.getFirstChild();
 		while ((child = next) != null) {
 
 			next = child.getNextSibling();
