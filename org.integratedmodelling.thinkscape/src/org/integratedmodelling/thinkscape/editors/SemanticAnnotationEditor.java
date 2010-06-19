@@ -6,38 +6,38 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.nebula.widgets.pshelf.PShelf;
 import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.nebula.widgets.pshelf.PShelfItem;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticSource;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.widgets.SingleAnnotationEditor;
 import org.integratedmodelling.utils.Pair;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.ToolBar;
+import com.swtdesigner.SWTResourceManager;
 
 public class SemanticAnnotationEditor extends EditorPart {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"; //$NON-NLS-1$
-	private Composite scrolledComposite;
-	private Composite container;
-	private Composite parent;
 
 	private ArrayList<Pair<SemanticAnnotationContainer, SemanticSource>> sources = 
 		new ArrayList<Pair<SemanticAnnotationContainer,SemanticSource>>();
+
+	private Composite parent;
+	
 	
 	public SemanticAnnotationEditor() {
 	}
@@ -48,27 +48,20 @@ public class SemanticAnnotationEditor extends EditorPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-
+		
 		this.parent = parent;
-
-		this.container = new Composite(parent, SWT.NONE);
+		
+		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout(1, false));
-
+		
 		ToolBar toolBar = new ToolBar(container, SWT.FLAT | SWT.RIGHT);
-		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
-				1, 1));
-		toolBar.setBounds(0, 0, 89, 23);
+		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		ScrolledComposite master = new ScrolledComposite(container, SWT.H_SCROLL | SWT.V_SCROLL);
-		master.setExpandHorizontal(true);
-		master.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		this.scrolledComposite = new Composite(master, SWT.NONE);
-		scrolledComposite.setLayout(new GridLayout(1, false));
-		scrolledComposite.setBounds(0, 0, 85, 85);
+		PShelf shelf = new PShelf(container, SWT.NONE);
+		shelf.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		shelf.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-		DropTarget dropTarget = new DropTarget(scrolledComposite, DND.DROP_MOVE
-				| DND.DROP_COPY | DND.DROP_LINK);
+		DropTarget dropTarget = new DropTarget(shelf, DND.DROP_MOVE	| DND.DROP_COPY | DND.DROP_LINK);
 		dropTarget.setTransfer(new Transfer[] { TextTransfer.getInstance() });
 
 		dropTarget.addDropListener(new DropTargetListener() {
@@ -102,36 +95,15 @@ public class SemanticAnnotationEditor extends EditorPart {
 
 		for (Pair<SemanticAnnotationContainer, SemanticSource> sp : sources) {
 			
+			PShelfItem shelfItem = new PShelfItem(shelf, SWT.NONE);
+			shelfItem.setText(sp.getSecond().id);
+			shelfItem.getBody().setLayout(new FillLayout(SWT.HORIZONTAL));
 			SingleAnnotationEditor ed = new SingleAnnotationEditor(
-					scrolledComposite, SWT.NONE, sp.getFirst(), sp.getSecond(), this.parent);
-			ed.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+					shelfItem.getBody(), SWT.NONE, sp.getFirst(), sp.getSecond());
 		}
 
-		master.setContent(scrolledComposite);
-		master.setExpandHorizontal(true);
-		master.setExpandVertical(true);
 
-	}
 
-	protected void handleDrop(String string) {
-		
-		if (string.startsWith("_SOURCE")) {
-			String[] ss = string.split("\\|");
-			// TODO
-		
-			SemanticAnnotationContainer container = 
-				ThinkScape.getActiveProject().getSemanticSource(ss[1]);
-			SemanticSource source = container.getSource(ss[2]);
-			
-			sources.add(new Pair<SemanticAnnotationContainer, SemanticSource>(container, source));
-				
-			for (Control c : this.parent.getChildren()) {
-				c.dispose();
-			}
-			
-			createPartControl(this.parent);
-			this.parent.layout(true);
-		}
 	}
 
 	@Override
@@ -165,4 +137,27 @@ public class SemanticAnnotationEditor extends EditorPart {
 	public boolean isSaveAsAllowed() {
 		return false;
 	}
+	
+	protected void handleDrop(String string) {
+		
+		if (string.startsWith("_SOURCE")) {
+			String[] ss = string.split("\\|");
+			// TODO
+		
+			SemanticAnnotationContainer container = 
+				ThinkScape.getActiveProject().getSemanticSource(ss[1]);
+			SemanticSource source = container.getSource(ss[2]);
+			
+			sources.add(new Pair<SemanticAnnotationContainer, SemanticSource>(container, source));
+				
+			for (Control c : this.parent.getChildren()) {
+				c.dispose();
+			}
+			
+			createPartControl(this.parent);
+			this.parent.layout(true);
+		}
+	}
+
+
 }

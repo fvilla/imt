@@ -40,3 +40,6 @@ Export-Package: com.swtdesigner,
  org.integratedmodelling.thinkscape.views,
  org.integratedmodelling.thinkscape.wizards
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/grid-1.0.0.jar,
+ lib/pshelf-1.0.0.jar,
+ .
