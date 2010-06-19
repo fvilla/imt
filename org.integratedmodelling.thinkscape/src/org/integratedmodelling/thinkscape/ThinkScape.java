@@ -215,4 +215,20 @@ public class ThinkScape extends AbstractUIPlugin {
 		getDefault().messages.add(new Pair<Integer,Object>(type, data));
 	}
 
+	public static ThinklabProject getProject(String project, boolean activate) {
+		try {
+			for (ThinklabProject p : scanProjects())
+				if (p.getName().equals(project)) {
+					if (activate && (activeProject == null || !activeProject.getName().equals(project))) {
+						activeProject = p;
+						getDefault().notifyPropertyChange(ThinkscapeEvent.PROJECT_ACTIVATED, p);
+					}
+					return p;
+				}
+		} catch (ThinklabException e) {
+			throw new ThinklabRuntimeException(e);
+		}
+		return null;
+	}
+
 }

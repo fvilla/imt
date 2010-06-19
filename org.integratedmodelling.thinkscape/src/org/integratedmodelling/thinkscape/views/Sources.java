@@ -23,10 +23,15 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.widgets.ToolItem;
 import com.swtdesigner.SWTResourceManager;
+
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -158,15 +163,32 @@ public class Sources extends ViewPart implements IPropertyChangeListener {
 						TreeColumn treeColumn = treeViewerColumn.getColumn();
 						tcl_composite.setColumnData(treeColumn, new ColumnPixelData(416, true, true));
 					}
-					{
-						DragSource dragSource = new DragSource(tree, DND.DROP_MOVE);
-					}
 				}
 			}
 		}
 
 		this.sourceTreeModel = new SourceTreeModel(treeViewer, this);
-
+		treeViewer.addDragSupport(
+				DND.DROP_COPY, 
+				new Transfer[] { TextTransfer.getInstance() }, 
+				new DragSourceListener() {
+					
+					@Override
+					public void dragStart(DragSourceEvent event) {
+						System.out.println("START " + event);
+					}
+					
+					@Override
+					public void dragSetData(DragSourceEvent event) {
+						System.out.println("SETDATA " + event);
+					}
+					
+					@Override
+					public void dragFinished(DragSourceEvent event) {
+						System.out.println("SOURCE " + event);
+					}
+				});
+		
 		createActions();
 		initializeToolBar();
 		initializeMenu();

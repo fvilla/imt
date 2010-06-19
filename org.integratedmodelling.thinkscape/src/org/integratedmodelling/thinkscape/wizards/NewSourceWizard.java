@@ -42,7 +42,7 @@ public class NewSourceWizard extends Wizard implements INewWizard {
 
 			final ThinklabProject active = ThinkScape.getActiveProject();
 						
-			Job job = new WorkspaceJob("Importing: " + src) {
+			Job job = new WorkspaceJob("Importing " + typ + " repository") {
 			      public IStatus runInWorkspace(IProgressMonitor monitor) 
 			         throws CoreException {
 			         	active.importNewSemanticSource(typ, src);

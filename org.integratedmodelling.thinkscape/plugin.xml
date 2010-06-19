@@ -162,13 +162,6 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
-            extensions="ann"
-            icon="icons/lightbulb.png"
-            id="org.integratedmodelling.thinkscape.editors.AnnotationEditor"
-            name="Annotation Editor">
-      </editor>
-      <editor
       		extensions="concept"
             class="org.integratedmodelling.thinkscape.editors.ConceptEditorPart"
             icon="icons/lightbulb.png"
@@ -181,6 +174,13 @@
             icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.gedit.ModelEditor"
             name="Model Editor">
+      </editor>
+      <editor
+            class="org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"
+            extensions="ann"
+            icon="icons/database_edit.png"
+            id="org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"
+            name="Semantic Annotation">
       </editor>
    </extension>
    <extension
@@ -197,15 +197,8 @@
          point="org.eclipse.ui.newWizards">
       <category
             id="org.integratedmodelling.thinkscape"
-            name="thinkscape">
+            name="ThinkScape">
       </category>
-      <wizard
-            category="org.integratedmodelling.thinkscape"
-            class="org.integratedmodelling.thinkscape.wizards.NewAnnotation"
-            icon="icons/lightbulb.png"
-            id="org.integratedmodelling.thinkscape.wizards.NewAnnotation"
-            name="New Semantic annotation">
-      </wizard>
       <wizard
             category="org.integratedmodelling.thinkscape"
             class="org.integratedmodelling.thinkscape.wizards.NewProject"
@@ -215,6 +208,14 @@
             id="org.integratedmodelling.thinkscape.thinkproject"
             name="New Thinklab Project"
             project="true">
+      </wizard>
+      <wizard
+            category="org.integratedmodelling.thinkscape"
+            class="org.integratedmodelling.thinkscape.wizards.NewAnnotation"
+            finalPerspective="org.integratedmodelling.thinkscape.perspectives.ThinklabPerspective"
+            icon="icons/database_refresh.png"
+            id="org.integratedmodelling.thinkscape.wizard1"
+            name="New Annotation">
       </wizard>
    </extension>
    <extension
@@ -293,6 +294,20 @@
             name="Import Source">
          <description>
             Import a file from the local file system into the workspace.
+         </description>
+      </wizard>
+      <category
+            id="org.integratedmodelling.thinkscape.wizards.sampleCategory"
+            name="Thinkscape">
+      </category>
+      <wizard
+            category="org.integratedmodelling.thinkscape.wizards.sampleCategory"
+            class="org.integratedmodelling.thinkscape.wizards.ModelImportWizard"
+            icon="icons/database_gear.png"
+            id="org.integratedmodelling.thinkscape.wizards.ModelImportWizard"
+            name="Import Model File">
+         <description>
+            Import a model file (.clj) from the local file system into the workspace.
          </description>
       </wizard>
    </extension>

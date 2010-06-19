@@ -29,6 +29,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.wizards.NewAnnotation;
 
 public class AnnotationsView extends ViewPart {
@@ -60,9 +61,8 @@ public class AnnotationsView extends ViewPart {
 		toolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				IWorkbenchPage pg = 
-					getSite().getWorkbenchWindow().getWorkbench().
-						getActiveWorkbenchWindow().getActivePage();
+				
+				IWorkbenchPage pg = getSite().getPage();
 		        NewAnnotation wizard = new NewAnnotation();
 				wizard.init(getSite().getWorkbenchWindow().getWorkbench(),
 				            (IStructuredSelection)null);
@@ -71,11 +71,10 @@ public class AnnotationsView extends ViewPart {
 		        int returnCode = dialog.open();
 		        
 		        if (returnCode == WizardDialog.OK) {
-		        	/*
-		        	 * fire up annotation editor; create concept axiom file if not there
-		        	 */
-		        	IFile file = 
-		        		ThinkScape.getActiveProject().getNewAnnotationFile(wizard.getFile());
+
+		        	ThinklabProject project = ThinkScape.getProject(wizard.getProject(), true);
+		        	
+		        	IFile file = project.getAnnotationNamespace(wizard.getNamespace());
 		        	IEditorDescriptor desc = 
 		        		PlatformUI.getWorkbench().
 		        			getEditorRegistry().getDefaultEditor(file.getName());

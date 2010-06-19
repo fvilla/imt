@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.swt.custom.StyledText;
 
 public class NewProjectPage extends WizardPage {
 	private Text projectName;
@@ -43,6 +44,12 @@ public class NewProjectPage extends WizardPage {
 		
 		projectName = new Text(composite, SWT.BORDER);
 		projectName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblDescription = new Label(container, SWT.NONE);
+		lblDescription.setText("Description:");
+		
+		StyledText styledText = new StyledText(container, SWT.BORDER);
+		styledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		Label lblDependencies = new Label(container, SWT.NONE);
 		lblDependencies.setBounds(0, 0, 55, 15);

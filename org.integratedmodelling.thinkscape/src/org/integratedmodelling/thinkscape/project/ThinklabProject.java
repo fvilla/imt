@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.integratedmodelling.modelling.ModellingPlugin;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationFactory;
@@ -147,13 +148,16 @@ public class ThinklabProject {
 		return project.getName();
 	}
 
-	public IFile getNewAnnotationFile(String src) {
+	
+	// get the file corresponding to an annotation namespace for this project; create it
+	// if absent.
+	public IFile getAnnotationNamespace(String src) {
 
-		String fn = "annotations" + "/" + MiscUtilities.getFileBaseName(src) + ".ann";
+		String fn = "annotations" + "/" + src + ".ann";
 		IFile ret = project.getFile(fn);
 		if (!ret.exists()) {
 			try {
-				ret.create(new ByteArrayInputStream(new byte[0]), true, null);
+				ret.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
 			} catch (CoreException e) {
 				throw new ThinklabRuntimeException(e);
 			}
@@ -167,7 +171,7 @@ public class ThinklabProject {
 		IFile ret = project.getFile(fn);
 		if (!ret.exists()) {
 			try {
-				ret.create(new ByteArrayInputStream(new byte[0]), true, null);
+				ret.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
 			} catch (CoreException e) {
 				throw new ThinklabRuntimeException(e);
 			}
@@ -185,7 +189,9 @@ public class ThinklabProject {
 		IFile ret = project.getFile(fn);
 		if (!ret.exists()) {
 			try {
-				ret.create(new ByteArrayInputStream(new byte[0]), true, null);
+				ret.create(
+					new ByteArrayInputStream(("concept=" + src + "\n").getBytes()), 
+					true, new NullProgressMonitor());
 			} catch (CoreException e) {
 				throw new ThinklabRuntimeException(e);
 			}
@@ -230,6 +236,10 @@ public class ThinklabProject {
 
 	public Collection<SemanticAnnotationContainer> getSemanticSources() {
 		return sources;
+	}
+
+	public String getName() {
+		return project.getName();
 	}
 
 	
