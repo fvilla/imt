@@ -242,5 +242,16 @@ public class ThinklabProject {
 		return project.getName();
 	}
 
+	public SemanticAnnotationContainer getSemanticSource(String string) {
+		
+		SemanticAnnotationContainer ret = null;
+		for (SemanticAnnotationContainer s : getSemanticSources())
+			if (s.getSourceUrl().equals(string)) {
+				ret = s;
+				break;
+			}
+		return ret;
+	}
+
 	
 }

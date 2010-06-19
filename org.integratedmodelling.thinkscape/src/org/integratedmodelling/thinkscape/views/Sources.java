@@ -14,6 +14,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.layout.TreeColumnLayout;
@@ -32,6 +34,7 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -52,7 +55,7 @@ import org.eclipse.swt.dnd.DragSource;
 public class Sources extends ViewPart implements IPropertyChangeListener {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.views.Sources"; //$NON-NLS-1$
-
+	
 	public class SourceTreeModel extends TreeModel {
 
 		public SourceTreeModel(TreeViewer viewer, ViewPart view) {
@@ -174,24 +177,31 @@ public class Sources extends ViewPart implements IPropertyChangeListener {
 				new DragSourceListener() {
 					
 					@Override
-					public void dragStart(DragSourceEvent event) {
-						System.out.println("START " + event);
-					}
+					public void dragStart(DragSourceEvent event) {}
 					
 					@Override
 					public void dragSetData(DragSourceEvent event) {
-						System.out.println("SETDATA " + event);
+						event.data = 
+							getSource(((TreeSelection)(treeViewer.getSelection())).getPaths());
 					}
 					
 					@Override
-					public void dragFinished(DragSourceEvent event) {
-						System.out.println("SOURCE " + event);
-					}
+					public void dragFinished(DragSourceEvent event) {}
 				});
 		
 		createActions();
 		initializeToolBar();
 		initializeMenu();
+	}
+
+	protected Object getSource(TreePath[] paths) {
+		
+		if (paths.length < 1 || paths[0].getSegmentCount() != 2)
+			return "";
+		
+		SemanticAnnotationContainer cnt = (SemanticAnnotationContainer) ((TreeModel.TreeObject)(paths[0].getSegment(0))).data;
+		String src = (String) ((TreeModel.TreeObject)(paths[0].getSegment(1))).data;
+		return "_SOURCE|" + cnt.getSourceUrl() + "|" + src;
 	}
 
 	/**
