@@ -28,6 +28,8 @@ import org.integratedmodelling.utils.Pair;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.ToolBar;
 import com.swtdesigner.SWTResourceManager;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.widgets.Label;
 
 public class SemanticAnnotationEditor extends EditorPart {
 
@@ -57,41 +59,47 @@ public class SemanticAnnotationEditor extends EditorPart {
 		ToolBar toolBar = new ToolBar(container, SWT.FLAT | SWT.RIGHT);
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		PShelf shelf = new PShelf(container, SWT.NONE);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		
+		PShelf shelf = new PShelf(scrolledComposite, SWT.NONE);
 		shelf.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		shelf.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-
-		DropTarget dropTarget = new DropTarget(shelf, DND.DROP_MOVE	| DND.DROP_COPY | DND.DROP_LINK);
-		dropTarget.setTransfer(new Transfer[] { TextTransfer.getInstance() });
-
-		dropTarget.addDropListener(new DropTargetListener() {
-
-			@Override
-			public void dropAccept(DropTargetEvent arg0) {
-			}
-
-			@Override
-			public void drop(DropTargetEvent arg0) {
-				handleDrop((String) (arg0.data));
-			}
-
-			@Override
-			public void dragOver(DropTargetEvent arg0) {
-			}
-
-			@Override
-			public void dragOperationChanged(DropTargetEvent arg0) {
-			}
-
-			@Override
-			public void dragLeave(DropTargetEvent arg0) {
-			}
-
-			@Override
-			public void dragEnter(DropTargetEvent arg0) {
-				arg0.detail = DND.DROP_COPY;
-			}
-		});
+		
+				DropTarget dropTarget = new DropTarget(shelf, DND.DROP_MOVE	| DND.DROP_COPY | DND.DROP_LINK);
+				dropTarget.setTransfer(new Transfer[] { TextTransfer.getInstance() });
+				scrolledComposite.setContent(shelf);
+				scrolledComposite.setMinSize(shelf.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				
+						dropTarget.addDropListener(new DropTargetListener() {
+				
+							@Override
+							public void dropAccept(DropTargetEvent arg0) {
+							}
+				
+							@Override
+							public void drop(DropTargetEvent arg0) {
+								handleDrop((String) (arg0.data));
+							}
+				
+							@Override
+							public void dragOver(DropTargetEvent arg0) {
+							}
+				
+							@Override
+							public void dragOperationChanged(DropTargetEvent arg0) {
+							}
+				
+							@Override
+							public void dragLeave(DropTargetEvent arg0) {
+							}
+				
+							@Override
+							public void dragEnter(DropTargetEvent arg0) {
+								arg0.detail = DND.DROP_COPY;
+							}
+						});
 
 		for (Pair<SemanticAnnotationContainer, SemanticSource> sp : sources) {
 			
