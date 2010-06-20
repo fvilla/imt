@@ -7,5 +7,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="grid-1.0.0.jar" sourcepath="grid-1.0.0-src.zip"/>
 	<classpathentry kind="lib" path="pshelf-1.0.0.jar" sourcepath="pshelf-1.0.0-src.zip"/>
+	<classpathentry kind="lib" path="swing2swt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
