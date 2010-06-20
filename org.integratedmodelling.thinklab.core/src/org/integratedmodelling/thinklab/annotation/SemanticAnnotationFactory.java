@@ -1,5 +1,6 @@
 package org.integratedmodelling.thinklab.annotation;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,12 +8,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Properties;
 
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabResourceNotFoundException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.datastructures.IntelligentMap;
+import org.integratedmodelling.utils.MiscUtilities;
 import org.integratedmodelling.utils.xml.XMLDocument;
 import org.w3c.dom.Node;
 
@@ -55,6 +59,39 @@ public class SemanticAnnotationFactory {
 	}
 	
 	/**
+	 * Read a property file containing the class of the container plus a number of annotation
+	 * definitions. Create the container using Class.newInstance() and have it create all the annotations, then
+	 * return it.
+	 * 
+	 * @param sourceUrl
+	 * @throws ThinklabException 
+	 */
+	public SemanticAnnotationContainer getAnnotationContainer(URL sourceUrl) throws ThinklabException {
+
+		Properties p = new Properties();
+		try {
+			p.load(sourceUrl.openStream());
+		} catch (IOException e) {
+			throw new ThinklabIOException(e);
+		}
+				
+		SemanticAnnotationContainer ret = new DefaultAnnotationContainer(MiscUtilities.getNameFromURL(sourceUrl.toString()));
+		
+		/*
+		 * TODO
+		 * establish all names from unique first element in property names
+		 */
+		
+		/*
+		 * TODO
+		 * for each name, find the provider id, get it and have it create an empty annotation; then
+		 * set all properties and add to container
+		 */
+		
+		return ret;
+	}
+	
+	/**
 	 * Reverse-engineer an XML document into one or more annotations, reconstructing
 	 * the sources from the datasource. If a collection of annotations is passed,
 	 * add to them when the source is the same.
@@ -89,7 +126,7 @@ public class SemanticAnnotationFactory {
 			String source = prv.getSourceURL(dn);
 			SemanticAnnotationContainer ann = anmap.get(source);
 			if (ann == null)
-				ann = prv.createEmptyAnnotation(source);
+				ann = prv.createEmptyAnnotationContainer(source);
 
 			prv.addObjectFromXML(n, ann);
 		}		

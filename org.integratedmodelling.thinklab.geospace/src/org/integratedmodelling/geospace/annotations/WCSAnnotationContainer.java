@@ -23,7 +23,7 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 
 	private String serviceUrl;
 	private HashMap<String, WCSSource> sources = new HashMap<String, WCSSource>();
-	private HashMap<String, WCSAnnotation> annotations = new HashMap<String, WCSAnnotation>();
+	private HashMap<String, SemanticAnnotation> annotations = new HashMap<String, SemanticAnnotation>();
 	
 	public class WCSSource extends SemanticSource {
 
@@ -32,24 +32,14 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 		}
 
 		private static final long serialVersionUID = 4003537124729951143L;
-		
 	}
 	
-	public class WCSAnnotation extends SemanticAnnotation {
-
-		private static final long serialVersionUID = 8781137333203010259L;
-
-		public WCSAnnotation(String id) {
-			super(id);
-		}
-		
-	}
-	
-	public WCSAnnotationContainer(String url) throws ThinklabException {
-		this.serviceUrl = url;
+	public WCSAnnotationContainer(String sourceUrl) throws ThinklabException {
+		super();
+		serviceUrl = sourceUrl;
 		initialize();
 	}
-	
+
 	private void initialize() throws ThinklabException {
 
 		XMLDocument cap = null;
@@ -283,6 +273,27 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 		
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public SemanticAnnotation startAnnotation(SemanticSource source, String initialId) {
+		
+		RasterAnnotation ann = new RasterAnnotation(initialId);
+		ann.putAll(source);
+		return ann;
+		
+	}
+
+	@Override
+	public String getNamespace() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void putAnnotation(SemanticAnnotation annotation) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -79,6 +79,26 @@ public interface SemanticAnnotationContainer {
 	 * @return
 	 */
 	public SemanticAnnotation getAnnotationForSource(String sourceId);
+
+	/**
+	 * Create the minimal annotation for this source, ready for editing.
+	 * 
+	 * @param source
+	 * @param initialId 
+	 */
+	public SemanticAnnotation startAnnotation(SemanticSource source, String initialId);
+
+	/**
+	 * The global ID of this collection is a namespace string.
+	 * @return
+	 */
+	public String getNamespace();
 	
+	/**
+	 * Add or replace the given annotation.
+	 * 
+	 * @param annotation
+	 */
+	public void putAnnotation(SemanticAnnotation annotation);
 	
 }

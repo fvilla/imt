@@ -43,12 +43,13 @@ public interface SemanticAnnotationProvider {
 	void addObjectFromXML(Node n, SemanticAnnotationContainer ann);
 	
 	/**
-	 * Create an empty annotation for the given source.
+	 * Create an empty annotation for the given source identifier (a source identifies a service such
+	 * as a database or a file, containing one or more source observations). 
 	 * 
 	 * @param source
 	 * @return
 	 */
-	SemanticAnnotationContainer createEmptyAnnotation(String source);
+	SemanticAnnotationContainer createEmptyAnnotationContainer(String source);
 
 	/**
 	 * A longer label that describes the source summarily.
@@ -64,4 +65,10 @@ public interface SemanticAnnotationProvider {
 	 * @return
 	 */
 	public String getDescription();
+	
+	/**
+	 * Create an empty annotation ready to be defined through properties. It must contain the ID of the
+	 * provider so it can be recreated appropriately after serialization.
+	 */
+	public SemanticAnnotation createEmptyAnnotation();
 }

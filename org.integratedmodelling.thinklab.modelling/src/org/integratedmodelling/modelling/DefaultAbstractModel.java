@@ -12,7 +12,7 @@ import org.integratedmodelling.corescience.interfaces.IState;
 import org.integratedmodelling.corescience.interfaces.internal.Topology;
 import org.integratedmodelling.corescience.literals.DistributionValue;
 import org.integratedmodelling.corescience.metadata.Metadata;
-import org.integratedmodelling.modelling.annotation.ModelAnnotation;
+import org.integratedmodelling.modelling.annotations.ModelAnnotation;
 import org.integratedmodelling.modelling.exceptions.ThinklabModelException;
 import org.integratedmodelling.modelling.interfaces.IModel;
 import org.integratedmodelling.thinklab.KnowledgeManager;

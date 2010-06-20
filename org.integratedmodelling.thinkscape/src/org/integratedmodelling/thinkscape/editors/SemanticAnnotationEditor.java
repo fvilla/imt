@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -25,21 +26,32 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticSource;
 import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.widgets.SingleAnnotationEditor;
+import org.integratedmodelling.utils.MiscUtilities;
 import org.integratedmodelling.utils.Pair;
+import org.integratedmodelling.utils.Path;
+import org.integratedmodelling.utils.Triple;
 
 public class SemanticAnnotationEditor extends EditorPart {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"; //$NON-NLS-1$
 	private Table table;
-	private ArrayList<Pair<SemanticAnnotationContainer, SemanticSource>> sources = 
-		new ArrayList<Pair<SemanticAnnotationContainer,SemanticSource>>();
+	private ArrayList<Triple<SemanticAnnotationContainer, SemanticSource,SemanticAnnotation>> sources = 
+		new ArrayList<Triple<SemanticAnnotationContainer,SemanticSource,SemanticAnnotation>>();
 
-	private Composite parent;
+	private Composite itemEditorParent;
 	private TableViewer tableViewer;
 
+	private int currentAnnotation = -1;
+	private SingleAnnotationEditor currentEditor;
+	private Composite parent;
+	private boolean dirty;
+	private IEditorInput input;
+	
 	public SemanticAnnotationEditor() {
 	}
 
@@ -49,6 +61,9 @@ public class SemanticAnnotationEditor extends EditorPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		
+		this.parent = parent;
+		
 		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -71,10 +86,32 @@ public class SemanticAnnotationEditor extends EditorPart {
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayout(new GridLayout(1, false));
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		ToolBar toolBar = new ToolBar(composite_1, SWT.FLAT | SWT.RIGHT);
-		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(composite, SWT.NONE);
+		
+		itemEditorParent = new Composite(composite_1, SWT.NONE);
+		itemEditorParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		GridLayout gl_itemEditorParent = new GridLayout(1, false);
+		gl_itemEditorParent.marginWidth = 0;
+		gl_itemEditorParent.marginTop = 3;
+		gl_itemEditorParent.marginHeight = 0;
+		itemEditorParent.setLayout(gl_itemEditorParent);
+		
+		if (currentAnnotation < 0) {
+			Label lblDragASource = new Label(itemEditorParent, SWT.SHADOW_NONE);
+			lblDragASource.setAlignment(SWT.CENTER);
+			lblDragASource.setText("Drag a source from the Sources view or \r\nchoose an observation to edit from the list");
+			lblDragASource.setLayoutData(
+					new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		} else {
+			this.currentEditor = new SingleAnnotationEditor(
+					itemEditorParent,
+					this,
+					sources.get(currentAnnotation).getFirst(),
+					sources.get(currentAnnotation).getSecond(),
+					sources.get(currentAnnotation).getThird());
+			this.currentEditor.setLayoutData(
+					new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		}
 		
 		DropTarget dropTarget = new DropTarget(composite, DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { TextTransfer.getInstance() });
@@ -108,11 +145,9 @@ public class SemanticAnnotationEditor extends EditorPart {
 			}
 		});
 
-		for (Pair<SemanticAnnotationContainer, SemanticSource> sp : sources) {
-			tableViewer.add(sp.getSecond().id);
-		}
-
-
+		/*
+		 * TODO initialize table with annotations, select current if any
+		 */
 	}
 	
 	protected void handleDrop(String string) {
@@ -125,19 +160,38 @@ public class SemanticAnnotationEditor extends EditorPart {
 				ThinkScape.getActiveProject().getSemanticSource(ss[1]);
 			SemanticSource source = container.getSource(ss[2]);
 			
-			sources.add(new Pair<SemanticAnnotationContainer, SemanticSource>(container, source));
-			tableViewer.add(source.id);
-				
+			/*
+			 * make new annotation from source and select it.
+			 */
+			SemanticAnnotation annotation = container.startAnnotation(source, source.getId() + "_1");
+			sources.add(new Triple<SemanticAnnotationContainer, SemanticSource, SemanticAnnotation>(container, source, annotation));
+			currentAnnotation = sources.size() - 1;
+			
+			resetView();
 		}
 	}
+	
 	@Override
 	public void setFocus() {
 		// Set the focus
 	}
 
+	private void resetView() {
+		for (Control c : this.parent.getChildren())
+			c.dispose();
+		createPartControl(this.parent);
+		this.parent.layout(true);
+	}
+	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		// Do the Save operation
+
+		/*
+		 * TODO flush the annotation container
+		 */
+		
+		this.dirty = false;
+		setPartName("* Annotation Namespace: " + (MiscUtilities.getFileBaseName(this.input.getName())));
 	}
 
 	@Override
@@ -149,12 +203,19 @@ public class SemanticAnnotationEditor extends EditorPart {
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		setSite(site);
-		setInput(input);
+		setInput(this.input = input);
+		setPartName("Annotation Namespace: " + (MiscUtilities.getFileBaseName(input.getName())));
 	}
-
+	
+	
 	@Override
 	public boolean isDirty() {
-		return false;
+		return this.dirty;
+	}
+	
+	public void setDirty() {
+		this.dirty = true;
+		setPartName("* Annotation Namespace: " + (MiscUtilities.getFileBaseName(this.input.getName())));
 	}
 
 	@Override

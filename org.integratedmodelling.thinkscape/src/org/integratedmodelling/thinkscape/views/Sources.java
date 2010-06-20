@@ -148,7 +148,7 @@ public class Sources extends ViewPart implements IPropertyChangeListener {
 				          System.out.println("Cancelled");
 					}
 				});
-				tltmNewSource.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/folder_add.png"));
+				tltmNewSource.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
 			}
 		}
 		{

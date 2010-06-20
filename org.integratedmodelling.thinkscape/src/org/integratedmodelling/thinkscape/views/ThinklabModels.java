@@ -1,9 +1,14 @@
 package org.integratedmodelling.thinkscape.views;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -11,17 +16,23 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.ui.part.ViewPart;
-import org.integratedmodelling.corescience.CoreScience;
-import org.integratedmodelling.geospace.Geospace;
-import org.integratedmodelling.modelling.Model;
-import org.integratedmodelling.modelling.ModelFactory;
-import org.integratedmodelling.modelling.ModellingPlugin;
-import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
-import org.integratedmodelling.thinkscape.TreeModel;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.ViewPart;
+import org.integratedmodelling.modelling.ModelFactory;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.TreeModel;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
+import org.integratedmodelling.thinkscape.wizards.NewModel;
+
+import com.swtdesigner.ResourceManager;
 
 public class ThinklabModels extends ViewPart {
 
@@ -72,6 +83,9 @@ public class ThinklabModels extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+
+		final Composite ps = parent;
+
 		parent.setLayout(new GridLayout(1, false));
 		{
 			TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
@@ -87,6 +101,39 @@ public class ThinklabModels extends ViewPart {
 						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
 						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 						toolBar.setBounds(0, 0, 89, 23);
+						{
+							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+							toolItem.addSelectionListener(new SelectionAdapter() {
+								@Override
+								public void widgetSelected(SelectionEvent e) {
+									IWorkbenchPage pg = getSite().getPage();
+							        NewModel wizard = new NewModel();
+									wizard.init(getSite().getWorkbenchWindow().getWorkbench(),
+									            (IStructuredSelection)null);
+							        WizardDialog dialog = new WizardDialog(ps.getShell(), wizard);
+							        dialog.setBlockOnOpen(true);
+							        int returnCode = dialog.open();
+							        
+							        if (returnCode == WizardDialog.OK) {
+
+							        	ThinklabProject project = ThinkScape.getProject(wizard.getProject(), true);
+							        	
+							        	IFile file = project.getModelNamespace(wizard.getNamespace());
+							        	IEditorDescriptor desc = 
+							        		PlatformUI.getWorkbench().
+							        			getEditorRegistry().getDefaultEditor(file.getName());
+							        	try {
+							        		pg.openEditor(new FileEditorInput(file), desc.getId());
+							        	} catch (PartInitException ee) {
+							        		throw new ThinklabRuntimeException(ee);
+							        	}
+							        }
+
+								}
+							});
+							toolItem.setToolTipText("Add a new model namespace");
+							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
+						}
 					}
 					
 					treeViewer_1 = new TreeViewer(composite, SWT.BORDER);
@@ -107,6 +154,11 @@ public class ThinklabModels extends ViewPart {
 					{
 						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
 						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+						{
+							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
+							toolItem.setToolTipText("Add a new scenario namespace");
+						}
 					}
 					
 					treeViewer_2 = new TreeViewer(composite, SWT.BORDER);
@@ -126,6 +178,11 @@ public class ThinklabModels extends ViewPart {
 					{
 						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
 						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+						{
+							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
+							toolItem.setToolTipText("Add a new agent namespace");
+						}
 					}
 					
 					treeViewer_3 = new TreeViewer(composite, SWT.BORDER);
@@ -145,6 +202,11 @@ public class ThinklabModels extends ViewPart {
 					{
 						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
 						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+						{
+							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
+							toolItem.setToolTipText("Add a new observation context");
+						}
 					}
 					
 					treeViewer = new TreeViewer(composite, SWT.BORDER);

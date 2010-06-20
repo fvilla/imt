@@ -6,6 +6,7 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -17,7 +18,7 @@ import org.integratedmodelling.thinklab.annotation.SemanticAnnotationProvider;
 public class NewSourcePage extends WizardPage {
 
 	private Text text;
-	private CCombo combo;
+	private Combo combo;
 	private CLabel lblSourceType;
 	private Label label;
 
@@ -49,7 +50,7 @@ public class NewSourcePage extends WizardPage {
 		this.lblSourceType = new CLabel(container, SWT.NONE);
 		lblSourceType.setText("Source type:");
 		
-		combo = new CCombo(container, SWT.BORDER);
+		combo = new Combo(container, SWT.READ_ONLY);
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -66,18 +67,16 @@ public class NewSourcePage extends WizardPage {
 				}
 			}
 		});
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		combo.setEditable(false);
 		
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		for (String s : SemanticAnnotationFactory.get().getAnnotatorIds()) {
-			
 			SemanticAnnotationProvider pr = SemanticAnnotationFactory.get().getAnnotator(s);
-			combo.add(s + " - " + pr.getLabel());
-			
+			combo.add(s + " - " + pr.getLabel());	
 		}
+		combo.select(0);
 		
 		this.label = new Label(container, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
 	}
 
 	public String getType() {
@@ -88,7 +87,7 @@ public class NewSourcePage extends WizardPage {
 		return text.getText();
 	}
 
-	public CCombo getTypeSelector() {
+	public Combo getTypeSelector() {
 		return combo;
 	}
 }

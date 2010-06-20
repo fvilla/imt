@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.integratedmodelling.modelling.ModellingPlugin;
@@ -18,6 +19,7 @@ import org.integratedmodelling.thinklab.annotation.SemanticAnnotationFactory;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabPluginException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.ThinkscapeEvent;
@@ -50,6 +52,9 @@ public class ThinklabProject {
 	private IFolder metaPath;
 	
 	private ArrayList<SemanticAnnotationContainer> sources = 
+		new ArrayList<SemanticAnnotationContainer>();
+
+	private ArrayList<SemanticAnnotationContainer> annotationNamespaces = 
 		new ArrayList<SemanticAnnotationContainer>();
 	
 	public static void requireNature(IProject project, String nature) {
@@ -133,6 +138,22 @@ public class ThinklabProject {
 			requireNature(project, "org.eclipse.pde.PluginNature");
 			requireNature(project, ThinkscapeNature.NATURE_ID);
 
+			/*
+			 * read up contents
+			 */
+			for (IResource r : this.annotPath.members()) {
+				
+				if (r instanceof IFile && r.toString().endsWith(".ann")) {
+					try {
+						annotationNamespaces.add(
+								SemanticAnnotationFactory.get().
+									getAnnotationContainer(r.getLocationURI().toURL()));
+					} catch (MalformedURLException e) {
+						throw new ThinklabValidationException(e);
+					}
+				}
+			}
+			
 		} catch (CoreException e) {
 			throw new ThinklabPluginException(e);
 		}
@@ -165,7 +186,7 @@ public class ThinklabProject {
 		return ret;
 	}
 	
-	public IFile getNewModelFile(String src) {
+	public IFile getModelNamespace(String src) {
 
 		String fn = "models" + "/" + MiscUtilities.getFileBaseName(src) + ".model";
 		IFile ret = project.getFile(fn);
@@ -225,7 +246,6 @@ public class ThinklabProject {
 			throw new ThinklabRuntimeException(e);
 		}
 		
-		
 	}
 
 	public void addToMetadata(String property, String string) {
@@ -251,6 +271,10 @@ public class ThinklabProject {
 				break;
 			}
 		return ret;
+	}
+
+	public Collection<SemanticAnnotationContainer> getAnnotationNamespaces() {
+		return annotationNamespaces;
 	}
 
 	

@@ -7,10 +7,14 @@ public class SemanticSource extends Properties {
 	private static final long serialVersionUID = 283002194030928734L;
 	private static final String LAST_MODIFICATION_TIME_PROPERTY = "last_modified";
 	
-	public String id;
+	private String id;
 	
 	public SemanticSource(String id) {
 		this.id = id;
+	}
+	
+	public String getId() {
+		return id;
 	}
 	
 	/**

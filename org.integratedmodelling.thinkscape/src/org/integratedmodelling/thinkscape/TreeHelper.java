@@ -158,6 +158,9 @@ public class TreeHelper {
 		public boolean isOntology() {
 			return ontology != null;
 		}
+		public Object getConcept() {
+			return concept;
+		}
 	}
 	
 	class TreeParent extends TreeObject {

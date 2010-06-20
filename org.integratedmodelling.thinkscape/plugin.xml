@@ -173,14 +173,14 @@
             extensions="model"
             icon="icons/lightbulb.png"
             id="org.integratedmodelling.thinkscape.gedit.ModelEditor"
-            name="Model Editor">
+            name="Model Namespace">
       </editor>
       <editor
             class="org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"
             extensions="ann"
             icon="icons/database_edit.png"
             id="org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"
-            name="Semantic Annotation">
+            name="Annotation Namespace">
       </editor>
    </extension>
    <extension

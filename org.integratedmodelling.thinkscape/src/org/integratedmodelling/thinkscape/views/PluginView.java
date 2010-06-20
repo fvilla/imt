@@ -1,6 +1,8 @@
 package org.integratedmodelling.thinkscape.views;
 
 
+import java.util.Collection;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -36,6 +38,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.NewProjectAction;
 import org.eclipse.ui.part.ViewPart;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
@@ -70,9 +73,21 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 				ret[2] = ((ThinklabProject)object).modelPath;
 			} else if (object instanceof IFolder) {
 				
-				/*
-				 * TODO filter out files
-				 */
+				ThinklabProject project = 
+					ThinkScape.getProject(((IFolder)object).getProject().getName(), false);
+				
+				if (object.toString().contains("models")) {
+				} else if (object.toString().contains("annotations")) {
+					
+					Collection<SemanticAnnotationContainer> annots = 
+						project.getAnnotationNamespaces();
+					ret = new SemanticAnnotationContainer[annots.size()];
+					int i = 0;
+					for (SemanticAnnotationContainer c : annots)
+						ret[i++] = c;
+					
+				} else if (object.toString().contains("ontologies")) {
+				}
 			}
 			return ret;
 		}
@@ -92,6 +107,8 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 					ret = "icons/database_lightning.png";
 			} else if (object instanceof IFile) {
 				
+			} else if (object instanceof SemanticAnnotationContainer) {
+				ret =  "icons/database_edit.png";
 			}
 			
 			return ResourceManager.getPluginImage(
@@ -107,10 +124,12 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 				if (object.toString().contains("/models"))
 					return "Models";
 				else if (object.toString().contains("/annotations"))
-					return "Semantic Annotations";
+					return "Annotations Namespaces";
 				else if (object.toString().contains("/ontologies"))
 					return "Observed Concepts";
 				
+			} else if (object instanceof SemanticAnnotationContainer) {
+				return ((SemanticAnnotationContainer)object).getNamespace();
 			}
 			return "";
 		}
@@ -227,7 +246,7 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 			}
 		});
 		toolItem.setToolTipText("New Thinklab project");
-		toolItem.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/etool16/new_wiz.gif"));
+		toolItem.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "icons/add.png"));
 		
 		this.treeViewer = new TreeViewer(composite, SWT.BORDER);
 		Tree tree = treeViewer.getTree();

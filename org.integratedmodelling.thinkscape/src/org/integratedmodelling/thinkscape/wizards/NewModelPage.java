@@ -13,17 +13,17 @@ import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
-public class NewAnnotationPage extends WizardPage {
+public class NewModelPage extends WizardPage {
 	private Text namespace;
 	private Combo project;
 
 	/**
 	 * Create the wizard.
 	 */
-	public NewAnnotationPage() {
+	public NewModelPage() {
 		super("wizardPage");
-		setTitle("Create a new annotation namespace");
-		setDescription("Define a new annotation namespace for a project. You can then create semantic annotation by adding sources to the namespace from the Sources view.");
+		setTitle("Create a new model namespace");
+		setDescription("Define a new model namespace for a project. You can then create models graphically or by editing Clojure code.");
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class NewAnnotationPage extends WizardPage {
 
 		Label lblAnnotationNamespace = new Label(container, SWT.NONE);
 		lblAnnotationNamespace.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblAnnotationNamespace.setText("Annotation namespace: ");
+		lblAnnotationNamespace.setText("Model namespace: ");
 		
 		namespace = new Text(container, SWT.BORDER);
 		namespace.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -82,7 +82,6 @@ public class NewAnnotationPage extends WizardPage {
 	 */
 	@Override
 	public void setPageComplete(boolean complete) {
-		System.out.println("CALLED COMPLETE");
 		super.setPageComplete(complete);
 	}
 

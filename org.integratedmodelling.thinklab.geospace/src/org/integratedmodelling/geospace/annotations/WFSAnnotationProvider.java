@@ -8,8 +8,8 @@ import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.utils.xml.XMLDocument;
 import org.w3c.dom.Node;
 
-@ISemanticAnnotationProvider(id="WCS", dataSourceConcept="geospace:WCSDataSource")
-public class WCSAnnotationProvider implements SemanticAnnotationProvider {
+@ISemanticAnnotationProvider(id="WFS", dataSourceConcept="geospace:WFSDataSource")
+public class WFSAnnotationProvider implements SemanticAnnotationProvider {
 
 	@Override
 	public void addObjectFromXML(Node n, SemanticAnnotationContainer ann) {
@@ -39,13 +39,13 @@ public class WCSAnnotationProvider implements SemanticAnnotationProvider {
 	@Override
 	public String getDescription() {
 		return 
-		"This service connects to a WCS server and allows to annotate each " +
-		"coverage as a separate, spatially explicit observation.";
+		"This service connects to a Web Feature server and allows to annotate each " +
+		"attribute of a feature store as a separate, spatially explicit observation.";
 	}
 
 	@Override
 	public String getLabel() {
-		return "Web Coverage Service - raster map server URL";
+		return "Web Feature Service - feature map server URL";
 	}
 
 	@Override

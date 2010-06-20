@@ -1,4 +1,4 @@
-package org.integratedmodelling.modelling.annotation;
+package org.integratedmodelling.modelling.annotations;
 
 import java.io.PrintStream;
 import java.util.ArrayList;

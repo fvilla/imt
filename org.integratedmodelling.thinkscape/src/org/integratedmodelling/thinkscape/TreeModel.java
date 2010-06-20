@@ -135,7 +135,7 @@ public abstract class TreeModel {
 		 */
 		@Override
 		public int hashCode() {
-			return data.hashCode();
+			return data == null ? 0 : data.hashCode();
 		}
 	}
 	

@@ -1,44 +1,154 @@
 package org.integratedmodelling.thinkscape.views;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.jface.viewers.TreeViewerColumn;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.ToolItem;
-
-import com.swtdesigner.ResourceManager;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
+import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.ThinkscapeEvent;
+import org.integratedmodelling.thinkscape.TreeModel;
+import org.integratedmodelling.thinkscape.TreeHelper.TreeObject;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.wizards.NewAnnotation;
 
-public class AnnotationsView extends ViewPart {
+import com.swtdesigner.ResourceManager;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+
+public class AnnotationsView extends ViewPart implements IPropertyChangeListener {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.views.AnnotationsView"; //$NON-NLS-1$
 	private Text text;
 	private Composite  ps;
+	private AnnotationModel treeModel;
+	private TreeViewer treeViewer;
+	
+	class AnnotationModel extends TreeModel {
+
+		public AnnotationModel(TreeViewer viewer, ViewPart view) {
+			super(viewer, view);
+		}
+
+		@Override
+		public Object[] getChildren(Object object) {
+			
+			Object[] ret = null;
+			if (object instanceof SemanticAnnotationContainer) {
+				ArrayList<String> ids = new ArrayList<String>();
+				for (String id :((SemanticAnnotationContainer)object).getAnnotationIds())
+					ids.add(id);
+				ret = new SemanticAnnotation[ids.size()];
+				Collections.sort(ids);
+				int i = 0;
+				for (String s : ids) {
+					ret[i++] = ((SemanticAnnotationContainer)object).getAnnotation(s);
+				}
+			}
+			return ret;
+		}
+
+		@Override
+		public Image getImage(Object object, int column) {
+			String ret = null;
+			if (object instanceof SemanticAnnotationContainer && column == 1) {
+					ret = "icons/database_edit.png";
+			} else if (object instanceof SemanticAnnotation && column == 0) {
+				if (((SemanticAnnotation)object).isValid()) {
+					ret = "icons/check.png";
+				} else {
+					ret = "icons/error.png";
+				}
+			} else if (object instanceof SemanticAnnotation && column == 3) {
+				/*
+				 * TODO context image; concept images if necessary
+				 */
+			}
+			return ret == null ? 
+					null :
+					ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", ret);
+		}
+
+		@Override
+		public String getName(Object object, int column) {
+			
+			String ret = "";
+			if (object instanceof SemanticAnnotationContainer && column == 1) {
+				ret = ((SemanticAnnotationContainer)object).getNamespace();
+			} else if (object instanceof SemanticAnnotation) {
+				switch (column) {
+					/*
+					 * TODO add other columns
+					 */
+					case 1: ret = ((SemanticAnnotation)object).getId(); break;
+				}
+			}
+			return ret;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.integratedmodelling.thinkscape.TreeModel#handleDoubleClick(java.lang.Object, org.eclipse.ui.IWorkbenchPage)
+		 */
+		@Override
+		public void handleDoubleClick(Object obj, IWorkbenchPage page) {
+			TreeObject o = (TreeObject) obj;
+			if (o.data instanceof SemanticAnnotationContainer) {
+				
+				SemanticAnnotationContainer container = (SemanticAnnotationContainer) o.data;
+				/*
+				 * fire up concept annotation editor; create concept axiom file if not there
+				 */
+				IFile file = 
+					ThinkScape.getActiveProject().getAnnotationNamespace(container.getNamespace());
+				
+				IEditorDescriptor desc = 
+					PlatformUI.getWorkbench().
+					getEditorRegistry().getDefaultEditor(file.getName());
+				try {
+					page.openEditor(new FileEditorInput(file), desc.getId());
+				} catch (PartInitException e) {
+					throw new ThinklabRuntimeException(e);
+				}
+				
+			}
+		}
+		
+		
+	}
 	
 	public AnnotationsView() {
+		ThinkScape.getDefault().addPropertyChangeListener(this);
 	}
 
 	/**
@@ -58,6 +168,8 @@ public class AnnotationsView extends ViewPart {
 		toolBar.setBounds(0, 0, 89, 23);
 		
 		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
+		toolItem.setToolTipText("Create a new annotation namespace");
+		toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
 		toolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -86,10 +198,18 @@ public class AnnotationsView extends ViewPart {
 		        }
 			}
 		});
-		toolItem.setHotImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/etool16/new_wiz.gif"));
+		toolItem.setHotImage(ResourceManager.getPluginImage("org.eclipse.ui", "icons/add.png"));
 		
-		TreeViewer treeViewer = new TreeViewer(container, SWT.BORDER);
+		this.treeViewer = new TreeViewer(container, SWT.BORDER);
 		Tree tree = treeViewer.getTree();
+		tree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				treeModel.handleDoubleClick(
+						((TreeSelection)treeViewer.getSelection()).getFirstElement(),
+						getSite().getPage());
+			}
+		});
 		tree.setSortDirection(SWT.DOWN);
 		tree.setLinesVisible(true);
 		tree.setHeaderVisible(true);
@@ -119,6 +239,9 @@ public class AnnotationsView extends ViewPart {
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		text.setBounds(0, 0, 76, 21);
 
+		this.treeModel = new AnnotationModel(treeViewer, this);
+		rescan();
+		
 		createActions();
 		initializeToolBar();
 		initializeMenu();
@@ -150,5 +273,20 @@ public class AnnotationsView extends ViewPart {
 	@Override
 	public void setFocus() {
 		// Set the focus
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(ThinkscapeEvent.WORKSPACE_CHANGE)) {
+			ThinkScape.getDefault().getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					rescan();
+				}
+			});
+	}
+	}
+
+	protected void rescan() {
+		treeModel.instrumentConceptTree(ThinkScape.getActiveProject().getAnnotationNamespaces());
 	}
 }

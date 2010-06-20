@@ -8,6 +8,11 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -28,6 +33,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.TreeHelper;
+import org.integratedmodelling.thinkscape.TreeHelper.TreeObject;
 
 import com.swtdesigner.ResourceManager;
 
@@ -141,10 +147,39 @@ public class KnowledgeView extends ViewPart {
 		dataSearch = new Text(composite_1, SWT.BORDER);
 		dataSearch.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
+		conceptTree.addDragSupport(
+				DND.DROP_COPY, 
+				new Transfer[] { TextTransfer.getInstance() }, 
+				new DragSourceListener() {
+					@Override
+					public void dragStart(DragSourceEvent event) {}
+					
+					@Override
+					public void dragSetData(DragSourceEvent event) {
+						event.data = 
+							getSource(((TreeSelection)(conceptTree.getSelection())).getFirstElement());
+					}
+					
+					@Override
+					public void dragFinished(DragSourceEvent event) {}
+					
+
+				});
+
+		
 		initializeContent();
 		createActions();
 		initializeToolBar();
 		initializeMenu();
+	}
+
+	protected Object getSource(Object firstElement) {
+		String ret = "";
+		TreeHelper.TreeObject obj = (TreeObject) firstElement;
+		if (obj.isConcept()) {
+			ret = "_CONCEPT|" + obj.getConcept().toString();
+		}
+		return ret;
 	}
 
 	private void initializeContent() {
