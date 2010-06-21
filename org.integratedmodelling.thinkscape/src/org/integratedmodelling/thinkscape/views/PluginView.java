@@ -226,8 +226,9 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 		ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-		toolItem.addSelectionListener(new SelectionAdapter() {
+		ToolItem tltmNew = new ToolItem(toolBar, SWT.NONE);
+		tltmNew.setText("New Project");
+		tltmNew.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				IProject project = displayNewProjectWizard();
@@ -245,8 +246,8 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 				}
 			}
 		});
-		toolItem.setToolTipText("New Thinklab project");
-		toolItem.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "icons/add.png"));
+		tltmNew.setToolTipText("New Thinklab project");
+		tltmNew.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_add.png"));
 		
 		this.treeViewer = new TreeViewer(composite, SWT.BORDER);
 		Tree tree = treeViewer.getTree();

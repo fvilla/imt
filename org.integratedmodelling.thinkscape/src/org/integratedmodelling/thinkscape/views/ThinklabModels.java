@@ -30,6 +30,7 @@ import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.TreeModel;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
+import org.integratedmodelling.thinkscape.wizards.ImportModelWizard;
 import org.integratedmodelling.thinkscape.wizards.NewModel;
 
 import com.swtdesigner.ResourceManager;
@@ -42,7 +43,6 @@ public class ThinklabModels extends ViewPart {
 	private TreeViewer treeViewer_1;
 	private TreeViewer treeViewer_2;
 	private TreeViewer treeViewer_3;
-	private TreeViewer treeViewer;
 
 	public class ModelTreeModel extends TreeModel {
 
@@ -102,8 +102,9 @@ public class ThinklabModels extends ViewPart {
 						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 						toolBar.setBounds(0, 0, 89, 23);
 						{
-							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-							toolItem.addSelectionListener(new SelectionAdapter() {
+							ToolItem tltmNew = new ToolItem(toolBar, SWT.NONE);
+							tltmNew.setText("New");
+							tltmNew.addSelectionListener(new SelectionAdapter() {
 								@Override
 								public void widgetSelected(SelectionEvent e) {
 									IWorkbenchPage pg = getSite().getPage();
@@ -131,8 +132,25 @@ public class ThinklabModels extends ViewPart {
 
 								}
 							});
-							toolItem.setToolTipText("Add a new model namespace");
-							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
+							tltmNew.setToolTipText("Add a new model namespace");
+							tltmNew.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_add.png"));
+						}
+						{
+							ToolItem tltmImport = new ToolItem(toolBar, SWT.NONE);
+							tltmImport.addSelectionListener(new SelectionAdapter() {
+								@Override
+								public void widgetSelected(SelectionEvent e) {
+									IWorkbenchPage pg = getSite().getPage();
+							        ImportModelWizard wizard = new ImportModelWizard();
+//									wizard.init(getSite().getWorkbenchWindow().getWorkbench(),
+//									            (IStructuredSelection)null);
+							        WizardDialog dialog = new WizardDialog(ps.getShell(), wizard);
+							        dialog.setBlockOnOpen(true);
+							        dialog.open();
+								}
+							});
+							tltmImport.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_go.png"));
+							tltmImport.setText("Import");
 						}
 					}
 					
@@ -192,30 +210,6 @@ public class ThinklabModels extends ViewPart {
 					tree.setHeaderVisible(true);
 				}
 			}
-			{
-				TabItem tbtmObservables = new TabItem(tabFolder, SWT.NONE);
-				tbtmObservables.setText("Contexts");
-				{
-					Composite composite = new Composite(tabFolder, SWT.NONE);
-					tbtmObservables.setControl(composite);
-					composite.setLayout(new GridLayout(1, false));
-					{
-						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
-						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-						{
-							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
-							toolItem.setToolTipText("Add a new observation context");
-						}
-					}
-					
-					treeViewer = new TreeViewer(composite, SWT.BORDER);
-					Tree tree = treeViewer.getTree();
-					tree.setHeaderVisible(true);
-					tree.setLinesVisible(true);
-					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-				}
-			}
 		}
 		{
 			text = new Text(parent, SWT.BORDER);
@@ -263,7 +257,5 @@ public class ThinklabModels extends ViewPart {
 	public TreeViewer getAgentTreeViewer() {
 		return treeViewer_3;
 	}
-	public TreeViewer getContextTreeViewer() {
-		return treeViewer;
-	}
+
 }

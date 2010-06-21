@@ -14,6 +14,11 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -41,6 +46,7 @@ import org.integratedmodelling.thinkscape.ThinkscapeEvent;
 import org.integratedmodelling.thinkscape.TreeModel;
 import org.integratedmodelling.thinkscape.TreeHelper.TreeObject;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
+import org.integratedmodelling.thinkscape.wizards.ImportAnnotationWizard;
 import org.integratedmodelling.thinkscape.wizards.NewAnnotation;
 
 import com.swtdesigner.ResourceManager;
@@ -167,10 +173,11 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		toolBar.setBounds(0, 0, 89, 23);
 		
-		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-		toolItem.setToolTipText("Create a new annotation namespace");
-		toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
-		toolItem.addSelectionListener(new SelectionAdapter() {
+		ToolItem tltmNew = new ToolItem(toolBar, SWT.NONE);
+		tltmNew.setText("New");
+		tltmNew.setToolTipText("Create a new annotation namespace");
+		tltmNew.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_add.png"));
+		tltmNew.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
@@ -198,7 +205,24 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 		        }
 			}
 		});
-		toolItem.setHotImage(ResourceManager.getPluginImage("org.eclipse.ui", "icons/add.png"));
+		tltmNew.setHotImage(ResourceManager.getPluginImage("org.eclipse.ui", "icons/add.png"));
+		
+		ToolItem tltmImport = new ToolItem(toolBar, SWT.NONE);
+		tltmImport.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				IWorkbenchPage pg = getSite().getPage();
+		        ImportAnnotationWizard wizard = new ImportAnnotationWizard();
+//				wizard.init(getSite().getWorkbenchWindow().getWorkbench(),
+//				            (IStructuredSelection)null);
+		        WizardDialog dialog = new WizardDialog(ps.getShell(), wizard);
+		        dialog.setBlockOnOpen(true);
+		        dialog.open();
+
+			}
+		});
+		tltmImport.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_go.png"));
+		tltmImport.setText("Import");
 		
 		this.treeViewer = new TreeViewer(container, SWT.BORDER);
 		Tree tree = treeViewer.getTree();
@@ -241,6 +265,35 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 
 		this.treeModel = new AnnotationModel(treeViewer, this);
 		rescan();
+		
+		treeViewer.addDropSupport(
+				DND.DROP_COPY, 
+				new Transfer[] { TextTransfer.getInstance() }, 
+				new DropTargetListener() {
+					@Override
+					public void dropAccept(DropTargetEvent arg0) {
+					}
+					@Override
+					public void drop(DropTargetEvent arg0) {
+						/*
+						 * if on a namespace and it's a source, open editor, add source and set marker to 
+						 * it.
+						 */
+					}
+					@Override
+					public void dragOver(DropTargetEvent arg0) {
+					}
+					@Override
+					public void dragOperationChanged(DropTargetEvent arg0) {
+					}
+					@Override
+					public void dragLeave(DropTargetEvent arg0) {
+					}
+					@Override
+					public void dragEnter(DropTargetEvent arg0) {
+						arg0.detail = DND.DROP_COPY;
+					}
+				});
 		
 		createActions();
 		initializeToolBar();

@@ -131,6 +131,8 @@ public class Sources extends ViewPart implements IPropertyChangeListener {
 			ToolBar toolBar = new ToolBar(parent, SWT.FLAT | SWT.RIGHT);
 			{
 				ToolItem tltmNewSource = new ToolItem(toolBar, SWT.NONE);
+				tltmNewSource.setHotImage(null);
+				tltmNewSource.setText("Import");
 				tltmNewSource.setToolTipText("Add a new source of observations");
 				tltmNewSource.addSelectionListener(new SelectionAdapter() {
 					@Override
@@ -148,7 +150,7 @@ public class Sources extends ViewPart implements IPropertyChangeListener {
 				          System.out.println("Cancelled");
 					}
 				});
-				tltmNewSource.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
+				tltmNewSource.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_go.png"));
 			}
 		}
 		{

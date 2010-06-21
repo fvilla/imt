@@ -35,9 +35,10 @@ public class ThinkcapView extends ViewPart {
 		ToolBar toolBar = new ToolBar(container, SWT.FLAT | SWT.RIGHT);
 		toolBar.setBounds(0, 0, 89, 23);
 		
-		ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-		toolItem.setToolTipText("Start server");
-		toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/play.png"));
+		ToolItem tltmStart = new ToolItem(toolBar, SWT.NONE);
+		tltmStart.setText("Start");
+		tltmStart.setToolTipText("Start server");
+		tltmStart.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/play.png"));
 		
 		TableViewer tableViewer = new TableViewer(container, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
@@ -53,13 +54,13 @@ public class ThinkcapView extends ViewPart {
 		
 		TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(tableViewer, SWT.NONE);
 		TableColumn tblclmnTime = tableViewerColumn_1.getColumn();
-		tblclmnTime.setWidth(140);
-		tblclmnTime.setText("Time");
+		tblclmnTime.setWidth(240);
+		tblclmnTime.setText("Application");
 		
 		TableViewerColumn tableViewerColumn_2 = new TableViewerColumn(tableViewer, SWT.NONE);
 		TableColumn tblclmnEvent = tableViewerColumn_2.getColumn();
 		tblclmnEvent.setWidth(680);
-		tblclmnEvent.setText("Event");
+		tblclmnEvent.setText("Description");
 
 		createActions();
 		initializeToolBar();

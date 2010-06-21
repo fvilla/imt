@@ -46,12 +46,10 @@ import org.eclipse.swt.events.KeyEvent;
 public class SemanticAnnotationEditor extends EditorPart {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"; //$NON-NLS-1$
-	private Table table;
 	private ArrayList<Triple<SemanticAnnotationContainer, SemanticSource,SemanticAnnotation>> sources = 
 		new ArrayList<Triple<SemanticAnnotationContainer,SemanticSource,SemanticAnnotation>>();
 
 	private Composite itemEditorParent;
-	private TableViewer tableViewer;
 
 	private int currentAnnotation = -1;
 	private SingleAnnotationEditor currentEditor;
@@ -84,26 +82,11 @@ public class SemanticAnnotationEditor extends EditorPart {
 						doSave(new NullProgressMonitor());
 			}
 		});
-		composite.setLayout(new GridLayout(3, false));
-		
-		this.tableViewer = new TableViewer(composite, SWT.BORDER | SWT.FULL_SELECTION);
-		table = tableViewer.getTable();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		GridData gd_table = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
-		gd_table.widthHint = 160;
-		table.setLayoutData(gd_table);
-		table.setBounds(0, 0, 85, 85);
-		
-		TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-		TableColumn tblclmnObservations = tableViewerColumn.getColumn();
-		tblclmnObservations.setText("Observations");
-		tblclmnObservations.setWidth(400);
+		composite.setLayout(new GridLayout(1, false));
 		
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayout(new GridLayout(1, false));
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		new Label(composite, SWT.NONE);
 		
 		itemEditorParent = new Composite(composite_1, SWT.NONE);
 		itemEditorParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -207,9 +190,7 @@ public class SemanticAnnotationEditor extends EditorPart {
 		/*
 		 * TODO flush the annotation container
 		 */
-		resetView();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 //		file.setContents(
 //			new ByteArrayInputStream(out.toByteArray()), 
@@ -217,6 +198,7 @@ public class SemanticAnnotationEditor extends EditorPart {
 //			false, // dont keep history
 //			monitor); // progress monitor
 		
+		resetView();
 		
 		this.dirty = false;
 		setPartName("Annotation Namespace: " + (MiscUtilities.getFileBaseName(this.input.getName())));

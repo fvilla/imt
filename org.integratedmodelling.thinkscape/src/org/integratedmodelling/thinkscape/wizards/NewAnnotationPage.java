@@ -8,13 +8,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 public class NewAnnotationPage extends WizardPage {
-	private Text namespace;
+	private Combo namespace;
 	private Combo project;
 
 	/**
@@ -22,8 +25,8 @@ public class NewAnnotationPage extends WizardPage {
 	 */
 	public NewAnnotationPage() {
 		super("wizardPage");
-		setTitle("Create a new annotation namespace");
-		setDescription("Define a new annotation namespace for a project. You can then create semantic annotation by adding sources to the namespace from the Sources view.");
+		setTitle("Create a new semantic annotation");
+		setDescription("Define an empty annotation in a (possibly new) annotation namespace. You can then add a source observation from the Sources view.");
 	}
 
 	/**
@@ -41,8 +44,28 @@ public class NewAnnotationPage extends WizardPage {
 		lblChooseProject.setText("Choose project: ");
 		
 		project = new Combo(container, SWT.READ_ONLY);
+		project.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				/*
+				 * set namespace combo to all namespaces in selected project
+				 */
+				ThinklabProject proj = ThinkScape.getProject(project.getText(), false);
+				namespace.removeAll();
+				for (SemanticAnnotationContainer c : proj.getAnnotationNamespaces()) {
+					namespace.add(c.getNamespace());
+				}
+			}
+		});
 		project.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+				Label lblAnnotationNamespace = new Label(container, SWT.NONE);
+				lblAnnotationNamespace.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+				lblAnnotationNamespace.setText("Annotation namespace: ");
+
+		namespace = new Combo(container, SWT.BORDER);
+		namespace.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
 		boolean ex = false;
 		try {
 			for (ThinklabProject p : ThinkScape.scanProjects()) {
@@ -52,28 +75,30 @@ public class NewAnnotationPage extends WizardPage {
 		} catch (ThinklabException e) {
 			throw new ThinklabRuntimeException(e);
 		}
-		if (ex)
+		if (ex) {
 			project.select(0);
-
-		Label lblAnnotationNamespace = new Label(container, SWT.NONE);
-		lblAnnotationNamespace.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblAnnotationNamespace.setText("Annotation namespace: ");
+			/*
+			 * set namespaces in combo
+			 */
+			ThinklabProject proj = ThinkScape.getProject(project.getText(), false);
+			for (SemanticAnnotationContainer c : proj.getAnnotationNamespaces()) {
+				namespace.add(c.getNamespace());
+			}
+		}
 		
-		namespace = new Text(container, SWT.BORDER);
-		namespace.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		if (!ex) {
 			project.setEnabled(false);
 			namespace.setEnabled(false);
 			this.setErrorMessage("No projects have been created. Create a project first.");
-		}
+		} 
 	}
 	
 	public Combo getProject() {
 		return project;
 	}
 	
-	public Text getNamespace() {
+	public Combo getNamespace() {
 		return namespace;
 	}
 

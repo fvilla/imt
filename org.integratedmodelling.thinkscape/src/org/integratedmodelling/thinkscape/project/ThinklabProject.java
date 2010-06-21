@@ -1,6 +1,7 @@
 package org.integratedmodelling.thinkscape.project;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -286,6 +287,16 @@ public class ThinklabProject {
 			}
 		}
 		return ret;
+	}
+
+	public void importModel(String namespace, File file) {
+		// TODO import models from clojure file
+		
+	}
+
+	public void importAnnotations(String namespace, File file) {
+		// TODO import annotations from xml file
+		
 	}
 
 	

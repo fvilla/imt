@@ -53,6 +53,8 @@ public class SingleAnnotationEditor extends Composite {
 	private SemanticAnnotation annotation;
 	private SemanticAnnotationContainer container;
 	private Composite parent;
+
+	private ToolItem statusImage;
 	
 	/**
 	 * Create the composite.
@@ -112,7 +114,7 @@ public class SingleAnnotationEditor extends Composite {
 			}
 		}
 		
-		ToolItem statusImage = new ToolItem(statusToolbar, SWT.NONE);
+		this.statusImage = new ToolItem(statusToolbar, SWT.NONE);
 		statusImage.setImage(ResourceManager.getPluginImage(
 				"org.integratedmodelling.thinkscape", 
 					nProblems == 0 ? "icons/check.png" : "icons/error.png"));
@@ -186,7 +188,20 @@ public class SingleAnnotationEditor extends Composite {
 	}
 
 	public void refresh() {
-		// TODO refresh editor, which revalidates the annotation.
+
+		int nProblems = annotation.validate();
+		String tooltip = "The observation is valid";
+		if (nProblems > 0) {
+			tooltip = "";
+			for (String p : annotation.getValidationMessages()) {
+				tooltip += p + "\n";
+			}
+		}
+		
+		statusImage.setImage(ResourceManager.getPluginImage(
+				"org.integratedmodelling.thinkscape", 
+					nProblems == 0 ? "icons/check.png" : "icons/error.png"));
+		statusImage.setToolTipText(tooltip);
 	}
 	
 	private void setDirty() {

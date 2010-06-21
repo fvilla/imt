@@ -14,7 +14,7 @@ import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 public class NewModelPage extends WizardPage {
-	private Text namespace;
+	private Combo namespace;
 	private Combo project;
 
 	/**
@@ -59,7 +59,7 @@ public class NewModelPage extends WizardPage {
 		lblAnnotationNamespace.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblAnnotationNamespace.setText("Model namespace: ");
 		
-		namespace = new Text(container, SWT.BORDER);
+		namespace = new Combo(container, SWT.BORDER);
 		namespace.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		if (!ex) {
@@ -73,7 +73,7 @@ public class NewModelPage extends WizardPage {
 		return project;
 	}
 	
-	public Text getNamespace() {
+	public Combo getNamespace() {
 		return namespace;
 	}
 
