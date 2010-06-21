@@ -91,6 +91,7 @@ public class SingleAnnotationEditor extends Composite {
 				/*
 				 * flush annotation to container
 				 */
+				annotation.setValid(annotation.validate() == 0);
 				container.putAnnotation(annotation);
 				editor.doSave(new NullProgressMonitor());
 			}
@@ -185,8 +186,17 @@ public class SingleAnnotationEditor extends Composite {
 	}
 
 	public void refresh() {
-		
 		// TODO refresh editor, which revalidates the annotation.
+	}
+	
+	private void setDirty() {
+		/*
+		 * validate annotation and reset info
+		 */
+		
+		/*
+		 * set editor to dirty
+		 */
 	}
 
 	@Override

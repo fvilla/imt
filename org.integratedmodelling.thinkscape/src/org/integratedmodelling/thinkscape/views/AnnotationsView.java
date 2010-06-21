@@ -130,7 +130,7 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 				 * fire up concept annotation editor; create concept axiom file if not there
 				 */
 				IFile file = 
-					ThinkScape.getActiveProject().getAnnotationNamespace(container.getNamespace());
+					ThinkScape.getActiveProject().getAnnotationNamespaceFile(container.getNamespace());
 				
 				IEditorDescriptor desc = 
 					PlatformUI.getWorkbench().
@@ -186,7 +186,7 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 
 		        	ThinklabProject project = ThinkScape.getProject(wizard.getProject(), true);
 		        	
-		        	IFile file = project.getAnnotationNamespace(wizard.getNamespace());
+		        	IFile file = project.getAnnotationNamespaceFile(wizard.getNamespace());
 		        	IEditorDescriptor desc = 
 		        		PlatformUI.getWorkbench().
 		        			getEditorRegistry().getDefaultEditor(file.getName());

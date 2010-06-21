@@ -172,7 +172,7 @@ public class ThinklabProject {
 	
 	// get the file corresponding to an annotation namespace for this project; create it
 	// if absent.
-	public IFile getAnnotationNamespace(String src) {
+	public IFile getAnnotationNamespaceFile(String src) {
 
 		String fn = "annotations" + "/" + src + ".ann";
 		IFile ret = project.getFile(fn);
@@ -275,6 +275,17 @@ public class ThinklabProject {
 
 	public Collection<SemanticAnnotationContainer> getAnnotationNamespaces() {
 		return annotationNamespaces;
+	}
+	
+	public SemanticAnnotationContainer getAnnotationNamespace(String namespace) {
+		SemanticAnnotationContainer ret = null;
+		for (SemanticAnnotationContainer c : annotationNamespaces) {
+			if (c.getNamespace().equals(namespace)) {
+				ret = c;
+				break;
+			}
+		}
+		return ret;
 	}
 
 	

@@ -1,13 +1,18 @@
 package org.integratedmodelling.thinkscape.editors;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.swt.layout.RowLayout;
@@ -35,6 +40,8 @@ import org.integratedmodelling.utils.MiscUtilities;
 import org.integratedmodelling.utils.Pair;
 import org.integratedmodelling.utils.Path;
 import org.integratedmodelling.utils.Triple;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 public class SemanticAnnotationEditor extends EditorPart {
 
@@ -49,8 +56,11 @@ public class SemanticAnnotationEditor extends EditorPart {
 	private int currentAnnotation = -1;
 	private SingleAnnotationEditor currentEditor;
 	private Composite parent;
-	private boolean dirty;
+	private boolean dirty = false;
 	private IEditorInput input;
+	
+	private SemanticAnnotationContainer theContainer;
+	private String namespace;
 	
 	public SemanticAnnotationEditor() {
 	}
@@ -67,6 +77,13 @@ public class SemanticAnnotationEditor extends EditorPart {
 		parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		Composite composite = new Composite(parent, SWT.NONE);
+		composite.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (dirty && (e.keyCode == 's' || e.keyCode == 'S') && (e.stateMask & SWT.CTRL) != 0)
+						doSave(new NullProgressMonitor());
+			}
+		});
 		composite.setLayout(new GridLayout(3, false));
 		
 		this.tableViewer = new TableViewer(composite, SWT.BORDER | SWT.FULL_SELECTION);
@@ -176,7 +193,7 @@ public class SemanticAnnotationEditor extends EditorPart {
 		// Set the focus
 	}
 
-	private void resetView() {
+	public void resetView() {
 		for (Control c : this.parent.getChildren())
 			c.dispose();
 		createPartControl(this.parent);
@@ -186,12 +203,23 @@ public class SemanticAnnotationEditor extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 
+		System.out.println("DOSAVE CALLED " + input);
 		/*
 		 * TODO flush the annotation container
 		 */
+		resetView();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
+		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+//		file.setContents(
+//			new ByteArrayInputStream(out.toByteArray()), 
+//			true,  // keep saving, even if IFile is out of sync with the Workspace
+//			false, // dont keep history
+//			monitor); // progress monitor
+		
 		
 		this.dirty = false;
-		setPartName("* Annotation Namespace: " + (MiscUtilities.getFileBaseName(this.input.getName())));
+		setPartName("Annotation Namespace: " + (MiscUtilities.getFileBaseName(this.input.getName())));
 	}
 
 	@Override
@@ -204,7 +232,10 @@ public class SemanticAnnotationEditor extends EditorPart {
 			throws PartInitException {
 		setSite(site);
 		setInput(this.input = input);
-		setPartName("Annotation Namespace: " + (MiscUtilities.getFileBaseName(input.getName())));
+		this.namespace = MiscUtilities.getFileBaseName(input.getName());
+		this.theContainer = 
+				ThinkScape.getActiveProject().getAnnotationNamespace(this.namespace);
+		setPartName("Annotation Namespace: " + this.namespace);
 	}
 	
 	
@@ -215,7 +246,6 @@ public class SemanticAnnotationEditor extends EditorPart {
 	
 	public void setDirty() {
 		this.dirty = true;
-		setPartName("* Annotation Namespace: " + (MiscUtilities.getFileBaseName(this.input.getName())));
 	}
 
 	@Override
