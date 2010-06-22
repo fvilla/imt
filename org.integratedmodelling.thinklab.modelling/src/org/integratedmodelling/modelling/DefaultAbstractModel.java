@@ -33,6 +33,7 @@ import org.integratedmodelling.thinklab.kbox.FilteringQueryResult;
 import org.integratedmodelling.thinklab.kbox.ProxyQueryResult;
 import org.integratedmodelling.thinklab.owlapi.Session;
 import org.integratedmodelling.utils.MiscUtilities;
+import org.integratedmodelling.utils.NameGenerator;
 import org.integratedmodelling.utils.Path;
 import org.integratedmodelling.utils.Polylist;
 
@@ -64,6 +65,11 @@ public abstract class DefaultAbstractModel implements IModel {
 	protected boolean mediatesExternal;
 	private boolean _validated = false;
 
+	
+	// a unique ID that is only propagated to models that are copied from this one. Not accessible, but
+	// used to establish equality.
+	String _id = NameGenerator.newName("_mod");
+	
 	/*
 	 * if the model was declared entifiable, this is the agent type that will
 	 * incarnate the entities that can be produced from an observation of it.
@@ -121,9 +127,29 @@ public abstract class DefaultAbstractModel implements IModel {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+
+		return 
+			obj instanceof DefaultAbstractModel ? 
+				this._id.equals(((DefaultAbstractModel)obj)._id) :
+				false;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return this._id.hashCode();
+	}
 
 	/**
-	 * This one is invoked oncr before any use is made of the model, and is
+	 * This one is invoked once before any use is made of the model, and is
 	 * supposed to validate all concepts used in the model's definition. In
 	 * order to allow facilitated and automated annotation, no model should
 	 * perform concept validation at declaration; all validation should be done
@@ -160,6 +186,16 @@ public abstract class DefaultAbstractModel implements IModel {
 			}
 		}
 		return c;
+	}
+
+	
+	
+	/* (non-Javadoc)
+	 * @see org.integratedmodelling.modelling.interfaces.IModel#getDependencies()
+	 */
+	@Override
+	public Collection<IModel> getDependencies() {
+		return dependents;
 	}
 
 	public void setObservable(Object observableOrModel)
@@ -316,6 +352,7 @@ public abstract class DefaultAbstractModel implements IModel {
 	 */
 	protected void copy(DefaultAbstractModel model) {
 		
+		_id = model._id;
 		id = model.id;
 		mediated = model.mediated;
 		observable = model.observable;

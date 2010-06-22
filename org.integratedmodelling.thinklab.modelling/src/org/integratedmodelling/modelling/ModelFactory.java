@@ -1,11 +1,13 @@
 package org.integratedmodelling.modelling;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.integratedmodelling.clojure.interpreters.ClojureInterpreter;
 import org.integratedmodelling.corescience.context.ObservationContext;
 import org.integratedmodelling.corescience.interfaces.IObservation;
 import org.integratedmodelling.corescience.interfaces.IState;
@@ -29,6 +31,7 @@ import org.integratedmodelling.thinklab.interfaces.query.IQueryResult;
 import org.integratedmodelling.thinklab.interfaces.storage.IKBox;
 import org.integratedmodelling.thinklab.literals.ObjectReferenceValue;
 import org.integratedmodelling.time.literals.TemporalExtentValue;
+import org.integratedmodelling.utils.Path;
 import org.integratedmodelling.utils.Polylist;
 
 /**
@@ -56,6 +59,8 @@ public class ModelFactory {
 	public Hashtable<String, Model> modelsById = new Hashtable<String, Model>();
 	public Hashtable<String, Scenario> scenariosById = new Hashtable<String, Scenario>();
 	public Hashtable<String, ThinkAgent> agentsById = new Hashtable<String, ThinkAgent>();
+
+	private ModelImportListener[] listeners = null;
 
 	class ContextualizingModelResult implements IQueryResult {
 
@@ -208,6 +213,8 @@ public class ModelFactory {
 		
 		modelsById.put(name, model);
 		model.setName(name);
+		model.defineName(Path.getLeading(name, '/'), Path.getLast(name, '/'));
+		notifyModelImported(Path.getLeading(name, '/'), model);
 		ModellingPlugin.get().info("model " + model + " registered as " + name);
 		return model;
 	}
@@ -474,5 +481,45 @@ public class ModelFactory {
 	public Collection<ThinkAgent> getAgents() {
 		return agentsById.values();
 	}
+
+	/**
+	 * Import models from a Clojure file, using given listeners. Must be run in a synchronized way, 
+	 * never in a multi-user environment, as it modifies the ModelFactory. If we ever need to run this in a multiuser
+	 * fashion, we must support multiple model factories.
+	 * 
+	 * @param url
+	 * @param listeners
+	 * @throws ThinklabException 
+	 */
+	public synchronized void importModel(URL url, ModelImportListener[] listeners) throws ThinklabException {
+		this.listeners = listeners;
+		new ClojureInterpreter().loadBindings(url, null);
+		this.listeners = null;
+	}
+
+	/**
+	 * Import models from a Clojure file, using given listener. Must be run in a synchronized way, 
+	 * never in a multi-user environment, as it modifies the ModelFactory. If we ever need to run this in a multiuser
+	 * fashion, we must support multiple model factories.
+	 * 
+	 * @param url
+	 * @param listener
+	 * @throws ThinklabException 
+	 */
+	public void importModel(URL url, ModelImportListener listener) throws ThinklabException {
+		importModel(url, new ModelImportListener[] { listener });
+	}
 	
+	public void importModel(URL url) throws ThinklabException {
+		importModel(url, (ModelImportListener[])null);
+	}
+	
+	public void notifyModelImported(String namespace, Model model) {
+		if (this.listeners != null) {
+			for (ModelImportListener l : listeners) {
+				l.modelImported(namespace, model);
+			}
+		}
+	}
+
 }

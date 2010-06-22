@@ -24,7 +24,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.integratedmodelling.clojure.ClojureActivator;
 import org.integratedmodelling.corescience.CoreScience;
 import org.integratedmodelling.geospace.Geospace;
-import org.integratedmodelling.modelling.Model;
 import org.integratedmodelling.modelling.ModelFactory;
 import org.integratedmodelling.modelling.ModellingPlugin;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
@@ -35,7 +34,6 @@ import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.time.TimePlugin;
 import org.integratedmodelling.utils.Pair;
 import org.osgi.framework.BundleContext;
-import org.postgresql.translation.messages_cs;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -71,11 +69,12 @@ public class ThinkScape extends AbstractUIPlugin {
 		}
 	}
 
-	
 	/*
 	 * we have an active project
 	 */
 	static ThinklabProject activeProject = null;
+	
+	private ArrayList<ThinklabProject> projects = new ArrayList<ThinklabProject>();
 
 	private ArrayList<IPropertyChangeListener> listeners = new ArrayList<IPropertyChangeListener>();
 	
@@ -106,7 +105,7 @@ public class ThinkScape extends AbstractUIPlugin {
 
 	}
 
-	private void setup() {
+	private void setup() throws ThinklabException {
 		
 		// force core plugins to load
 		ClojureActivator cj = ClojureActivator.get();
@@ -118,6 +117,8 @@ public class ThinkScape extends AbstractUIPlugin {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
 				new DispatchingListener(),
 				IResourceChangeEvent.POST_BUILD);
+		
+		scanProjects();
 	}
 
 	/*
@@ -138,15 +139,39 @@ public class ThinkScape extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public static Collection<ThinklabProject> scanProjects() throws ThinklabException {
+	public static void scanProjects() throws ThinklabException {
 		
-		ArrayList<ThinklabProject> ret = new ArrayList<ThinklabProject>();
+		ArrayList<IProject> tprojects = new ArrayList<IProject>();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		for (IProject proj : root.getProjects()) {
 			if (isThinklabProject(proj))
-					ret.add(new ThinklabProject(proj));
+				tprojects.add(proj);
 		}
-		return ret;
+		
+		ArrayList<IProject> toadd = new ArrayList<IProject>();
+		ArrayList<ThinklabProject> torem = new ArrayList<ThinklabProject>();
+		
+		for (IProject p : tprojects) {
+			if (getProject(p.getName(), false) == null) {
+				toadd.add(p);
+			}
+		}
+
+		for (ThinklabProject pp : getDefault().projects) {
+			for (IProject pro : tprojects) {
+				if (getProject(pro.getName(), false) != null) {
+					torem.add(pp);
+				}
+			}
+		}
+		
+		for (ThinklabProject p : torem) {
+			getDefault().projects.remove(p);
+		}
+		
+		for (IProject p : toadd) {
+			getDefault().projects.add(new ThinklabProject(p));
+		}
 	}
 
 	public void addPropertyChangeListener(IPropertyChangeListener listener) {
@@ -178,18 +203,14 @@ public class ThinkScape extends AbstractUIPlugin {
 	public static ThinklabProject getActiveProject() {
 
 		if (activeProject == null) {
-			Collection<ThinklabProject> prjs = null;
-			try {
-				prjs = scanProjects();
-			} catch (ThinklabException e) {
-				throw new ThinklabRuntimeException(e);
-			}
+			Collection<ThinklabProject> prjs = getProjects();
+
 			if (prjs.size() > 0)
 				// FIXME offer to select it if more than one.
 				activeProject = prjs.iterator().next();
 		}
 		
-		if (activeProject == null) {	
+		if (activeProject /* still */ == null) {	
 			MessageDialog.openWarning(
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 				"Thinkscape Notification","No current project selected. Please create a project.");
@@ -198,6 +219,10 @@ public class ThinkScape extends AbstractUIPlugin {
 		return activeProject;
 	}
 
+	public static Collection<ThinklabProject> getProjects() {
+		return getDefault().projects;
+	}
+	
 	public static void addProject(String src) {
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -216,18 +241,18 @@ public class ThinkScape extends AbstractUIPlugin {
 	}
 
 	public static ThinklabProject getProject(String project, boolean activate) {
-		try {
-			for (ThinklabProject p : scanProjects())
-				if (p.getName().equals(project)) {
-					if (activate && (activeProject == null || !activeProject.getName().equals(project))) {
-						activeProject = p;
-						getDefault().notifyPropertyChange(ThinkscapeEvent.PROJECT_ACTIVATED, p);
-					}
-					return p;
+
+		for (ThinklabProject p : getProjects())
+			if (p.getName().equals(project)) {
+				if (activate
+						&& (activeProject == null || !activeProject.getName()
+								.equals(project))) {
+					activeProject = p;
+					getDefault().notifyPropertyChange(
+							ThinkscapeEvent.PROJECT_ACTIVATED, p);
 				}
-		} catch (ThinklabException e) {
-			throw new ThinklabRuntimeException(e);
-		}
+				return p;
+			}
 		return null;
 	}
 

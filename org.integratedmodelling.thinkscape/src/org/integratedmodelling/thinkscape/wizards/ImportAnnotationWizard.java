@@ -43,7 +43,7 @@ public class ImportAnnotationWizard extends Wizard {
 	private AnnotationImportPage page;
 
 	public ImportAnnotationWizard() {
-		setWindowTitle("Import model files");
+		setWindowTitle("Import annotation files");
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class ImportAnnotationWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 
-		Job job = new WorkspaceJob("Importing model file") {
+		Job job = new WorkspaceJob("Importing annotation file") {
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
 				ThinklabProject project = ThinkScape.getProject(page.getProject(), true);

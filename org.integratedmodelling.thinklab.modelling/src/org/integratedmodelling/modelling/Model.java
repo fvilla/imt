@@ -53,7 +53,23 @@ public class Model extends DefaultAbstractModel {
 	Collection<String> contextIds = null;
 	String description = null;
 
+	private String givenName;
+	private String namespace;
+	
 	Object state = null;
+	
+	public String getModelName() {
+		return givenName;
+	}
+	
+	public String getNamespace() {
+		return namespace;
+	}
+	
+	public void defineName(String namespace, String name) {
+		this.givenName = name;
+		this.namespace = namespace;
+	}
 	
 	@Override
 	public ModelResult observeInternal(IKBox kbox, ISession session, IntelligentMap<IConformance> cp, ArrayList<Topology> extents, boolean acceptEmpty)  throws ThinklabException {
@@ -221,6 +237,15 @@ public class Model extends DefaultAbstractModel {
 	}
 	
 	/**
+	 * Return all the contingencies.
+	 * 
+	 * @return
+	 */
+	public Collection<IModel> getDefinitions() {
+		return models;
+	}
+	
+	/**
 	 * Return a scenario with all the observables that were declared
 	 * editable in the defmodel form.
 	 * 
@@ -250,6 +275,9 @@ public class Model extends DefaultAbstractModel {
 		 */
 		Model ret = new Model();
 		ret.copy(this);
+		
+		ret.givenName = this.givenName;
+		ret.namespace = this.namespace;
 		
 		return ret;
 	}

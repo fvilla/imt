@@ -40,6 +40,16 @@ public class ThinkcapView extends ViewPart {
 		tltmStart.setToolTipText("Start server");
 		tltmStart.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/play.png"));
 		
+		ToolItem tltmStop = new ToolItem(toolBar, SWT.NONE);
+		tltmStop.setEnabled(false);
+		tltmStop.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/stop.png"));
+		tltmStop.setText("Stop ");
+		
+		ToolItem tltmRestart = new ToolItem(toolBar, SWT.NONE);
+		tltmRestart.setEnabled(false);
+		tltmRestart.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/refresh.png"));
+		tltmRestart.setText("Restart ");
+		
 		TableViewer tableViewer = new TableViewer(container, SWT.BORDER | SWT.FULL_SELECTION);
 		table = tableViewer.getTable();
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));

@@ -67,14 +67,11 @@ public class NewAnnotationPage extends WizardPage {
 		namespace.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		boolean ex = false;
-		try {
-			for (ThinklabProject p : ThinkScape.scanProjects()) {
-				project.add(p.getName());
-				ex = true;
-			}
-		} catch (ThinklabException e) {
-			throw new ThinklabRuntimeException(e);
+		for (ThinklabProject p : ThinkScape.getProjects()) {
+			project.add(p.getName());
+			ex = true;
 		}
+		
 		if (ex) {
 			project.select(0);
 			/*

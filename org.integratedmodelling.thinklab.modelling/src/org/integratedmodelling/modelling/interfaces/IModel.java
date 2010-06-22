@@ -94,7 +94,13 @@ public interface IModel extends IConceptualizable {
 	 * @return
 	 */
 	public abstract String getId();
-
+	
+	/**
+	 * Return all models this one depends upon (the :context specification).
+	 * @return
+	 */
+	public abstract Collection<IModel> getDependencies();
+	
 	/**
 	 * Observing a model over a kbox is a query that produces zero or more observations of 
 	 * that model. Contextualizing each observation is equivalent to running the model.

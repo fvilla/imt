@@ -1,5 +1,7 @@
 package org.integratedmodelling.geospace.annotations;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -292,6 +294,18 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 
 	@Override
 	public void putAnnotation(SemanticAnnotation annotation) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void load(InputStream inp) throws ThinklabException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void store(OutputStream out) throws ThinklabException {
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,7 +1,10 @@
 package org.integratedmodelling.thinklab.annotation;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collection;
 
+import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.utils.xml.XMLDocument;
 import org.w3c.dom.Node;
 
@@ -101,4 +104,18 @@ public interface SemanticAnnotationContainer {
 	 */
 	public void putAnnotation(SemanticAnnotation annotation);
 	
+	/**
+	 * Load annotations from an input stream.
+	 * 
+	 * @param inp
+	 * @throws ThinklabException
+	 */
+	public void load(InputStream inp) throws ThinklabException;
+	
+	/**
+	 * Write annotations to an output stream.
+	 * @param out
+	 * @throws ThinklabException
+	 */
+	public void store(OutputStream out) throws ThinklabException;
 }

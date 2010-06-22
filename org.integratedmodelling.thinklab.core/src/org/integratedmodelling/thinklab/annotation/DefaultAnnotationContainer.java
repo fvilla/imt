@@ -1,9 +1,17 @@
 package org.integratedmodelling.thinklab.annotation;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Properties;
 
+import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinklab.exception.ThinklabIOException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
+import org.integratedmodelling.utils.Path;
 import org.integratedmodelling.utils.xml.XMLDocument;
 import org.w3c.dom.Node;
 
@@ -85,6 +93,52 @@ public class DefaultAnnotationContainer implements
 	@Override
 	public void putAnnotation(SemanticAnnotation annotation) {
 		annotations.put(annotation.getId(), annotation);
+	}
+
+	@Override
+	public void load(InputStream inp) throws ThinklabException {
+		
+		Properties p = new Properties();
+		try {
+			p.load(inp);
+		} catch (IOException e) {
+			throw new ThinklabIOException(e);
+		}
+		
+		for (Object pp : p.keySet()) {
+			String aname = Path.getFirst(pp.toString(), '.');
+			SemanticAnnotation ann = requireAnnotation(aname, p);
+			ann.put(pp, p.get(pp));
+		}
+		
+	}
+
+	private SemanticAnnotation requireAnnotation(String aname, Properties p) throws ThinklabValidationException {
+
+		SemanticAnnotation ret = annotations.get(aname);
+		if (ret == null) {
+			String pclass = p.getProperty(aname + "." + SemanticAnnotation.ANNOTATION_PROVIDER_ID);
+			if (pclass == null)
+				throw new ThinklabValidationException(
+						"internal: annotation storage does not contain class for annotation " + aname);
+			
+			SemanticAnnotationProvider prv = SemanticAnnotationFactory.get().getAnnotator(pclass);
+			ret = prv.createEmptyAnnotation();
+			annotations.put(aname, ret);
+		}
+		return ret;
+	}
+
+	@Override
+	public void store(OutputStream out) throws ThinklabException {
+		for (SemanticAnnotation a : annotations.values()) {
+			try {
+				a.store(out, null);
+			} catch (IOException e) {
+				throw new ThinklabIOException(e);
+			}
+		}
+		
 	}
 
 }

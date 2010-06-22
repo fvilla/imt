@@ -21,20 +21,26 @@ import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.ModifyEvent;
 
 public class ProjectImportPage extends WizardPage {
-	private Combo namespace;
-	private Combo project;
-	private Text text;
+	
+	private Combo namespaceField;
+	private Combo projectField;
+	private Text textField;
 
 	private String description = "Wizard page description";
 	private String title = "Wizard page description";
 	private String fileMask = "*.txt";
 	private String fileDesc = "Text files (*.txt)";
 	private String objectLabel;
+	private String text;
+	private String project;
+	private String namespace;
+	private boolean namespaceEnabled = true; 
 	
 	/**
-	 * Create the wizard.
 	 */
 	public ProjectImportPage() {
 		super("wizardPage");
@@ -42,7 +48,7 @@ public class ProjectImportPage extends WizardPage {
 		setDescription("Wizard Page description");
 	}
 
-	public void define(String fileMask, String fileDesc, String description, String title, String objectLabel) {
+	protected void define(String fileMask, String fileDesc, String description, String title, String objectLabel) {
 		this.fileMask = fileMask;
 		this.fileDesc = fileDesc;
 		setTitle(this.title = title);
@@ -50,6 +56,10 @@ public class ProjectImportPage extends WizardPage {
 		this.objectLabel = objectLabel;
 	}
 
+	protected void enableNamespace(boolean b) {
+		this.namespaceEnabled = b;
+	}
+	
 	/**
 	 * Override this one to choose existing namespaces 
 	 * 
@@ -76,24 +86,35 @@ public class ProjectImportPage extends WizardPage {
 		lblChooseProject.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblChooseProject.setText("Choose project: ");
 		
-		project = new Combo(container, SWT.READ_ONLY);
-		project.addSelectionListener(new SelectionAdapter() {
+		projectField = new Combo(container, SWT.READ_ONLY);
+		projectField.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				namespace.removeAll();
-				for (String s : getNamespaces(project.getText())) {
-					namespace.add(s);
+				project = projectField.getText();
+				if (namespaceEnabled) {
+					namespaceField.removeAll();
+					for (String s : getNamespaces(project)) {
+						namespaceField.add(s);
+					}
 				}
 			}
 		});
-		project.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		projectField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		Label lblAnnotationNamespace = new Label(container, SWT.NONE);
-		lblAnnotationNamespace.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblAnnotationNamespace.setText(objectLabel + " namespace: ");
+		if (namespaceEnabled) {
 
-		namespace = new Combo(container, SWT.BORDER);
-		namespace.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			Label lblAnnotationNamespace = new Label(container, SWT.NONE);
+			lblAnnotationNamespace.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+			lblAnnotationNamespace.setText(objectLabel + " namespace: ");
+
+			namespaceField = new Combo(container, SWT.BORDER);
+			namespaceField.addModifyListener(new ModifyListener() {
+				public void modifyText(ModifyEvent arg0) {
+					namespace = namespaceField.getText();
+				}
+			});
+			namespaceField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		}
 		
 		Label lblFileToImport = new Label(container, SWT.NONE);
 		lblFileToImport.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -107,8 +128,8 @@ public class ProjectImportPage extends WizardPage {
 		composite.setLayout(gl_composite);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		text = new Text(composite, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		textField = new Text(composite, SWT.BORDER);
+		textField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		Button btnBrowse = new Button(composite, SWT.NONE);
 		btnBrowse.addSelectionListener(new SelectionAdapter() {
@@ -119,31 +140,33 @@ public class ProjectImportPage extends WizardPage {
 			        dlg.setFilterExtensions(new String[] {fileMask});
 			        String fn = dlg.open();
 			        if (fn != null) {
-			          text.setText(fn);
+			          textField.setText(fn);
 			        }
+			        text = fn == null ? "" : fn;
 			}
 		});
 		btnBrowse.setText("Browse...");
 
 		boolean ex = false;
-		try {
-			for (ThinklabProject p : ThinkScape.scanProjects()) {
-				project.add(p.getName());
-				ex = true;
-			}
-		} catch (ThinklabException e) {
-			throw new ThinklabRuntimeException(e);
+		for (ThinklabProject p : ThinkScape.getProjects()) {
+			projectField.add(p.getName());
+			ex = true;
 		}
+
 		if (ex) {
-			project.select(0);
-			for (String s : getNamespaces(project.getText())) {
-				namespace.add(s);
+			projectField.select(0);
+			project = projectField.getText();
+			if (namespaceEnabled) {
+				for (String s : getNamespaces(projectField.getText())) {
+					namespaceField.add(s);
+				}
 			}
 		}
 		
 		if (!ex) {
-			project.setEnabled(false);
-			namespace.setEnabled(false);
+			projectField.setEnabled(false);
+			if (namespaceEnabled)
+				namespaceField.setEnabled(false);
 			this.setErrorMessage("No projects have been created. Create a project first.");
 		} 
 
@@ -156,21 +179,21 @@ public class ProjectImportPage extends WizardPage {
 	 */
 	@Override
 	public boolean isPageComplete() {
-		return 
-			!getNamespace().trim().equals("") &&
-			!getFilename().trim().equals("") &&
-			new File(getFilename()).exists();
+		return true;
+//			!getNamespace().trim().equals("") &&
+//			!getFilename().trim().equals("") &&
+//			new File(getFilename()).exists();
 	}
 
 	public String getFilename() {
-		return text.getText();
+		return text;
 	}
 	
 	public String getProject() {
-		return project.getText();
+		return project;
 	}
 	
 	public String getNamespace() {
-		return namespace.getText();
+		return namespace;
 	}
 }

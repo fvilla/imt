@@ -1,8 +1,12 @@
 package org.integratedmodelling.thinkscape.views;
 
+import java.util.Collection;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -25,17 +29,23 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ViewPart;
+import org.integratedmodelling.modelling.Model;
 import org.integratedmodelling.modelling.ModelFactory;
+import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.ThinkscapeEvent;
 import org.integratedmodelling.thinkscape.TreeModel;
+import org.integratedmodelling.thinkscape.modeleditor.model.ModelNamespace;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.wizards.ImportModelWizard;
 import org.integratedmodelling.thinkscape.wizards.NewModel;
 
 import com.swtdesigner.ResourceManager;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 
-public class ThinklabModels extends ViewPart {
+public class ThinklabModels extends ViewPart implements IPropertyChangeListener {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.views.ThinklabModels"; //$NON-NLS-1$
 	private Text text;
@@ -52,31 +62,54 @@ public class ThinklabModels extends ViewPart {
 
 		@Override
 		public Object[] getChildren(Object object) {
-			// TODO Auto-generated method stub
-			return null;
+			Object[] ret = null;
+			if (object instanceof ModelNamespace) {
+				Collection<Model> models = ((ModelNamespace)object).getRootModels();
+				ret = new Model[models.size()]; int i = 0;
+				for (Model m : models) {
+					ret[i++] = m;
+				}
+			}
+			return ret;
 		}
 
 		@Override
 		public Image getImage(Object object, int column) {
-			// TODO Auto-generated method stub
-			return null;
+			String ret = null;
+			if (object instanceof ModelNamespace && column == 0) {
+				ret = "icons/database_gear.png";
+			} else if (object instanceof Model && column == 0) {
+				ret = "icons/cog_go.png";
+			} 
+			return ret == null ? 
+					null :
+					ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", ret);
 		}
 
 		@Override
 		public String getName(Object object, int column) {
-			// TODO Auto-generated method stub
-			return null;
+			String ret = "";
+			if (object instanceof ModelNamespace && column == 0) {
+				ret = ((ModelNamespace)object).getNamespace();
+			} else if (object instanceof Model && column == 0) {
+				ret = ((Model)object).getModelName();
+			} 
+			return ret; 
 		}
 		
 	}
 	
-	
+	ModelTreeModel modelTreeModel = null;
 	
 	public ThinklabModels() {
-
-
+		ThinkScape.getDefault().addPropertyChangeListener(this);
 	}
 
+	public void rescan() {
+		ThinklabProject proj = ThinkScape.getActiveProject();
+		modelTreeModel.instrumentConceptTree(proj.getModelNamespaces());
+	}
+	
 	/**
 	 * Create contents of the view part.
 	 * @param parent
@@ -119,7 +152,8 @@ public class ThinklabModels extends ViewPart {
 
 							        	ThinklabProject project = ThinkScape.getProject(wizard.getProject(), true);
 							        	
-							        	IFile file = project.getModelNamespace(wizard.getNamespace());
+							        	ModelNamespace namespace = project.getModelNamespace(wizard.getNamespace());
+							        	IFile file = namespace.getFile();
 							        	IEditorDescriptor desc = 
 							        		PlatformUI.getWorkbench().
 							        			getEditorRegistry().getDefaultEditor(file.getName());
@@ -156,10 +190,14 @@ public class ThinklabModels extends ViewPart {
 					
 					treeViewer_1 = new TreeViewer(composite, SWT.BORDER);
 					Tree tree = treeViewer_1.getTree();
-					tree.setHeaderVisible(true);
 					tree.setLinesVisible(true);
 					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 					tree.setBounds(0, 0, 85, 85);
+					{
+						TreeColumn treeColumn = new TreeColumn(tree, SWT.NONE);
+						treeColumn.setWidth(400);
+						treeColumn.setText("New Column");
+					}
 				}
 			}
 			{
@@ -173,17 +211,28 @@ public class ThinklabModels extends ViewPart {
 						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
 						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 						{
-							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
-							toolItem.setToolTipText("Add a new scenario namespace");
+							ToolItem tltmNew_1 = new ToolItem(toolBar, SWT.NONE);
+							tltmNew_1.setText("New ");
+							tltmNew_1.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_add.png"));
+							tltmNew_1.setToolTipText("Add a new scenario namespace");
+						}
+						{
+							ToolItem tltmImport_1 = new ToolItem(toolBar, SWT.NONE);
+							tltmImport_1.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_go.png"));
+							tltmImport_1.setText("Import");
 						}
 					}
 					
 					treeViewer_2 = new TreeViewer(composite, SWT.BORDER);
 					Tree tree = treeViewer_2.getTree();
 					tree.setLinesVisible(true);
-					tree.setHeaderVisible(true);
 					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+					{
+						TreeViewerColumn treeViewerColumn = new TreeViewerColumn(treeViewer_2, SWT.NONE);
+						TreeColumn treeColumn = treeViewerColumn.getColumn();
+						treeColumn.setWidth(400);
+						treeColumn.setText("");
+					}
 				}
 			}
 			{
@@ -197,9 +246,15 @@ public class ThinklabModels extends ViewPart {
 						ToolBar toolBar = new ToolBar(composite, SWT.FLAT | SWT.RIGHT);
 						toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 						{
-							ToolItem toolItem = new ToolItem(toolBar, SWT.NONE);
-							toolItem.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/add.png"));
-							toolItem.setToolTipText("Add a new agent namespace");
+							ToolItem tltmNew_2 = new ToolItem(toolBar, SWT.NONE);
+							tltmNew_2.setText("New ");
+							tltmNew_2.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_add.png"));
+							tltmNew_2.setToolTipText("Add a new agent namespace");
+						}
+						{
+							ToolItem tltmImport_2 = new ToolItem(toolBar, SWT.NONE);
+							tltmImport_2.setImage(ResourceManager.getPluginImage("org.integratedmodelling.thinkscape", "icons/application_go.png"));
+							tltmImport_2.setText("Import");
 						}
 					}
 					
@@ -207,7 +262,12 @@ public class ThinklabModels extends ViewPart {
 					Tree tree = treeViewer_3.getTree();
 					tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 					tree.setLinesVisible(true);
-					tree.setHeaderVisible(true);
+					{
+						TreeViewerColumn treeViewerColumn = new TreeViewerColumn(treeViewer_3, SWT.NONE);
+						TreeColumn treeColumn = treeViewerColumn.getColumn();
+						treeColumn.setWidth(400);
+						treeColumn.setText("");
+					}
 				}
 			}
 		}
@@ -216,6 +276,9 @@ public class ThinklabModels extends ViewPart {
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		}
 
+		this.modelTreeModel = new ModelTreeModel(getModelTreeViewer(), this);
+		rescan();
+		
 		createActions();
 		initializeToolBar();
 		initializeMenu();
@@ -256,6 +319,17 @@ public class ThinklabModels extends ViewPart {
 	}
 	public TreeViewer getAgentTreeViewer() {
 		return treeViewer_3;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(ThinkscapeEvent.MODEL_FILE_IMPORTED)) {
+			ThinkScape.getDefault().getWorkbench().getDisplay().syncExec(new Runnable() {
+				public void run() {
+					rescan();
+				}
+			});
+		}
 	}
 
 }

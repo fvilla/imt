@@ -45,6 +45,7 @@ import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.ThinkscapeEvent;
 import org.integratedmodelling.thinkscape.TreeModel;
 import org.integratedmodelling.thinkscape.TreeHelper.TreeObject;
+import org.integratedmodelling.thinkscape.annotation.ThinkscapeSemanticAnnotationContainer;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.wizards.ImportAnnotationWizard;
 import org.integratedmodelling.thinkscape.wizards.NewAnnotation;
@@ -132,21 +133,27 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 			if (o.data instanceof SemanticAnnotationContainer) {
 				
 				SemanticAnnotationContainer container = (SemanticAnnotationContainer) o.data;
+				
 				/*
 				 * fire up concept annotation editor; create concept axiom file if not there
 				 */
-				IFile file = 
-					ThinkScape.getActiveProject().getAnnotationNamespaceFile(container.getNamespace());
+				ThinkscapeSemanticAnnotationContainer ann = 
+					(ThinkscapeSemanticAnnotationContainer) 
+						ThinkScape.getActiveProject().getAnnotationNamespace(container.getNamespace(), false);
 				
 				IEditorDescriptor desc = 
 					PlatformUI.getWorkbench().
-					getEditorRegistry().getDefaultEditor(file.getName());
+					getEditorRegistry().getDefaultEditor(ann.getFile().getName());
 				try {
-					page.openEditor(new FileEditorInput(file), desc.getId());
+					page.openEditor(new FileEditorInput(ann.getFile()), desc.getId());
 				} catch (PartInitException e) {
 					throw new ThinklabRuntimeException(e);
 				}
 				
+			} else if (o.data instanceof SemanticAnnotation) {
+				/*
+				 * TODO use marker and open specified annotation
+				 */
 			}
 		}
 		
@@ -193,12 +200,14 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 
 		        	ThinklabProject project = ThinkScape.getProject(wizard.getProject(), true);
 		        	
-		        	IFile file = project.getAnnotationNamespaceFile(wizard.getNamespace());
+		        	ThinkscapeSemanticAnnotationContainer ann = 
+		        		(ThinkscapeSemanticAnnotationContainer) 
+		        			project.getAnnotationNamespace(wizard.getNamespace(), true);
 		        	IEditorDescriptor desc = 
 		        		PlatformUI.getWorkbench().
-		        			getEditorRegistry().getDefaultEditor(file.getName());
+		        			getEditorRegistry().getDefaultEditor(ann.getFile().getName());
 		        	try {
-		        		pg.openEditor(new FileEditorInput(file), desc.getId());
+		        		pg.openEditor(new FileEditorInput(ann.getFile()), desc.getId());
 		        	} catch (PartInitException ee) {
 		        		throw new ThinklabRuntimeException(ee);
 		        	}

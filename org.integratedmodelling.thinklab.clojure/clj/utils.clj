@@ -20,7 +20,7 @@
     (if (seq rem)
       (recur (conj odds  (first rem))
              (conj evens (second rem))
-             (rest (rest rem)))
+             (next (next rem)))
       [odds evens])))
       
 (defn assoc-map 
@@ -35,14 +35,14 @@
   [pred coll]
   (when (and (seq coll) (pred (first coll)))
     (lazy-cat (list (first coll) (second coll))
-	      (take-pair-while pred (rest (rest coll))))))
+	      (take-pair-while pred (next (next coll))))))
 
 (defn drop-pair-while
   "Returns a lazy seq of the items in coll starting from the first
    item for which (pred item) returns nil."
   [pred coll]
   (if (and (seq coll) (pred (first coll)))
-    (recur pred (rest (rest coll)))
+    (recur pred (next (next coll)))
     (seq coll)))
 
 (defn split-pair-with
@@ -51,15 +51,16 @@
   [pred coll]
   [(take-pair-while pred coll) (drop-pair-while pred coll)])
 
+;; stack overflow!
 (defn group-if
   "Group any consecutive pairs of items where (pred
    element) returns true for the first element in the pair."
   [pred coll]
   (if (nil? coll) nil
       (if (pred (first coll)) 
-        (cons  (list (first coll) (second coll)) (group-if pred (rest (rest coll)))) 
-        (cons  (first coll) (group-if pred (rest coll)))))) 
-
+        (cons  (list (first coll) (second coll)) (group-if pred (next (next coll)))) 
+        (cons  (first coll) (group-if pred (next coll)))))) 
+        
 (defn group-keywords
   "Return a list where all keywords have been paired with the following element"
   [coll]
@@ -75,7 +76,7 @@
         (empty? dropped) (list taken)
         (empty? taken)
         (lazy-cat (list (first dropped))
-          (group-while pred (rest dropped)))
+          (group-while pred (next dropped)))
         :otherwise 
         (lazy-cat (list taken)
           (group-while pred dropped))))))
@@ -92,10 +93,10 @@
 				(if (pred (second coll))
 		     (cons 
 		     		(take 2 coll)
-						(group-with-following pred (rest (rest coll)) filler))
+						(group-with-following pred (next (next coll)) filler))
 		     (cons 
 		     		(list (first coll) filler)
-						(group-with-following pred (rest coll) filler))))))
+						(group-with-following pred (next coll) filler))))))
 
 
 (defn group-with-keywords

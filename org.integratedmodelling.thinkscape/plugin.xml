@@ -300,16 +300,6 @@
             id="org.integratedmodelling.thinkscape.wizards.sampleCategory"
             name="Thinkscape">
       </category>
-      <wizard
-            category="org.integratedmodelling.thinkscape.wizards.sampleCategory"
-            class="org.integratedmodelling.thinkscape.wizards.ModelImportWizard"
-            icon="icons/database_gear.png"
-            id="org.integratedmodelling.thinkscape.wizards.ModelImportWizard"
-            name="Import Model File">
-         <description>
-            Import a model file (.clj) from the local file system into the workspace.
-         </description>
-      </wizard>
    </extension>
 
 </plugin>

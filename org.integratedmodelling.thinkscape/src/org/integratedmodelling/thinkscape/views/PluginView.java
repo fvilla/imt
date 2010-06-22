@@ -38,12 +38,15 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.NewProjectAction;
 import org.eclipse.ui.part.ViewPart;
+import org.integratedmodelling.modelling.Model;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.ThinkscapeEvent;
 import org.integratedmodelling.thinkscape.TreeModel;
+import org.integratedmodelling.thinkscape.modeleditor.model.ModelNamespace;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 import com.swtdesigner.ResourceManager;
@@ -67,16 +70,26 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 			Object[] ret = null;
 			
 			if (object instanceof ThinklabProject) {
+				
 				ret = new Object[3];
 				ret[0] = ((ThinklabProject)object).ontoPath;
 				ret[1] = ((ThinklabProject)object).annotPath;
 				ret[2] = ((ThinklabProject)object).modelPath;
+				
 			} else if (object instanceof IFolder) {
 				
 				ThinklabProject project = 
 					ThinkScape.getProject(((IFolder)object).getProject().getName(), false);
 				
 				if (object.toString().contains("models")) {
+					
+					Collection<ModelNamespace> models = 
+						project.getModelNamespaces();
+					ret = new ModelNamespace[models.size()];
+					int i = 0;
+					for (ModelNamespace c : models)
+						ret[i++] = c;
+					
 				} else if (object.toString().contains("annotations")) {
 					
 					Collection<SemanticAnnotationContainer> annots = 
@@ -87,7 +100,21 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 						ret[i++] = c;
 					
 				} else if (object.toString().contains("ontologies")) {
-				}
+				} 
+			} else if (object instanceof ModelNamespace) {
+				
+				ret = ((ModelNamespace)object).getModels().
+					toArray(new Model[((ModelNamespace)object).getModels().size()]);
+				
+			} else if (object instanceof SemanticAnnotationContainer) {
+
+				Collection<String> ann = ((SemanticAnnotationContainer)object).getAnnotationIds();
+				ret = new SemanticAnnotation[ann.size()];
+				int i = 0;
+				for (String c : ann)
+					ret[i++] = ((SemanticAnnotationContainer)object).getAnnotation(c);
+				
+				
 			}
 			return ret;
 		}
@@ -109,6 +136,16 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 				
 			} else if (object instanceof SemanticAnnotationContainer) {
 				ret =  "icons/database_edit.png";
+			} else if (object instanceof ModelNamespace) {
+				ret =  "icons/database_gear.png";
+			} else if (object instanceof SemanticAnnotation) {
+				if (((SemanticAnnotation)object).isValid()) {
+					ret = "icons/check.png";
+				} else {
+					ret = "icons/error.png";
+				}
+			} else if (object instanceof Model) {
+				ret = "icons/cog_go.png";
 			}
 			
 			return ResourceManager.getPluginImage(
@@ -122,7 +159,7 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 				return ((ThinklabProject)object).getLabel();
 			} else if (object instanceof IFolder) {
 				if (object.toString().contains("/models"))
-					return "Models";
+					return "Model Namespaces";
 				else if (object.toString().contains("/annotations"))
 					return "Annotations Namespaces";
 				else if (object.toString().contains("/ontologies"))
@@ -130,7 +167,14 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 				
 			} else if (object instanceof SemanticAnnotationContainer) {
 				return ((SemanticAnnotationContainer)object).getNamespace();
+			} else if (object instanceof ModelNamespace) {
+				return ((ModelNamespace)object).getNamespace();
+			} else if (object instanceof SemanticAnnotation) {
+				return ((SemanticAnnotation)object).getId();
+			} else if (object instanceof Model) {
+				return ((Model)object).getModelName();
 			}
+				
 			return "";
 		}
 	}
@@ -143,7 +187,7 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 	private ProjectTreeModel treeModel;
 	
 	private void rescan() throws ThinklabException {		
-		this.treeModel.instrumentConceptTree(ThinkScape.scanProjects());
+		this.treeModel.instrumentConceptTree(ThinkScape.getProjects());
 	}
 	
 	/**
@@ -322,7 +366,8 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
-		if (event.getProperty().equals(ThinkscapeEvent.WORKSPACE_CHANGE)) {
+		// we react to just about everything
+		//		if (event.getProperty().equals(ThinkscapeEvent.WORKSPACE_CHANGE)) {
 				ThinkScape.getDefault().getWorkbench().getDisplay().syncExec(new Runnable() {
 					public void run() {
 						try {
@@ -332,6 +377,6 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 						}
 					}
 				});
-		}
+//		}
 	}
 }

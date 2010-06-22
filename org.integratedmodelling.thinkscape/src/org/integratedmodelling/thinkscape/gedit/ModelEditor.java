@@ -59,9 +59,14 @@ import org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette;
 import org.eclipse.gef.ui.parts.GraphicalViewerKeyHandler;
 import org.eclipse.gef.ui.parts.TreeViewer;
 
+import org.integratedmodelling.thinklab.exception.ThinklabException;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.gedit.model.ModelDiagram;
 import org.integratedmodelling.thinkscape.gedit.parts.ShapesEditPartFactory;
 import org.integratedmodelling.thinkscape.gedit.parts.ShapesTreeEditPartFactory;
+import org.integratedmodelling.thinkscape.modeleditor.model.ModelNamespace;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 /**
  * A graphical editor with flyout palette that can edit .shapes files.
@@ -74,6 +79,7 @@ public class ModelEditor
 
 /** This is the root of the editor's model. */
 private ModelDiagram diagram;
+private ModelNamespace modelNamespace;
 /** Palette component, holding the tools and shapes. */
 private static PaletteRoot PALETTE_MODEL;
 
@@ -266,9 +272,25 @@ public boolean isSaveAsAllowed() {
  * @see org.eclipse.ui.part.EditorPart#setInput(org.eclipse.ui.IEditorInput)
  */
 protected void setInput(IEditorInput input) {
+
 	super.setInput(input);
+	IFile file = ((IFileEditorInput) input).getFile();
+	
+	/*
+	 * get the model namespace we represent 
+	 */
+	for (ThinklabProject proj : ThinkScape.getProjects()) {
+		for (ModelNamespace mn : proj.getModelNamespaces()) {
+			if (mn.getFile().equals(file)) {
+				this.modelNamespace = mn;
+				break;
+			}
+		}	
+		if (this.modelNamespace != null)
+			break;
+	}
+	
 	try {
-		IFile file = ((IFileEditorInput) input).getFile();
 		ObjectInputStream in = new ObjectInputStream(file.getContents());
 		diagram = (ModelDiagram) in.readObject();
 		in.close();

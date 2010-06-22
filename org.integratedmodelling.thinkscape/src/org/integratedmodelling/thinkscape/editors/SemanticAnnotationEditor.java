@@ -1,57 +1,49 @@
 package org.integratedmodelling.thinkscape.editors;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.DropTargetListener;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.jface.viewers.TableViewerColumn;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticSource;
+import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.modeleditor.model.ModelNamespace;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.widgets.SingleAnnotationEditor;
 import org.integratedmodelling.utils.MiscUtilities;
-import org.integratedmodelling.utils.Pair;
-import org.integratedmodelling.utils.Path;
-import org.integratedmodelling.utils.Triple;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 
 public class SemanticAnnotationEditor extends EditorPart {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor"; //$NON-NLS-1$
-	private ArrayList<Triple<SemanticAnnotationContainer, SemanticSource,SemanticAnnotation>> sources = 
-		new ArrayList<Triple<SemanticAnnotationContainer,SemanticSource,SemanticAnnotation>>();
 
 	private Composite itemEditorParent;
 
-	private int currentAnnotation = -1;
+	private SemanticAnnotation currentAnnotation = null;
 	private SingleAnnotationEditor currentEditor;
 	private Composite parent;
 	private boolean dirty = false;
@@ -96,7 +88,7 @@ public class SemanticAnnotationEditor extends EditorPart {
 		gl_itemEditorParent.marginHeight = 0;
 		itemEditorParent.setLayout(gl_itemEditorParent);
 		
-		if (currentAnnotation < 0) {
+		if (currentAnnotation == null) {
 			Label lblDragASource = new Label(itemEditorParent, SWT.SHADOW_NONE);
 			lblDragASource.setAlignment(SWT.CENTER);
 			lblDragASource.setText("Drag a source from the Sources view or \r\nchoose an observation to edit from the list");
@@ -106,9 +98,8 @@ public class SemanticAnnotationEditor extends EditorPart {
 			this.currentEditor = new SingleAnnotationEditor(
 					itemEditorParent,
 					this,
-					sources.get(currentAnnotation).getFirst(),
-					sources.get(currentAnnotation).getSecond(),
-					sources.get(currentAnnotation).getThird());
+					theContainer,
+					currentAnnotation);
 			this.currentEditor.setLayoutData(
 					new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		}
@@ -154,19 +145,11 @@ public class SemanticAnnotationEditor extends EditorPart {
 		
 		if (string.startsWith("_SOURCE")) {
 			String[] ss = string.split("\\|");
-			// TODO
-		
-			SemanticAnnotationContainer container = 
+			SemanticAnnotationContainer sourceContainer = 
 				ThinkScape.getActiveProject().getSemanticSource(ss[1]);
-			SemanticSource source = container.getSource(ss[2]);
-			
-			/*
-			 * make new annotation from source and select it.
-			 */
-			SemanticAnnotation annotation = container.startAnnotation(source, source.getId() + "_1");
-			sources.add(new Triple<SemanticAnnotationContainer, SemanticSource, SemanticAnnotation>(container, source, annotation));
-			currentAnnotation = sources.size() - 1;
-			
+			SemanticSource source = sourceContainer.getSource(ss[2]);
+			currentAnnotation = sourceContainer.startAnnotation(source, source.getId() + "_1");
+			setDirty();
 			resetView();
 		}
 	}
@@ -186,22 +169,20 @@ public class SemanticAnnotationEditor extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 
-		System.out.println("DOSAVE CALLED " + input);
-		/*
-		 * TODO flush the annotation container
-		 */
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
-//		file.setContents(
-//			new ByteArrayInputStream(out.toByteArray()), 
-//			true,  // keep saving, even if IFile is out of sync with the Workspace
-//			false, // dont keep history
-//			monitor); // progress monitor
-		
+		try {
+			File f = file.getFullPath().toFile();
+			OutputStream out = new FileOutputStream(f);
+			theContainer.store(out);
+			out.close();
+		} catch (Exception e) {
+			throw new ThinklabRuntimeException(e);
+		}
+
 		resetView();
 		
 		this.dirty = false;
-		setPartName("Annotation Namespace: " + (MiscUtilities.getFileBaseName(this.input.getName())));
+		setPartName((MiscUtilities.getFileBaseName(this.input.getName())));
 	}
 
 	@Override
@@ -212,12 +193,23 @@ public class SemanticAnnotationEditor extends EditorPart {
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
+		
 		setSite(site);
 		setInput(this.input = input);
 		this.namespace = MiscUtilities.getFileBaseName(input.getName());
-		this.theContainer = 
-				ThinkScape.getActiveProject().getAnnotationNamespace(this.namespace);
-		setPartName("Annotation Namespace: " + this.namespace);
+		
+		for (ThinklabProject proj : ThinkScape.getProjects()) {
+			for (SemanticAnnotationContainer mn : proj.getAnnotationNamespaces()) {
+				if (mn.getNamespace().equals(this.namespace)) {
+					this.theContainer = mn;
+					break;
+				}
+			}	
+			if (this.theContainer != null)
+				break;
+		}
+
+		setPartName(this.namespace);
 	}
 	
 	

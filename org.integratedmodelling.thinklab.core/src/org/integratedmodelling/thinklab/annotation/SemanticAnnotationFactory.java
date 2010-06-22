@@ -68,26 +68,14 @@ public class SemanticAnnotationFactory {
 	 */
 	public SemanticAnnotationContainer getAnnotationContainer(URL sourceUrl) throws ThinklabException {
 
-		Properties p = new Properties();
+		SemanticAnnotationContainer ret = 
+			new DefaultAnnotationContainer(MiscUtilities.getNameFromURL(sourceUrl.toString()));
+		
 		try {
-			p.load(sourceUrl.openStream());
+			ret.load(sourceUrl.openStream());
 		} catch (IOException e) {
 			throw new ThinklabIOException(e);
 		}
-				
-		SemanticAnnotationContainer ret = new DefaultAnnotationContainer(MiscUtilities.getNameFromURL(sourceUrl.toString()));
-		
-		/*
-		 * TODO
-		 * establish all names from unique first element in property names
-		 */
-		
-		/*
-		 * TODO
-		 * for each name, find the provider id, get it and have it create an empty annotation; then
-		 * set all properties and add to container
-		 */
-		
 		return ret;
 	}
 	

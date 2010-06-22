@@ -2,10 +2,15 @@ package org.integratedmodelling.thinkscape.project;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -14,7 +19,11 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.integratedmodelling.modelling.Model;
+import org.integratedmodelling.modelling.ModelFactory;
+import org.integratedmodelling.modelling.ModelImportListener;
 import org.integratedmodelling.modelling.ModellingPlugin;
+import org.integratedmodelling.thinklab.annotation.DefaultAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotationFactory;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
@@ -24,7 +33,9 @@ import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.ThinkscapeEvent;
+import org.integratedmodelling.thinkscape.annotation.ThinkscapeSemanticAnnotationContainer;
 import org.integratedmodelling.thinkscape.builder.ThinkscapeNature;
+import org.integratedmodelling.thinkscape.modeleditor.model.ModelNamespace;
 import org.integratedmodelling.utils.MiscUtilities;
 
 public class ThinklabProject {
@@ -52,11 +63,20 @@ public class ThinklabProject {
 	public IFolder ontoPath;
 	private IFolder metaPath;
 	
+	private Properties projectProperties = new Properties();
+	
 	private ArrayList<SemanticAnnotationContainer> sources = 
 		new ArrayList<SemanticAnnotationContainer>();
 
 	private ArrayList<SemanticAnnotationContainer> annotationNamespaces = 
 		new ArrayList<SemanticAnnotationContainer>();
+
+	private ArrayList<ModelNamespace> modelNamespaces = 
+		new ArrayList<ModelNamespace>();
+	
+	private IFile propertiesFile;
+	
+	private String name;
 	
 	public static void requireNature(IProject project, String nature) {
 
@@ -112,13 +132,26 @@ public class ThinklabProject {
 			this.metaPath = project.getFolder("THINKLAB-INF");
 			if (!this.metaPath.exists()) {
 				this.metaPath.create(true, true, null);
+			}
 				/*
 				 * create property file
 				 */
-				IFile prop = project.getFile("THINKLAB-INF/thinklab.properties");
-				prop.create(new ByteArrayInputStream(new byte[0]), true, null);
+			this.propertiesFile = project.getFile("THINKLAB-INF/thinklab.properties");
+			if (!this.propertiesFile.exists()) {
+				this.propertiesFile.create(new ByteArrayInputStream(new byte[0]), true, null);
 			}
 
+			/*
+			 * read properties
+			 */
+			try {
+				InputStream is = this.propertiesFile.getContents();
+				projectProperties.load(is);
+				is.close();
+			} catch (IOException e1) {
+				throw new ThinklabRuntimeException(e1);
+			}
+			
 			/*
 			 * create OSGI metadata, using dependency info (must be passed)
 			 */
@@ -147,17 +180,47 @@ public class ThinklabProject {
 				if (r instanceof IFile && r.toString().endsWith(".ann")) {
 					try {
 						annotationNamespaces.add(
-								SemanticAnnotationFactory.get().
-									getAnnotationContainer(r.getLocationURI().toURL()));
+								new ThinkscapeSemanticAnnotationContainer(
+										MiscUtilities.getURLBaseName(r.getLocationURI().toURL().toString()),
+										(IFile)r));
 					} catch (MalformedURLException e) {
 						throw new ThinklabValidationException(e);
 					}
 				}
 			}
+
+			/*
+			 * TODO
+			 * read up models
+			 */
+			for (IResource r : this.modelPath.members()) {
+				
+				if (r instanceof IFile && r.toString().endsWith(".model")) {
+				}
+			}
+
+			/*
+			 * TODO
+			 * read up observables
+			 */
+			for (IResource r : this.modelPath.members()) {
+				
+				if (r instanceof IFile && r.toString().endsWith(".model")) {
+				}
+			}
+
+			// TODO contexts and kboxes
+
 			
 		} catch (CoreException e) {
 			throw new ThinklabPluginException(e);
 		}
+		
+		this.name = project.getName();
+		
+		/*
+		 * TODO ensure all dependent plugins are loaded
+		 */
 	}
 
 	public ThinklabProject(IProject project) throws ThinklabException {
@@ -172,32 +235,32 @@ public class ThinklabProject {
 
 	
 	// get the file corresponding to an annotation namespace for this project; create it
-	// if absent.
-	public IFile getAnnotationNamespaceFile(String src) {
+//	// if absent.
+//	public IFile getAnnotationNamespaceFile(String src) {
+//
+//		return ret;
+//	}
+//	
+	public ModelNamespace getModelNamespace(String src) {
 
-		String fn = "annotations" + "/" + src + ".ann";
-		IFile ret = project.getFile(fn);
-		if (!ret.exists()) {
-			try {
-				ret.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				throw new ThinklabRuntimeException(e);
-			}
+		for (ModelNamespace mn : modelNamespaces) {
+			if (mn.getNamespace().equals(src))
+				return mn;
 		}
-		return ret;
-	}
-	
-	public IFile getModelNamespace(String src) {
-
+		
 		String fn = "models" + "/" + MiscUtilities.getFileBaseName(src) + ".model";
-		IFile ret = project.getFile(fn);
-		if (!ret.exists()) {
+		IFile file = project.getFile(fn);
+		if (!file.exists()) {
 			try {
-				ret.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
+				file.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
 			} catch (CoreException e) {
 				throw new ThinklabRuntimeException(e);
 			}
 		}
+		
+		ModelNamespace ret = new ModelNamespace(src, file);
+		modelNamespaces.add(ret);
+		
 		return ret;
 	}
 	
@@ -251,8 +314,15 @@ public class ThinklabProject {
 
 	public void addToMetadata(String property, String string) {
 
-		// TODO add string to content of given property, creating if not there, and save the
-		// property file.
+		projectProperties.setProperty(property, string);
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(propertiesFile.getName());
+			projectProperties.store(out, null);
+			out.close();
+		} catch (Exception e) {
+			throw new ThinklabRuntimeException(e);
+		}
 	}
 
 	public Collection<SemanticAnnotationContainer> getSemanticSources() {
@@ -260,7 +330,7 @@ public class ThinklabProject {
 	}
 
 	public String getName() {
-		return project.getName();
+		return name;
 	}
 
 	public SemanticAnnotationContainer getSemanticSource(String string) {
@@ -278,7 +348,7 @@ public class ThinklabProject {
 		return annotationNamespaces;
 	}
 	
-	public SemanticAnnotationContainer getAnnotationNamespace(String namespace) {
+	public SemanticAnnotationContainer getAnnotationNamespace(String namespace, boolean create) {
 		SemanticAnnotationContainer ret = null;
 		for (SemanticAnnotationContainer c : annotationNamespaces) {
 			if (c.getNamespace().equals(namespace)) {
@@ -286,11 +356,63 @@ public class ThinklabProject {
 				break;
 			}
 		}
+		
+		if (ret == null && create) {
+			String fn = "annotations" + "/" + namespace + ".ann";
+			IFile file = project.getFile(fn);
+			if (!file.exists()) {
+				try {
+					file.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
+				} catch (CoreException e) {
+					throw new ThinklabRuntimeException(e);
+				}
+			}
+			ret = new ThinkscapeSemanticAnnotationContainer(namespace, file);
+			InputStream inp;
+			try {
+				inp = file.getContents();
+				ret.load(inp);
+				inp.close();
+			} catch (Exception e) {
+				throw new ThinklabRuntimeException(e);
+			}
+		}
 		return ret;
 	}
 
-	public void importModel(String namespace, File file) {
-		// TODO import models from clojure file
+	public void importModel(File file) {
+
+		final ArrayList<Model> models = new ArrayList<Model>();
+		final ArrayList<String> znn = new ArrayList<String>();
+		
+		try {
+	
+			ModelFactory.get().importModel(file.toURI().toURL(),
+					new ModelImportListener() {
+
+						@Override
+						public void modelImported(String namespace, Model model) {
+							// TODO Auto-generated method stub
+							System.out.println("MODELLONZOLO " + namespace
+									+ ": " + model);
+							models.add(model);
+							znn.add(namespace);
+						}
+					});
+
+			if (models.size() > 0) {
+				ModelNamespace mn = getModelNamespace(znn.get(0));
+				for (Model m : models) {
+					mn.addModel(m);
+				}
+				
+				ThinkScape.getDefault().notifyPropertyChange(ThinkscapeEvent.MODEL_FILE_IMPORTED, mn);
+			}
+			
+		} catch (Exception e) {
+			throw new ThinklabRuntimeException(e);
+		}
+		
 		
 	}
 
@@ -299,5 +421,27 @@ public class ThinklabProject {
 		
 	}
 
+	public Collection<ModelNamespace> getModelNamespaces() {
+		return modelNamespaces;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		return name.equals(obj);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return name.hashCode();
+	}
+	
+	
 	
 }

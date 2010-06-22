@@ -18,7 +18,7 @@ import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 public class SemanticAnnotation extends SemanticSource {
 	
 	private static final long serialVersionUID = 4178258864664558292L;
-	private static final String ANNOTATION_PROVIDER_ID = "provider_id";
+	static final String ANNOTATION_PROVIDER_ID = "provider_id";
 	
 	public static final String ID_PROPERTY = "id";
 	public static final String TYPE_PROPERTY = "type";

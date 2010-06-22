@@ -28,7 +28,6 @@ import org.integratedmodelling.thinklab.interfaces.IThinklabPlugin;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IKnowledgeSubject;
 import org.integratedmodelling.thinklab.plugin.IPluginLifecycleListener;
-import org.integratedmodelling.thinkscape.annotation.ThinkscapeAnnotationFactory;
 
 import com.swtdesigner.ResourceManager;
 

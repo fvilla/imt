@@ -1,29 +1,28 @@
 package org.integratedmodelling.thinkscape.widgets;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
-import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
-import org.integratedmodelling.thinklab.annotation.SemanticSource;
-import org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.nebula.widgets.pshelf.PShelf;
 import org.eclipse.nebula.widgets.pshelf.PShelfItem;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
-import com.swtdesigner.ResourceManager;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
+import org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor;
+
+import com.swtdesigner.ResourceManager;
 
 public class SingleAnnotationEditor extends Composite {
 	private Text text;
@@ -61,7 +60,7 @@ public class SingleAnnotationEditor extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public SingleAnnotationEditor(Composite parent, SemanticAnnotationEditor edit, SemanticAnnotationContainer contain, SemanticSource source, SemanticAnnotation annotat) {
+	public SingleAnnotationEditor(Composite parent, SemanticAnnotationEditor edit, SemanticAnnotationContainer contain, SemanticAnnotation annotat) {
 
 		super(parent, SWT.NONE);
 		setLayout(new GridLayout(1, false));

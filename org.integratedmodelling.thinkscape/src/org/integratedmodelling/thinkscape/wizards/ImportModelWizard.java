@@ -23,6 +23,7 @@ public class ImportModelWizard extends Wizard {
 			this.define("*.clj", "Clojure model definition files (*.clj)",
 					"Parse and import Clojure model files in the specified namespace", 
 					"Import a Clojure model file", "Model");
+			this.enableNamespace(false);
 		}
 		
 		/* (non-Javadoc)
@@ -56,17 +57,19 @@ public class ImportModelWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 
+		final ThinklabProject project = ThinkScape.getProject(page.getProject(), true);
+		final File mfile = new File(page.getFilename());
+		
 		Job job = new WorkspaceJob("Importing model file") {
 			public IStatus runInWorkspace(IProgressMonitor monitor)
 					throws CoreException {
-				ThinklabProject project = ThinkScape.getProject(page.getProject(), true);
-				project.importModel(page.getNamespace(), new File(page.getFilename()));
+				project.importModel(mfile);
 				return Status.OK_STATUS;
 			}
 		};
 
 		job.schedule();
-		return false;
+		return true;
 	}
 
 }
