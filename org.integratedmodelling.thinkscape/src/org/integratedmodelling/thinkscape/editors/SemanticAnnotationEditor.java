@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
@@ -169,20 +170,21 @@ public class SemanticAnnotationEditor extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 
-		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
-		try {
-			File f = file.getFullPath().toFile();
-			OutputStream out = new FileOutputStream(f);
-			theContainer.store(out);
-			out.close();
-		} catch (Exception e) {
-			throw new ThinklabRuntimeException(e);
+		if (this.dirty) {
+			IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+			try {
+				File f = file.getRawLocation().makeAbsolute().toFile();
+				OutputStream out = new FileOutputStream(f);
+				theContainer.store(out);
+				out.close();
+			} catch (Exception e) {
+				throw new ThinklabRuntimeException(e);
+			}
+			firePropertyChange(IEditorPart.PROP_DIRTY);
+			resetView();
+			this.dirty = false;
 		}
-
-		resetView();
-		
-		this.dirty = false;
-		setPartName((MiscUtilities.getFileBaseName(this.input.getName())));
+		//setPartName((MiscUtilities.getFileBaseName(this.input.getName())));
 	}
 
 	@Override
@@ -219,6 +221,8 @@ public class SemanticAnnotationEditor extends EditorPart {
 	}
 	
 	public void setDirty() {
+		if (!this.dirty)
+			firePropertyChange(IEditorPart.PROP_DIRTY);
 		this.dirty = true;
 	}
 
