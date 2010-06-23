@@ -48,6 +48,20 @@ public class NameGenerator {
 
 	static long index = 0;
 	
+	/**
+	 * generate an ID without the urn:uuid prefix, suitable for an identifier. Simply wraps 
+	 * UUID.randomUUID(). Note: isGenerated() will return false for this one.
+	 * 
+	 * @return
+	 */
+	static public String newId(String prefix) {
+		return prefix + UUID.randomUUID();
+	}
+
+	/**
+	 * Generate a unique urn:uuid URI.
+	 * @return
+	 */
 	static public String newName() {
 		return "urn:uuid:" + UUID.randomUUID();
 	}

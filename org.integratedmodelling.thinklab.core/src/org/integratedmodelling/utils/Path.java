@@ -32,6 +32,16 @@ public class Path {
 		}
 		return ret;
 	}
+
+	public static String getTrailing(String path, char c) {
+		
+		int n = path.indexOf(c);
+		String ret = path;
+		if (n > 0) {
+			ret = path.substring(n+1);
+		}
+		return ret;
+	}
 	
 
 }
