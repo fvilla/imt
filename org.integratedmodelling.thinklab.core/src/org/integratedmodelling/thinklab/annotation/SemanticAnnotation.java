@@ -23,8 +23,8 @@ public class SemanticAnnotation extends SemanticSource {
 	public static final String ID_PROPERTY = "id";
 	public static final String TYPE_PROPERTY = "type";
 	
-	public SemanticAnnotation(String id, String serviceProvider) {
-		super(id);
+	public SemanticAnnotation(String name, String serviceProvider) {
+		super(name);
 		setProperty(ANNOTATION_PROVIDER_ID, serviceProvider);
 	}
 
@@ -52,7 +52,7 @@ public class SemanticAnnotation extends SemanticSource {
 	}
 	
 	public void setType(Object concept) {
-		put("type", concept.toString());
+		set("type", concept);
 	}
 	
 	public IConcept getType() {

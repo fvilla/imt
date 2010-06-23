@@ -2,19 +2,32 @@ package org.integratedmodelling.thinklab.annotation;
 
 import java.util.Properties;
 
+import org.integratedmodelling.utils.NameGenerator;
+import org.integratedmodelling.utils.Path;
+
 public class SemanticSource extends Properties {
 
 	private static final long serialVersionUID = 283002194030928734L;
 	private static final String LAST_MODIFICATION_TIME_PROPERTY = "last_modified";
-	
+	public static final String NAME_PROPERTY = "name";
+
 	private String id;
 	
-	public SemanticSource(String id) {
-		this.id = id;
+	public SemanticSource(String name) {
+		this.id = NameGenerator.newId("sm");
+		super.setProperty(this.id + "." + NAME_PROPERTY, id);
 	}
 	
-	public String getId() {
+	protected String getId() {
 		return id;
+	}
+	
+	public void setName(String name) {
+		setProperty(NAME_PROPERTY, name);		
+	}
+	
+	public String getName() {
+		return getProperty(NAME_PROPERTY);
 	}
 	
 	/**
@@ -37,6 +50,18 @@ public class SemanticSource extends Properties {
 	}
 	
 	public void set(String s, Object o) {
-		put(id + "." + s, o);
+		put(id + "." + s, o.toString());
+	}
+	
+	public String get(String s) {	
+		return super.get(id + "." + s).toString();
+	}
+	
+	public void set(SemanticSource source) {
+		
+		for (Object s : source.keySet()) {
+			String ss = Path.getTrailing(s.toString(), '.');
+			this.setProperty(ss, source.get(ss));
+		}
 	}
 }
