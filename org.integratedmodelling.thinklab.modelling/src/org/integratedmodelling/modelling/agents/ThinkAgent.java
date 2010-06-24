@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.ascape.model.Agent;
+//import org.ascape.model.Agent;
 import org.integratedmodelling.corescience.interfaces.IObservation;
 import org.integratedmodelling.corescience.interfaces.internal.Topology;
 import org.integratedmodelling.modelling.interfaces.IModel;
@@ -33,7 +33,7 @@ import clojure.lang.IFn;
  */
 public class ThinkAgent  extends DefaultMutableTreeNode {
 
-	Agent _agent;
+//	Agent _agent;
 	
 	ArrayList<IModel> models = null;
 	protected IConcept observable = null;

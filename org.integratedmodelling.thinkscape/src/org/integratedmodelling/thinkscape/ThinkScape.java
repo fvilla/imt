@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -28,6 +29,7 @@ import org.integratedmodelling.modelling.ModelFactory;
 import org.integratedmodelling.modelling.ModellingPlugin;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
+import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.thinklab.interfaces.knowledge.IConcept;
 import org.integratedmodelling.thinkscape.builder.ThinkscapeNature;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
@@ -143,6 +145,13 @@ public class ThinkScape extends AbstractUIPlugin {
 		
 		ArrayList<IProject> tprojects = new ArrayList<IProject>();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		
+		try {
+			root.refreshLocal(IWorkspaceRoot.DEPTH_INFINITE, new NullProgressMonitor());
+		} catch (CoreException e) {
+			throw new ThinklabValidationException(e);
+		}
+
 		for (IProject proj : root.getProjects()) {
 			if (isThinklabProject(proj))
 				tprojects.add(proj);
@@ -254,6 +263,17 @@ public class ThinkScape extends AbstractUIPlugin {
 				return p;
 			}
 		return null;
+	}
+
+	public static void setActiveProject(ThinklabProject project) {
+
+		for (ThinklabProject p : getProjects())
+			if (p.getName().equals(project)) {
+				if (activeProject == null || !activeProject.getName().equals(project.getName())) {
+					activeProject = p;
+					getDefault().notifyPropertyChange(ThinkscapeEvent.PROJECT_ACTIVATED, p);
+				}
+			}
 	}
 
 }

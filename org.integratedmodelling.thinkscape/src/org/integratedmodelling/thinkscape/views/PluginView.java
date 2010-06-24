@@ -19,6 +19,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
@@ -35,6 +36,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.NewProjectAction;
 import org.eclipse.ui.part.ViewPart;
@@ -50,6 +52,8 @@ import org.integratedmodelling.thinkscape.modeleditor.model.ModelNamespace;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 import com.swtdesigner.ResourceManager;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 
 /**
  * The "navigator" for Thinklab projects.
@@ -124,7 +128,10 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 
 			String ret = "icons/bullet_orange.png";
 			if (object instanceof ThinklabProject) {
-				ret = "icons/folder_lightbulb.png";
+				ret = 
+					((ThinklabProject)object).isActive() ?
+							"icons/star_red.png" :
+							"icons/folder_lightbulb.png";
 			} else if (object instanceof IFolder) {
 				if (object.toString().contains("models"))
 					ret = "icons/database_gear.png";
@@ -140,7 +147,7 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 				ret =  "icons/database_gear.png";
 			} else if (object instanceof SemanticAnnotation) {
 				if (((SemanticAnnotation)object).isValid()) {
-					ret = "icons/check.png";
+					ret = "icons/pencil.png";
 				} else {
 					ret = "icons/error.png";
 				}
@@ -170,13 +177,35 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 			} else if (object instanceof ModelNamespace) {
 				return ((ModelNamespace)object).getNamespace();
 			} else if (object instanceof SemanticAnnotation) {
-				return ((SemanticAnnotation)object).getId();
+				return ((SemanticAnnotation)object).getName();
 			} else if (object instanceof Model) {
 				return ((Model)object).getModelName();
 			}
 				
 			return "";
 		}
+
+		/* (non-Javadoc)
+		 * @see org.integratedmodelling.thinkscape.TreeModel#handleDoubleClick(java.lang.Object, org.eclipse.ui.IWorkbenchPage)
+		 */
+		@Override
+		public void handleDoubleClick(Object object, IWorkbenchPage page) {
+
+			if (object instanceof ThinklabProject) {
+				((ThinklabProject)object).makeActive();
+			} else if (object instanceof IFolder) {
+				if (object.toString().contains("/models")) {
+				} else if (object.toString().contains("/annotations")) {
+				} else if (object.toString().contains("/ontologies")) {
+				}
+			} else if (object instanceof SemanticAnnotationContainer) {
+			} else if (object instanceof ModelNamespace) {
+			} else if (object instanceof SemanticAnnotation) {
+			} else if (object instanceof Model) {
+			}
+		}
+		
+		
 	}
 	
 	/**
@@ -295,6 +324,14 @@ public class PluginView extends ViewPart implements IPropertyChangeListener {
 		
 		this.treeViewer = new TreeViewer(composite, SWT.BORDER);
 		Tree tree = treeViewer.getTree();
+		tree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				treeModel.handleDoubleClick(
+						((TreeSelection)treeViewer.getSelection()).getFirstElement(),
+						getSite().getPage());
+			}
+		});
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tree.setBounds(0, 0, 85, 85);
 		

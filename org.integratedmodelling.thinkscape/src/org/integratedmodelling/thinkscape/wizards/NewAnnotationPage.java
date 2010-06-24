@@ -17,6 +17,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 public class NewAnnotationPage extends WizardPage {
+	
 	private Combo namespace;
 	private Combo project;
 
@@ -25,8 +26,8 @@ public class NewAnnotationPage extends WizardPage {
 	 */
 	public NewAnnotationPage() {
 		super("wizardPage");
-		setTitle("Create a new semantic annotation");
-		setDescription("Define an empty annotation in a (possibly new) annotation namespace. You can then add a source observation from the Sources view.");
+		setTitle("Create a new semantic annotation namespace");
+		setDescription("Define a new annotation namespace. You can then add source observations from the Sources view.");
 	}
 
 	/**
@@ -83,7 +84,6 @@ public class NewAnnotationPage extends WizardPage {
 			}
 		}
 		
-		
 		if (!ex) {
 			project.setEnabled(false);
 			namespace.setEnabled(false);
@@ -104,7 +104,6 @@ public class NewAnnotationPage extends WizardPage {
 	 */
 	@Override
 	public void setPageComplete(boolean complete) {
-		System.out.println("CALLED COMPLETE");
 		super.setPageComplete(complete);
 	}
 

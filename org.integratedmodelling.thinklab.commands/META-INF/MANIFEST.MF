@@ -7,10 +7,10 @@ Bundle-Activator: org.integratedmodelling.thinklab.commandline.CommandActivator
 Bundle-Vendor: integratedmodelling.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.3.0"
-Require-Bundle: org.integratedmodelling.thinklab.core;bundle-version="1.0.0"
-Bundle-ClassPath: lib/jline-0.9.94.jar,
- .
-Export-Package: jline,
- org.integratedmodelling.thinklab.commandline,
+Require-Bundle: org.apache.commons.io;bundle-version="1.4.0",
+ org.integratedmodelling.bsh_jline;bundle-version="1.0.0",
+ org.integratedmodelling.thinklab.core;bundle-version="1.0.0"
+Bundle-ClassPath: .
+Export-Package: org.integratedmodelling.thinklab.commandline,
  org.integratedmodelling.thinklab.commandline.commands,
  org.integratedmodelling.thinklab.commandline.shells

@@ -2,7 +2,8 @@ package org.integratedmodelling.mca.evamix;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import org.apache.log4j.Logger;
+
+import org.integratedmodelling.mca.Activator;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabValidationException;
 import org.integratedmodelling.utils.Pair;
@@ -16,11 +17,6 @@ import org.integratedmodelling.utils.Pair;
  * 
  */
 public class Evamix {
-
-	/*
-	 * give it its own logger so we can use it somewhere else as well
-	 */
-	static Logger log = Logger.getLogger(Evamix.class);
 
 	/**
 	 * Evamix results are grouped in an object of this kind.
@@ -181,7 +177,7 @@ public class Evamix {
 			}
 			if (same) {
 
-				log.warn(criteria_names[col] + " (#" +  col + ")"
+				Activator.get().warn(criteria_names[col] + " (#" +  col + ")"
 						+ " has the same value in all alternatives "
 						+ "and has been dropped from the analysis");
 

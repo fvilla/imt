@@ -9,6 +9,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,6 +24,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -30,8 +32,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ViewPart;
 import org.integratedmodelling.modelling.Model;
-import org.integratedmodelling.modelling.ModelFactory;
-import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
 import org.integratedmodelling.thinkscape.ThinkscapeEvent;
@@ -42,14 +42,11 @@ import org.integratedmodelling.thinkscape.wizards.ImportModelWizard;
 import org.integratedmodelling.thinkscape.wizards.NewModel;
 
 import com.swtdesigner.ResourceManager;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.jface.viewers.TreeViewerColumn;
 
 public class ThinklabModels extends ViewPart implements IPropertyChangeListener {
 
 	public static final String ID = "org.integratedmodelling.thinkscape.views.ThinklabModels"; //$NON-NLS-1$
 	private Text text;
-	private ModelFactory manager;
 	private TreeViewer treeViewer_1;
 	private TreeViewer treeViewer_2;
 	private TreeViewer treeViewer_3;
@@ -64,7 +61,7 @@ public class ThinklabModels extends ViewPart implements IPropertyChangeListener 
 		public Object[] getChildren(Object object) {
 			Object[] ret = null;
 			if (object instanceof ModelNamespace) {
-				Collection<Model> models = ((ModelNamespace)object).getRootModels();
+				Collection<Model> models = ((ModelNamespace)object).getModels();
 				ret = new Model[models.size()]; int i = 0;
 				for (Model m : models) {
 					ret[i++] = m;

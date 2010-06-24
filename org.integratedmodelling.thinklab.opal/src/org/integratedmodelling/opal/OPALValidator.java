@@ -39,7 +39,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Stack;
 
-import org.apache.log4j.Logger;
 import org.integratedmodelling.opal.profile.OPALProfile;
 import org.integratedmodelling.opal.profile.OPALProfileFactory;
 import org.integratedmodelling.thinklab.Thinklab;
@@ -70,9 +69,6 @@ public class OPALValidator {
 	String rootPrefix;
 	OPALProfile profile = null; 
 	
-	 /* log4j logger used for this class */
-	 private static  Logger log = Logger.getLogger(OPALValidator.class);
-
     
 	/* table of references between ID and instances to resolve internal references */
 	HashMap<String, Polylist> reftable;
@@ -126,7 +122,7 @@ public class OPALValidator {
 				
 				KeyValueMap kv = new KeyValueMap(pi.getData());
 				profile = OPALProfileFactory.get().getProfile(kv.get("profile"), true);
-				log.info("profile for XML document " + opalDocument + " set to " + profile.getName());
+				OPALPlugin.get().info("profile for XML document " + opalDocument + " set to " + profile.getName());
 
 
 			} else if (pi.getTarget().equals("plugin")) {

@@ -45,7 +45,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.integratedmodelling.thinklab.ConceptVisitor;
 import org.integratedmodelling.thinklab.KnowledgeManager;
 import org.integratedmodelling.thinklab.constraint.Constraint;
@@ -106,9 +105,7 @@ public abstract class SQLThinklabServer {
      * sorted metadata keys 
      */
     ArrayList<String> metadataKeys = new ArrayList<String>();
-    
-	private static  Logger log = Logger.getLogger(SQLThinklabServer.class);
-	
+    	
     private String databaseIDString = null;
     
     /**
@@ -1946,7 +1943,7 @@ public abstract class SQLThinklabServer {
     	/* check if we need to create schema */
     	if (!isStorageInitialized()) {
     		
-    		log.info("initializing database " + server.getDatabase() + "...");
+    		SQLPlugin.get().info("initializing database " + server.getDatabase() + "...");
     		
     		/* create SQL instructions from schema and run them */
     	    for (int i = 0; i < tables.size(); i++)
@@ -1954,7 +1951,7 @@ public abstract class SQLThinklabServer {
     	    		server.execute(tables.get(i).creationCode());
     	    	}
 
-    		log.info("done initializing database " + server.getDatabase() + ".");
+    	    SQLPlugin.get().info("done initializing database " + server.getDatabase() + ".");
 
     	}
 
@@ -2274,7 +2271,7 @@ public abstract class SQLThinklabServer {
 
 	public void resetToEmpty() throws ThinklabException {
     		
-		log.info("reinitializing database " + server.getDatabase() + "...");
+		SQLPlugin.get().info("reinitializing database " + server.getDatabase() + "...");
 
 		for (int i = 0; i < tables.size(); i++)
 			if (!tables.get(i).isTemplate) {
@@ -2299,7 +2296,7 @@ public abstract class SQLThinklabServer {
     	property2ID.clear();
     	id2Property.clear();
 
-    	log.info("done reinitializing database " + server.getDatabase() + ".");
+    	SQLPlugin.get().info("done reinitializing database " + server.getDatabase() + ".");
 
 	}
 

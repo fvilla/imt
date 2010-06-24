@@ -28,12 +28,11 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 	private HashMap<String, SemanticAnnotation> annotations = new HashMap<String, SemanticAnnotation>();
 	
 	public class WCSSource extends SemanticSource {
-
-		public WCSSource(String id) {
-			super(id);
-		}
-
+		
 		private static final long serialVersionUID = 4003537124729951143L;
+		public WCSSource(String name) {
+			super(name);
+		}
 	}
 	
 	public WCSAnnotationContainer(String sourceUrl) throws ThinklabException {
@@ -281,7 +280,7 @@ public class WCSAnnotationContainer implements SemanticAnnotationContainer {
 	public SemanticAnnotation startAnnotation(SemanticSource source, String initialId) {
 		
 		RasterAnnotation ann = new RasterAnnotation(initialId);
-		ann.putAll(source);
+		ann.set(source);
 		return ann;
 		
 	}

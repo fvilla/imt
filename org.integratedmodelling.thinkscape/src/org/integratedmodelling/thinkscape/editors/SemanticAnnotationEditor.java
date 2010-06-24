@@ -33,6 +33,7 @@ import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
 import org.integratedmodelling.thinklab.annotation.SemanticSource;
 import org.integratedmodelling.thinklab.exception.ThinklabRuntimeException;
 import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.ThinkscapeEvent;
 import org.integratedmodelling.thinkscape.modeleditor.model.ModelNamespace;
 import org.integratedmodelling.thinkscape.project.ThinklabProject;
 import org.integratedmodelling.thinkscape.widgets.SingleAnnotationEditor;
@@ -149,9 +150,11 @@ public class SemanticAnnotationEditor extends EditorPart {
 			SemanticAnnotationContainer sourceContainer = 
 				ThinkScape.getActiveProject().getSemanticSource(ss[1]);
 			SemanticSource source = sourceContainer.getSource(ss[2]);
-			currentAnnotation = sourceContainer.startAnnotation(source, source.getId() + "_1");
+			currentAnnotation = sourceContainer.startAnnotation(source, source.getName().toLowerCase());
+			theContainer.putAnnotation(currentAnnotation);
 			setDirty();
 			resetView();
+			ThinkScape.getDefault().notifyPropertyChange(ThinkscapeEvent.ANNOTATION_CREATED, theContainer);
 		}
 	}
 	
@@ -200,6 +203,10 @@ public class SemanticAnnotationEditor extends EditorPart {
 		setInput(this.input = input);
 		this.namespace = MiscUtilities.getFileBaseName(input.getName());
 		
+		/*
+		 * establish a semantic annotation container to work with. Must not
+		 * be null.
+		 */
 		for (ThinklabProject proj : ThinkScape.getProjects()) {
 			for (SemanticAnnotationContainer mn : proj.getAnnotationNamespaces()) {
 				if (mn.getNamespace().equals(this.namespace)) {

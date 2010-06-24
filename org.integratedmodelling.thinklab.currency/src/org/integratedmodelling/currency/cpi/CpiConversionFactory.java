@@ -36,8 +36,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
 import org.integratedmodelling.corescience.exceptions.ThinklabInexactConversionException;
+import org.integratedmodelling.currency.CurrencyPlugin;
 import org.integratedmodelling.sql.SQLServer;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabIOException;
@@ -49,9 +49,6 @@ public class CpiConversionFactory {
 
 	SQLServer server = null;
 	
-	/* log4j logger used for this class. Can be used by other classes through logger()  */
-	private static  Logger log = Logger.getLogger(CpiConversionFactory.class);
-	
 	public void initialize(SQLServer server, URL ratesFile, URL cpiFile) throws ThinklabException {
 
 		int exchCount = 0;
@@ -62,7 +59,7 @@ public class CpiConversionFactory {
 		/* initialize database if necessary */
 		if (!server.haveTable("rates")) {
 
-			log.info("Currency plugin: creating exchange rate and CPI database... ");
+			CurrencyPlugin.get().info("Currency plugin: creating exchange rate and CPI database... ");
 
 			/* create main rate table */
 			server.execute("CREATE TABLE rates (\n" + 
@@ -121,7 +118,7 @@ public class CpiConversionFactory {
 				reader.close();
 
 				
-				log.info(
+				CurrencyPlugin.get().info(
 						"read " + 
 						exchCount + 
 						" historic exchange rates and " + 

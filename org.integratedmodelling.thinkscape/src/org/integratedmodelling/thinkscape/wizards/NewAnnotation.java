@@ -4,12 +4,16 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.integratedmodelling.thinklab.annotation.SemanticAnnotationContainer;
+import org.integratedmodelling.thinkscape.ThinkScape;
+import org.integratedmodelling.thinkscape.project.ThinklabProject;
 
 public class NewAnnotation extends Wizard implements INewWizard {
 
 	NewAnnotationPage page;
 	private String project;
 	private String namespace;
+	private SemanticAnnotationContainer container;
 	
 	public NewAnnotation() {
 		// TODO Auto-generated constructor stub
@@ -26,7 +30,18 @@ public class NewAnnotation extends Wizard implements INewWizard {
 		this.project =    page.getProject().getText();
 		this.namespace =  page.getNamespace().getText();
 		
-		return ok;
+		ThinklabProject proj = ThinkScape.getProject(this.project, true);
+		if (proj.getAnnotationNamespace(this.namespace, false) != null) {
+			
+			/*
+			 * todo error message and stuff - this should be in the page validation
+			 */
+			return false;
+		}
+		
+		this.container = proj.getAnnotationNamespace(this.namespace, true);
+		
+		return true;
 	}
 
 	@Override

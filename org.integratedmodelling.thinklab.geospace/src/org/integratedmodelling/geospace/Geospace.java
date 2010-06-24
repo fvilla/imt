@@ -678,7 +678,7 @@ public class Geospace extends ThinklabActivator {
         
         if (ret == null) {
         	try {
-        		ret = CRS.decode(crsId);
+        		ret = org.integratedmodelling.geotools.GeoTools.decodeCRS(crsId);
         	} catch (Exception e) {
                 throw new ThinklabValidationException(e);
         	}

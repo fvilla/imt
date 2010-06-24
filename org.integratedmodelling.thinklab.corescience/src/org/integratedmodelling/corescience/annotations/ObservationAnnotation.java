@@ -15,6 +15,8 @@ public class ObservationAnnotation extends SemanticAnnotation {
 
 	private static final long serialVersionUID = 2936928105568553678L;
 
+	public static final String OBSERVABLE_PROPERTY = "observable";
+
 	ArrayList<String> val = new ArrayList<String>();
 	
 	public ObservationAnnotation(String id, String provider) {
@@ -22,14 +24,14 @@ public class ObservationAnnotation extends SemanticAnnotation {
 	}
 
 	public void setObservable(Object concept) {
-		put("observable", concept.toString());
+		put(OBSERVABLE_PROPERTY, concept.toString());
 	}
 	
 	public IConcept getObservable() {
 		try {
-			return get("observable") == null ?
+			return get(OBSERVABLE_PROPERTY) == null ?
 					null :
-					KnowledgeManager.get().requireConcept(get("observable").toString());
+					KnowledgeManager.get().requireConcept(get(OBSERVABLE_PROPERTY).toString());
 		} catch (ThinklabException e) {
 			throw new ThinklabRuntimeException(e);
 		}
@@ -48,10 +50,11 @@ public class ObservationAnnotation extends SemanticAnnotation {
 	public Collection<String> validateObservable() {
 		ArrayList<String> ret = new ArrayList<String>();
 
-		if (getProperty("observable") == null) {
+		if (getProperty(OBSERVABLE_PROPERTY) == null) {
 			ret.add("Observable concept is undefined");
 		} else if (getType() != null) {
 			if (getType().is(CoreScience.CLASSIFICATION)) {
+				
 				/*
 				 * TODO must be a classification storage type of some kind
 				 */

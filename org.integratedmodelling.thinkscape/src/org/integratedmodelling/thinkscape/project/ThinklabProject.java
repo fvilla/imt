@@ -179,10 +179,12 @@ public class ThinklabProject {
 				
 				if (r instanceof IFile && r.toString().endsWith(".ann")) {
 					try {
-						annotationNamespaces.add(
-								new ThinkscapeSemanticAnnotationContainer(
-										MiscUtilities.getURLBaseName(r.getLocationURI().toURL().toString()),
-										(IFile)r));
+						ThinkscapeSemanticAnnotationContainer container = 
+							new ThinkscapeSemanticAnnotationContainer(
+								MiscUtilities.getURLBaseName(r.getLocationURI().toURL().toString()),
+								(IFile)r);
+						container.initialize();
+						annotationNamespaces.add(container);
 					} catch (MalformedURLException e) {
 						throw new ThinklabValidationException(e);
 					}
@@ -234,13 +236,14 @@ public class ThinklabProject {
 	}
 
 	
-	// get the file corresponding to an annotation namespace for this project; create it
-//	// if absent.
-//	public IFile getAnnotationNamespaceFile(String src) {
-//
-//		return ret;
-//	}
-//	
+	public boolean isActive() {
+		boolean ret = false;
+		
+		if (ThinkScape.getActiveProject() != null)
+			ret = ThinkScape.getActiveProject().getName().equals(getName());
+		return ret;
+	}
+
 	public ModelNamespace getModelNamespace(String src) {
 
 		for (ModelNamespace mn : modelNamespaces) {
@@ -376,6 +379,7 @@ public class ThinklabProject {
 			} catch (Exception e) {
 				throw new ThinklabRuntimeException(e);
 			}
+			ThinkScape.getDefault().notifyPropertyChange(ThinkscapeEvent.ANNOTATION_NAMESPACE_CREATED, ret);
 		}
 		return ret;
 	}
@@ -392,9 +396,6 @@ public class ThinklabProject {
 
 						@Override
 						public void modelImported(String namespace, Model model) {
-							// TODO Auto-generated method stub
-							System.out.println("MODELLONZOLO " + namespace
-									+ ": " + model);
 							models.add(model);
 							znn.add(namespace);
 						}
@@ -440,6 +441,10 @@ public class ThinklabProject {
 	public int hashCode() {
 		// TODO Auto-generated method stub
 		return name.hashCode();
+	}
+
+	public void makeActive() {
+		ThinkScape.setActiveProject(this);
 	}
 	
 	

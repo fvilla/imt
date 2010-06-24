@@ -16,6 +16,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
+import org.integratedmodelling.corescience.annotations.ObservationAnnotation;
 import org.integratedmodelling.thinklab.annotation.SemanticAnnotation;
 import org.integratedmodelling.thinkscape.editors.SemanticAnnotationEditor;
 import org.eclipse.swt.widgets.ToolItem;
@@ -27,18 +28,21 @@ public class ConceptChooser extends Composite {
 	private Text text;
 	private SemanticAnnotationEditor editor;
 	private SemanticAnnotation annotation;
+	private SingleAnnotationEditor singleeditor;
 
 	/**
 	 * Create the composite.
 	 * @param parent
+	 * @param seditor 
 	 * @param edit
 	 */
-	public ConceptChooser(Composite parent, SemanticAnnotationEditor edit, SemanticAnnotation annot) {
+	public ConceptChooser(Composite parent, SingleAnnotationEditor seditor, SemanticAnnotationEditor edit, SemanticAnnotation annot) {
 
 		super(parent, SWT.BORDER);
 		setLayout(new GridLayout(1, false));
 		
 		this.editor = edit;
+		this.singleeditor = seditor;
 		this.annotation = annot;
 		
 		Composite composite = new Composite(this, SWT.NONE);
@@ -54,8 +58,9 @@ public class ConceptChooser extends Composite {
 		text = new Text(composite, SWT.BORDER);
 		text.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
-				annotation.setProperty(SemanticAnnotation.ID_PROPERTY, text.getText());
+				annotation.setProperty(ObservationAnnotation.OBSERVABLE_PROPERTY, text.getText());
 				editor.setDirty();
+				singleeditor.refresh();
 			}
 		});
 		text.setToolTipText("Drag a concept from the Knowledge view");
@@ -68,21 +73,16 @@ public class ConceptChooser extends Composite {
 			
 			@Override
 			public void dropAccept(DropTargetEvent arg0) {}
-			
 			@Override
 			public void drop(DropTargetEvent arg0) {
 				handleDrop((String)(arg0.data));
 			}
-			
 			@Override
 			public void dragOver(DropTargetEvent arg0) {}
-			
 			@Override
 			public void dragOperationChanged(DropTargetEvent arg0) {}
-			
 			@Override
 			public void dragLeave(DropTargetEvent arg0) {}
-			
 			@Override
 			public void dragEnter(DropTargetEvent arg0) {
 				arg0.detail = DND.DROP_COPY;

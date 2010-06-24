@@ -51,7 +51,6 @@ import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.PoolingDataSource;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.log4j.Logger;
 import org.integratedmodelling.thinklab.exception.ThinklabException;
 import org.integratedmodelling.thinklab.exception.ThinklabStorageException;
 
@@ -152,8 +151,7 @@ public abstract class SQLServer {
 	}
 
 	private DataSource dataSource = null;
-	private Logger logger = null;
-
+	
     private DataSource setupDataSource(String connectURI) throws ThinklabStorageException {
     	
     	PoolingDataSource dataSource = null;
@@ -285,9 +283,8 @@ public abstract class SQLServer {
     	if (Boolean.parseBoolean(properties.getProperty("sql.log.queries", 
     			SQLPlugin.get().getProperties().getProperty("sql.log.queries", "false")))) {
  
-    		setLogger();
-    		logger.info("sql: initializing database " + uri);
-    		logger.info("sql: " + (usePooling ? "using" : "not using") + " connection pooling");
+    		SQLPlugin.get().info("sql: initializing database " + uri);
+    		SQLPlugin.get().info("sql: " + (usePooling ? "using" : "not using") + " connection pooling");
  
     	}
     	
@@ -421,33 +418,6 @@ public abstract class SQLServer {
     
     
     public void execute(String sql) throws ThinklabStorageException {
-    	    	
-// FIXME please
-// trying to make sense of why I get "no suitable driver" when using connection
-// pooling, which shows that everything is fine, drivers are there and like the URI, but it
-// just does not work anyway when used within a thinklab plugin. Funny thing is, the same
-// code OUTSIDE of thinklab works just fine with connection pooling. No jar conflicts to
-// speak of. What to do?
-//
-//    	System.out.println("In execute()");
-//    	Enumeration<Driver> en = DriverManager.getDrivers();
-//    	
-//    	while (en.hasMoreElements()) {
-//    		Driver dd = en.nextElement();
-//    		System.out.println("got driver: " + dd);
-//        	try {
-//				System.out.println("Does the stupid driver accept my URL " + 
-//						getURI()+ 
-//						"? " + dd.acceptsURL(getURI()) );
-//			} catch (SQLException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//    	}
-
-    	if (logger != null) {
-    		logger.info(sql);
-    	}
     	
     	Connection conn = null;
     	Statement stmt  = null;
@@ -472,10 +442,6 @@ public abstract class SQLServer {
      */
     public void dumpQuery(String sql) throws ThinklabStorageException {
 
-    	if (logger != null) {
-    		logger.info(sql);
-    	}
-    	
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rset = null;
@@ -564,10 +530,6 @@ public abstract class SQLServer {
 	 * @throws ThinklabStorageException
 	 */
 	public QueryResult query(String sql) throws ThinklabStorageException {
-
-    	if (logger != null) {
-    		logger.info(sql);
-    	}
 		
 		QueryResult ret = null;
 		
@@ -612,12 +574,7 @@ public abstract class SQLServer {
 	 * @throws ThinklabStorageException 
 	 */
 	public String getResult(String sql) throws ThinklabStorageException {
-		
-    	if (logger != null) {
-    		logger.info(sql);
-    	}
 
-		
 		String ret = null;
 		
 		Connection conn = null;
@@ -666,10 +623,6 @@ public abstract class SQLServer {
 		if (r == null)
 			return def;
 		return Integer.valueOf(r);
-	}
-
-	public void setLogger() {
-		logger  = Logger.getLogger(this.getClass());
 	}
 
 	public abstract void dropDatabase() throws ThinklabStorageException;

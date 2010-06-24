@@ -89,15 +89,15 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 		@Override
 		public Image getImage(Object object, int column) {
 			String ret = null;
-			if (object instanceof SemanticAnnotationContainer && column == 1) {
+			if (object instanceof SemanticAnnotationContainer && column == 0) {
 					ret = "icons/database_edit.png";
 			} else if (object instanceof SemanticAnnotation && column == 0) {
 				if (((SemanticAnnotation)object).isValid()) {
-					ret = "icons/check.png";
+					ret = "icons/tick.png";
 				} else {
 					ret = "icons/error.png";
 				}
-			} else if (object instanceof SemanticAnnotation && column == 3) {
+			} else if (object instanceof SemanticAnnotation && column == 2) {
 				/*
 				 * TODO context image; concept images if necessary
 				 */
@@ -111,14 +111,14 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 		public String getName(Object object, int column) {
 			
 			String ret = "";
-			if (object instanceof SemanticAnnotationContainer && column == 1) {
+			if (object instanceof SemanticAnnotationContainer && column == 0) {
 				ret = ((SemanticAnnotationContainer)object).getNamespace();
 			} else if (object instanceof SemanticAnnotation) {
 				switch (column) {
 					/*
 					 * TODO add other columns
 					 */
-					case 1: ret = ((SemanticAnnotation)object).getId(); break;
+					case 0: ret = ((SemanticAnnotation)object).getName(); break;
 				}
 			}
 			return ret;
@@ -132,14 +132,7 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 			TreeObject o = (TreeObject) obj;
 			if (o.data instanceof SemanticAnnotationContainer) {
 				
-				SemanticAnnotationContainer container = (SemanticAnnotationContainer) o.data;
-				
-				/*
-				 * fire up concept annotation editor; create concept axiom file if not there
-				 */
-				ThinkscapeSemanticAnnotationContainer ann = 
-					(ThinkscapeSemanticAnnotationContainer) 
-						ThinkScape.getActiveProject().getAnnotationNamespace(container.getNamespace(), false);
+				ThinkscapeSemanticAnnotationContainer ann = (ThinkscapeSemanticAnnotationContainer) o.data;
 				
 				IEditorDescriptor desc = 
 					PlatformUI.getWorkbench().
@@ -151,6 +144,7 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 				}
 				
 			} else if (o.data instanceof SemanticAnnotation) {
+				
 				/*
 				 * TODO use marker and open specified annotation
 				 */
@@ -245,27 +239,26 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 		});
 		tree.setSortDirection(SWT.DOWN);
 		tree.setLinesVisible(true);
-		tree.setHeaderVisible(true);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tree.setBounds(0, 0, 85, 85);
 		
 		TreeViewerColumn treeViewerColumn_1 = new TreeViewerColumn(treeViewer, SWT.NONE);
 		TreeColumn trclmnObservationType = treeViewerColumn_1.getColumn();
-		trclmnObservationType.setWidth(31);
+		trclmnObservationType.setWidth(180);
 		
 		TreeViewerColumn treeViewerColumn = new TreeViewerColumn(treeViewer, SWT.NONE);
 		TreeColumn trclmnId = treeViewerColumn.getColumn();
-		trclmnId.setWidth(83);
-		trclmnId.setText("ID");
+		trclmnId.setWidth(180);
+		trclmnId.setText("Observation");
 		
 		TreeViewerColumn treeViewerColumn_2 = new TreeViewerColumn(treeViewer, SWT.NONE);
 		TreeColumn trclmnObservable = treeViewerColumn_2.getColumn();
-		trclmnObservable.setWidth(305);
+		trclmnObservable.setWidth(180);
 		trclmnObservable.setText("Observable");
 		
 		TreeViewerColumn treeViewerColumn_3 = new TreeViewerColumn(treeViewer, SWT.NONE);
 		TreeColumn trclmnExtents = treeViewerColumn_3.getColumn();
-		trclmnExtents.setWidth(100);
+		trclmnExtents.setWidth(60);
 		trclmnExtents.setText("Extents");
 		
 		text = new Text(container, SWT.BORDER);
@@ -276,6 +269,7 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 		rescan();
 		
 		treeViewer.addDropSupport(
+				
 				DND.DROP_COPY, 
 				new Transfer[] { TextTransfer.getInstance() }, 
 				new DropTargetListener() {
@@ -339,12 +333,15 @@ public class AnnotationsView extends ViewPart implements IPropertyChangeListener
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
-		if (event.getProperty().equals(ThinkscapeEvent.WORKSPACE_CHANGE)) {
-			ThinkScape.getDefault().getWorkbench().getDisplay().syncExec(new Runnable() {
-				public void run() {
-					rescan();
-				}
-			});
+		if (event.getProperty().equals(ThinkscapeEvent.WORKSPACE_CHANGE) ||
+			event.getProperty().equals(ThinkscapeEvent.ANNOTATION_CREATED) ||
+			event.getProperty().equals(ThinkscapeEvent.ANNOTATION_FILE_IMPORTED) ||
+			event.getProperty().equals(ThinkscapeEvent.ANNOTATION_NAMESPACE_CREATED)) {
+				ThinkScape.getDefault().getWorkbench().getDisplay().syncExec(new Runnable() {
+					public void run() {
+						rescan();
+					}
+				});
 	}
 	}
 

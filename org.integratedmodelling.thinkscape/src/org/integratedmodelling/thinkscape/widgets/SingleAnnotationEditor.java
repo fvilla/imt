@@ -89,6 +89,7 @@ public class SingleAnnotationEditor extends Composite {
 		toolItem.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				
 				/*
 				 * flush annotation to container
 				 */
@@ -132,12 +133,13 @@ public class SingleAnnotationEditor extends Composite {
 		text = new Text(composite, SWT.BORDER);
 		text.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
+				annotation.setName(text.getText());
 				editor.setDirty();
 				refresh();
 			}
 		});
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		text.setText(annotation.getId());
+		text.setText(annotation.getName());
 		
 		Label lblType = new Label(composite, SWT.NONE);
 		lblType.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -162,7 +164,7 @@ public class SingleAnnotationEditor extends Composite {
 		});
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		combo.setItems(obsTypes);
-		combo.select(0);
+		//combo.select(0);
 		
 		PShelf shelf = new PShelf(this, SWT.NONE);
 		shelf.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -171,7 +173,7 @@ public class SingleAnnotationEditor extends Composite {
 		shelfItem.setText("Semantics");
 		shelfItem.getBody().setLayout(new FillLayout(SWT.HORIZONTAL));
 		
-		ConceptChooser chooser = new ConceptChooser(shelfItem.getBody(), this.editor, this.annotation);
+		ConceptChooser chooser = new ConceptChooser(shelfItem.getBody(), this, this.editor, this.annotation);
 		
 		PShelfItem shelfItem_1 = new PShelfItem(shelf, SWT.NONE);
 		shelfItem_1.setText("Units and numeric range");
@@ -199,19 +201,10 @@ public class SingleAnnotationEditor extends Composite {
 		
 		statusImage.setImage(ResourceManager.getPluginImage(
 				"org.integratedmodelling.thinkscape", 
-					nProblems == 0 ? "icons/check.png" : "icons/error.png"));
+					nProblems == 0 ? "icons/tick.png" : "icons/error.png"));
 		statusImage.setToolTipText(tooltip);
 	}
 	
-	private void setDirty() {
-		/*
-		 * validate annotation and reset info
-		 */
-		
-		/*
-		 * set editor to dirty
-		 */
-	}
 
 	@Override
 	protected void checkSubclass() {

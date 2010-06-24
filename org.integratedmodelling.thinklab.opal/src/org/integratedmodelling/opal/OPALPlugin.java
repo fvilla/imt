@@ -1,22 +1,28 @@
 package org.integratedmodelling.opal;
 
+import org.integratedmodelling.thinklab.ThinklabActivator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-public class OPALPlugin implements BundleActivator {
+public class OPALPlugin extends ThinklabActivator {
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
-	public void start(BundleContext context) throws Exception {
+	public final static String PLUGIN_ID = "org.integratedmodelling.thinklab.opal";
+	
+	public static OPALPlugin get() {
+		return (OPALPlugin) getPlugin(PLUGIN_ID);
+	}
+	
+	@Override
+	protected void doStart() throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext context) throws Exception {
+	@Override
+	protected void doStop() throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
+
 
 }
