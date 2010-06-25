@@ -712,29 +712,19 @@ public class ObservationContext implements IObservationContext {
 		}
 		return ret;
 	}
-
-	/**
-	 * Used to check if the passed context can be used in place of us, directly or
-	 * through aggregation, but without any transformation. For now alignment is
-	 * a requirement for states to be used as datasources of new observations.
-	 * 
-	 * @param other
-	 * @return
-	 */
-	public static boolean isAligned(ObservationContext other) {
-		
-		// TODO
-		// check that the topologies are the same or the topologies are the
-		// collapsed peer of the other topology
-		return false;
-	}
-
+	
 	
 	/**
 	 * Called only on a fully merged context by the compiler before any code is run. It will expose
 	 * each observation to the overall context to give it a chance of adapting to it. The main use 
 	 * in thinklab so far is that of allowing extensive measurement to adjust their value according to
 	 * the extents they're computed in.
+	 * 
+	 * TODO use for training, too - validate the training strategy (one overall) and build the training
+	 * tree. Also, secondary observations (that get computed by others as an atomic operation, e.g. 
+	 * bayesian networks) should use this to know if they're secondary and communicate their states to
+	 * the one that should fill them in.
+	 * 
 	 */
 	public void validate() {
 		validateInternal(observation, this);
