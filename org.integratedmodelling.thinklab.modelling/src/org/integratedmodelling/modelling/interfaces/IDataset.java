@@ -13,6 +13,15 @@ import org.integratedmodelling.utils.image.ColorMap;
  * storage. We may also want a factory that gives us a IDataset for any kind of
  * suitable input.
  * 
+ * -------------------------------------------------------------------------------------------------------
+ * TODO should have an initialize(IObservation) and a persist/restore(URL) method. Should also compile an index
+ * (persisted) that can be queried for contexts, sizes - the ideal would be producing a IContext for the
+ * dataset.
+ * 
+ * Making plots should be handled by visualization adapters that take a dataset and a set of options for
+ * size, colormaps etc. Defaults should be handled by intelligent concept lookup.
+ * -----------------------------------------------------------------------------------------------------------
+ * 
  * @author Ferdinando Villa
  *
  */

@@ -1,6 +1,5 @@
 package org.integratedmodelling.modelling.interfaces;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.integratedmodelling.corescience.interfaces.internal.Topology;
@@ -27,6 +26,9 @@ import org.integratedmodelling.utils.Polylist;
  * model specification. See the examples/ folder in the plugin directory.
  * 
  * More docs will come or I'm not a real academic...
+ * 
+ * -- TODO -----------------------------------------------------------------
+ * all the topology list should be passed as a single IContext.
  * 
  * @author Ferdinando Villa
  * @date Jan 25th, 2008.

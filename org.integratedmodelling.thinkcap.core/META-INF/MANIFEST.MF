@@ -10,10 +10,10 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: 
  org.apache.commons.collections;bundle-version="3.2.0",
  javax.servlet;bundle-version="2.5.0",
+ org.mortbay.jetty;bundle-version="6.1.3",
+ org.mortbay.jetty.util;bundle-version="6.1.23",
  org.mvel2;bundle-version="2.0.7",
  org.zkoss.zk;bundle-version="3.2.0",
- org.mortbay.jetty;bundle-version="6.1.3",
- org.mortbay.jetty.util;bundle-version="6.1.15",
  org.integratedmodelling.thinklab.core;bundle-version="1.0.0"
 Bundle-ClassPath: .
 Export-Package: org.integratedmodelling.thinkcap,

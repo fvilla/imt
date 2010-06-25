@@ -51,7 +51,8 @@ public class ModellingPlugin extends ThinklabActivator {
 			Bundle b = event.getBundle();
 			if (!modelPluginIds.contains(b.getSymbolicName())) {
 				if (isModelPlugin(b)) {
-					loadModels(b);
+					ModellingPlugin.get().info("reading Thinklab project: " + b.getSymbolicName());
+					loadProject(b);
 					modelPluginIds.add(b.getSymbolicName());
 				}
 			}
@@ -86,9 +87,7 @@ public class ModellingPlugin extends ThinklabActivator {
 	 * load all modeling resources from a plugin that has the THINKLAB-INF extensions.
 	 * @param b
 	 */
-	private void loadModels(Bundle b) {
-		// TODO Auto-generated method stub
-		
+	private void loadProject(Bundle b) {
 	}
 
 	
