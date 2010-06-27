@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.integratedmodelling.thinkscape.ThinkScape
 Bundle-Vendor: integratedmodelling.org
 Require-Bundle: org.eclipse.core.runtime,
+ org.apache.commons.io;bundle-version="1.4.0",
  org.eclipse.core.resources;bundle-version="3.5.1",
  org.joda.time;bundle-version="1.6.0",
  org.eclipse.swt,
